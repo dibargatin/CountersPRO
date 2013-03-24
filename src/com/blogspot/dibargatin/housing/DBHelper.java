@@ -1,5 +1,7 @@
 package com.blogspot.dibargatin.housing;
 
+import java.util.Date;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -12,7 +14,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	// Constants
 	// ===========================================================
 	public static String DB_NAME = "housing_db.sqlite3";
-	public static int DB_VERSION = 2;
+	public static int DB_VERSION = 3;
 
 	// ===========================================================
 	// Fields
@@ -34,17 +36,20 @@ public class DBHelper extends SQLiteOpenHelper {
 	// ===========================================================
 	@Override
 	public void onCreate(SQLiteDatabase db) {
+		db.execSQL("PRAGMA foreign_keys = ON;");
 		db.execSQL("CREATE TABLE Counters (_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, note TEXT);");
+		db.execSQL("CREATE TABLE Entries (_id INTEGER PRIMARY KEY AUTOINCREMENT, counter_id INTEGER REFERENCES Counters(_id), entry_date DATE, value REAL);");
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		db.execSQL("DROP TABLE IF EXISTS Counters;");
+		db.execSQL("DROP TABLE IF EXISTS Entries;");
 		onCreate(db);
 	}
 
 	// ===========================================================
-	// Methods
+	// Counter Methods
 	// ===========================================================
 	public Cursor fetchAllCounters() {
 		return getReadableDatabase().rawQuery("SELECT * FROM Counters", null);
@@ -52,19 +57,19 @@ public class DBHelper extends SQLiteOpenHelper {
 
 	public long insertCounter(String name, String note) {
 		ContentValues cv = new ContentValues();
-		
+
 		cv.put("name", name);
 		cv.put("note", note);
-		
+
 		return getWritableDatabase().insert("Counters", null, cv);
 	}
 
 	public void updateCounter(long id, String name, String note) {
 		ContentValues cv = new ContentValues();
-		
+
 		cv.put("name", name);
 		cv.put("note", note);
-		
+
 		getWritableDatabase().update("Counters", cv, "_id = ?", new String[] { Long.toString(id) });
 	}
 
@@ -74,6 +79,23 @@ public class DBHelper extends SQLiteOpenHelper {
 
 	public void deleteAllCounters() {
 		getWritableDatabase().delete("Counters", null, null);
+	}
+
+	// ===========================================================
+	// Entries Methods
+	// ===========================================================
+	public Cursor fetchEntriesByCounterId(long counterId) {
+		return getReadableDatabase().rawQuery("SELECT * FROM Entries WHERE counter_id = ?", new String[] { Long.toString(counterId) });
+	}
+
+	public long insertEntry(long counterId, String entryDate, double value) {
+		ContentValues cv = new ContentValues();
+
+		cv.put("counter_id", counterId);
+		cv.put("entry_date", entryDate);
+		cv.put("value", value);
+
+		return getWritableDatabase().insert("Entries", null, cv);
 	}
 
 	// ===========================================================

@@ -1,136 +1,138 @@
 package com.blogspot.dibargatin.housing;
 
-import android.app.Activity;
-import android.database.Cursor;
+import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.TabHost;
-import android.widget.Toast;
+import android.widget.TextView;
 
-public class MainActivity extends Activity implements OnClickListener {
+public class MainActivity extends ListActivity implements OnClickListener {
 
-	final static String LOG_TAG = "Housing";
+	// ===========================================================
+	// Constants
+	// ===========================================================
+	public final static String LOG_TAG = "Housing";
+	private final static int REQUEST_ADD_COUNTER = 1;
 
+	// ===========================================================
+	// Fields
+	// ===========================================================
 	DBHelper mDbHelper;
-	SimpleCursorAdapter mCountersAdapter;
-	EditText mEtCounterName, mEtCounterNote;
-	ListView mLvCounters;
-	Long mCurrentId;
+	SimpleCursorAdapter mAdapter;
 
+	// ===========================================================
+	// Constructors
+	// ===========================================================
+
+	// ===========================================================
+	// Getter & Setter
+	// ===========================================================
+
+	// ===========================================================
+	// Methods for/from SuperClass/Interfaces
+	// ===========================================================
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
 
 		mDbHelper = new DBHelper(this);
+		// mDbHelper.insertCounter("Холодная вода", "В ванной");
+		//mDbHelper.insertEntry((long)1, "2013-03-23", 254.34);
 
-		TabHost tabHost = (TabHost) findViewById(android.R.id.tabhost);
-		tabHost.setup();
-
-		TabHost.TabSpec tabSpec;
-
-		// Счетчики
-		tabSpec = tabHost.newTabSpec("counters_tab");
-		tabSpec.setIndicator(getResources().getText(R.string.counters_tab_name));
-		tabSpec.setContent(R.id.counters_tab);
-		tabHost.addTab(tabSpec);
-
-		// Поля для ввода данных
-		mEtCounterName = (EditText) findViewById(R.id.counterName);
-		mEtCounterNote = (EditText) findViewById(R.id.counterNote);
-
-		// Находим кнопку для добавления нового счетчика
-		Button btnAdd = (Button) findViewById(R.id.btnCreateCounter);
-		btnAdd.setOnClickListener(this);
-		
-		Button btnDeleteAll = (Button) findViewById(R.id.btnDeleteAll);
-		btnDeleteAll.setOnClickListener(this);
-
-		// Выводим список
-		displayCountersList();
-
-		// Показания
-		tabSpec = tabHost.newTabSpec("statements_tab");
-		tabSpec.setIndicator(getResources().getText(R.string.journal_tab_name), getResources().getDrawable(R.drawable.tab_icon_selector));
-		tabSpec.setContent(R.id.journal_tab);
-		tabHost.addTab(tabSpec);
-
-		tabHost.setCurrentTabByTag("counters_tab");
-	}
-
-	private void displayCountersList() {
 		String[] from = new String[] { "name", "note" };
 		int[] to = new int[] { R.id.tvCounterName, R.id.tvCounterNote };
 
-		mCountersAdapter = new SimpleCursorAdapter(this, R.layout.counters_list_item, mDbHelper.fetchAllCounters(), from, to);
+		mAdapter = new SimpleCursorAdapter(this, R.layout.counters_list_item, mDbHelper.fetchAllCounters(), from, to);
+		getListView().setAdapter(mAdapter);
 
-		mLvCounters = (ListView) findViewById(R.id.countersListView);
-		mLvCounters.setAdapter(mCountersAdapter);
-		mLvCounters.requestFocus();
-
-		mLvCounters.setOnItemClickListener(new OnItemClickListener() {
+		getListView().setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
 			public void onItemClick(AdapterView<?> a, View v, int pos, long id) {
-				Cursor cursor = (Cursor) mLvCounters.getItemAtPosition(pos);
+				Intent intent = new Intent(MainActivity.this, EntryActivity.class);
+							
+				TextView name = (TextView) v.findViewById(R.id.tvCounterName);
+				TextView note = (TextView) v.findViewById(R.id.tvCounterNote);
 				
-				mEtCounterName.setText(cursor.getString(cursor.getColumnIndexOrThrow("name")));
-				mEtCounterNote.setText(cursor.getString(cursor.getColumnIndexOrThrow("note")));
-				mCurrentId = id;
-			}
+				intent.setAction(Intent.ACTION_EDIT);
+				intent.putExtra(EntryActivity.EXTRA_COUNTER_ID, id);
+				intent.putExtra(EntryActivity.EXTRA_COUNTER_NAME, name.getText().toString());
+				intent.putExtra(EntryActivity.EXTRA_COUNTER_NOTE, note.getText().toString());
 
-		});
-
-		mLvCounters.setOnItemLongClickListener(new OnItemLongClickListener() {
-
-			@Override
-			public boolean onItemLongClick(AdapterView<?> a, View v, int pos, long id) {
-				mDbHelper.deleteCounter(id);
-				mCountersAdapter.getCursor().requery();
-				return true;
+				startActivity(intent);
 			}
 		});
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
 	@Override
-	public void onClick(View v) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 
-		if (v.getId() == R.id.btnCreateCounter) {
-			String name = mEtCounterName.getText().toString();
-			String note = mEtCounterNote.getText().toString();
+		boolean result = true;
 
-			if (name.length() == 0) {
-				Toast.makeText(this, "Укажите название счетчика", Toast.LENGTH_LONG).show();
-				return;
-			}
+		switch (item.getItemId()) {
+		case R.id.action_add_counter:
+			Intent intent = new Intent(MainActivity.this, CounterActivity.class);
 
-			if (mCurrentId == null) {
-				mDbHelper.insertCounter(name, note);
+			intent.setAction(Intent.ACTION_INSERT);
+			startActivityForResult(intent, REQUEST_ADD_COUNTER);
+			break;
 
-			} else {
-				mDbHelper.updateCounter(mCurrentId, name, note);
-				mCurrentId = null;
-			}
-		} else {
-			mDbHelper.deleteAllCounters();
+		case R.id.action_del_counter:
+			// TODO Удалить
+			String[] from = new String[] { "name" };
+			int[] to = new int[] { android.R.id.text1 };
+
+			ListView list = getListView();
+			mAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_multiple_choice, mDbHelper.fetchAllCounters(), from, to);
+
+			list.setAdapter(mAdapter);
+			list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+			break;
+
+		default:
+			result = super.onOptionsItemSelected(item);
 		}
-		mCountersAdapter.getCursor().requery();
+
+		return result;
 	}
 
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+		case REQUEST_ADD_COUNTER:
+			if (resultCode == RESULT_OK) {
+				mAdapter.getCursor().requery();
+			}
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+
+	}
+
+	// ===========================================================
+	// Methods
+	// ===========================================================
+
+	// ===========================================================
+	// Inner and Anonymous Classes
+	// ===========================================================
 }

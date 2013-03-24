@@ -2,11 +2,16 @@
 <resources>
 
     <string name="app_name">Счетчики ЖКХ</string>
-    <string name="action_settings">Настройки</string>
-        
-    <string name="counters_tab_name">Счетчики</string>
-    <string name="journal_tab_name">Журнал</string>
+    <string name="entry_form_title">Показания счетчика</string>
     
-    <string name="add_counter_button_name">Сохранить</string>
-    <string name="del_counter_button_name">Удалить все</string>
+    <string name="action_add_counter">Добавить</string>
+    <string name="action_del_counter">Удалить</string>
+    <string name="action_settings">Настройки</string>
+    
+    <string name="counters_edit_form_title_add">Добавление счетчика</string>
+    <string name="counters_edit_form_title_edit">Редактирование счетчика</string>
+    <string name="counters_edit_form_cnt_name">Название</string>
+    <string name="counters_edit_form_cnt_note">Примечание</string>
+    <string name="counters_edit_form_btn_ok">Сохранить</string>
+    <string name="counters_edit_form_btn_cancel">Отменить</string>
 </resources>
