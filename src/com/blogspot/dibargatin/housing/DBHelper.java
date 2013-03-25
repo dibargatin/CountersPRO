@@ -1,7 +1,5 @@
 package com.blogspot.dibargatin.housing;
 
-import java.util.Date;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -54,6 +52,10 @@ public class DBHelper extends SQLiteOpenHelper {
 	public Cursor fetchAllCounters() {
 		return getReadableDatabase().rawQuery("SELECT * FROM Counters", null);
 	}
+	
+	public Cursor fetchCounterById(long id) {
+		return getReadableDatabase().rawQuery("SELECT * FROM Counters WHERE _id = ?", new String[]{Long.toString(id)});
+	}
 
 	public long insertCounter(String name, String note) {
 		ContentValues cv = new ContentValues();
@@ -85,7 +87,10 @@ public class DBHelper extends SQLiteOpenHelper {
 	// Entries Methods
 	// ===========================================================
 	public Cursor fetchEntriesByCounterId(long counterId) {
-		return getReadableDatabase().rawQuery("SELECT * FROM Entries WHERE counter_id = ?", new String[] { Long.toString(counterId) });
+		return getReadableDatabase().rawQuery("SELECT _id, counter_id, strftime('%d.%m.%Y', entry_date) AS entry_date, " +
+				"value FROM Entries AS en WHERE counter_id = ? ORDER BY entry_date DESC", new String[] { Long.toString(counterId) });
+		
+		//(SELECT value FROM Entries WHERE counter_id = ? AND entry_date < en.entry_date ORDER BY entry_date DESC LIMIT 1) AS value
 	}
 
 	public long insertEntry(long counterId, String entryDate, double value) {

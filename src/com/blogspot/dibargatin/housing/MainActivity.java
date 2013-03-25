@@ -11,7 +11,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
 
 public class MainActivity extends ListActivity implements OnClickListener {
 
@@ -20,6 +19,7 @@ public class MainActivity extends ListActivity implements OnClickListener {
 	// ===========================================================
 	public final static String LOG_TAG = "Housing";
 	private final static int REQUEST_ADD_COUNTER = 1;
+	private final static int REQUEST_EDIT_COUNTER = 2;
 
 	// ===========================================================
 	// Fields
@@ -43,9 +43,7 @@ public class MainActivity extends ListActivity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 
 		mDbHelper = new DBHelper(this);
-		// mDbHelper.insertCounter("Холодная вода", "В ванной");
-		//mDbHelper.insertEntry((long)1, "2013-03-23", 254.34);
-
+		
 		String[] from = new String[] { "name", "note" };
 		int[] to = new int[] { R.id.tvCounterName, R.id.tvCounterNote };
 
@@ -57,16 +55,11 @@ public class MainActivity extends ListActivity implements OnClickListener {
 			@Override
 			public void onItemClick(AdapterView<?> a, View v, int pos, long id) {
 				Intent intent = new Intent(MainActivity.this, EntryActivity.class);
-							
-				TextView name = (TextView) v.findViewById(R.id.tvCounterName);
-				TextView note = (TextView) v.findViewById(R.id.tvCounterNote);
 				
 				intent.setAction(Intent.ACTION_EDIT);
-				intent.putExtra(EntryActivity.EXTRA_COUNTER_ID, id);
-				intent.putExtra(EntryActivity.EXTRA_COUNTER_NAME, name.getText().toString());
-				intent.putExtra(EntryActivity.EXTRA_COUNTER_NOTE, note.getText().toString());
+				intent.putExtra(CounterActivity.EXTRA_COUNTER_ID, id);
 
-				startActivity(intent);
+				startActivityForResult(intent, REQUEST_EDIT_COUNTER);
 			}
 		});
 	}
@@ -117,7 +110,13 @@ public class MainActivity extends ListActivity implements OnClickListener {
 				mAdapter.getCursor().requery();
 			}
 			break;
-
+		
+		case REQUEST_EDIT_COUNTER:
+			if (resultCode == RESULT_OK) {
+				mAdapter.getCursor().requery();
+			}
+			break;
+			
 		default:
 			break;
 		}
@@ -126,6 +125,12 @@ public class MainActivity extends ListActivity implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 
+	}
+	
+	@Override
+	protected void onDestroy() {
+		mDbHelper.close();
+		super.onDestroy();
 	}
 
 	// ===========================================================

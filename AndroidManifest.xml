@@ -30,6 +30,10 @@
             android:name="com.blogspot.dibargatin.housing.EntryActivity"
             android:label="@string/entry_form_title" >
         </activity>
+        <activity
+            android:name="com.blogspot.dibargatin.housing.EntryEditActivity"
+            android:label="@string/entry_form_title" >
+        </activity>
     </application>
 
 </manifest>
