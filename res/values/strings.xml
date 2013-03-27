@@ -19,6 +19,7 @@
     
     <string name="entry_edit_form_title_add">Регистрация показаний</string>
     <string name="entry_edit_form_label_value">Значение</string>
+    <string name="entry_edit_form_label_rate">Тариф</string>
     <string name="entry_edit_form_btn_ok">Сохранить</string>
     <string name="entry_edit_form_btn_cancel">Отменить</string>
 </resources>

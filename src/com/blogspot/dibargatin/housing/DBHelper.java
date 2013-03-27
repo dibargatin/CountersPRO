@@ -12,7 +12,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	// Constants
 	// ===========================================================
 	public static String DB_NAME = "housing_db.sqlite3";
-	public static int DB_VERSION = 3;
+	public static int DB_VERSION = 4;
 
 	// ===========================================================
 	// Fields
@@ -36,7 +36,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL("PRAGMA foreign_keys = ON;");
 		db.execSQL("CREATE TABLE Counters (_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, note TEXT);");
-		db.execSQL("CREATE TABLE Entries (_id INTEGER PRIMARY KEY AUTOINCREMENT, counter_id INTEGER REFERENCES Counters(_id), entry_date DATE, value REAL);");
+		db.execSQL("CREATE TABLE Entries (_id INTEGER PRIMARY KEY AUTOINCREMENT, counter_id INTEGER REFERENCES Counters(_id), entry_date DATE, value REAL, rate REAL);");
 	}
 
 	@Override
@@ -87,18 +87,20 @@ public class DBHelper extends SQLiteOpenHelper {
 	// Entries Methods
 	// ===========================================================
 	public Cursor fetchEntriesByCounterId(long counterId) {
-		return getReadableDatabase().rawQuery("SELECT _id, counter_id, strftime('%d.%m.%Y', entry_date) AS entry_date, " +
-				"value FROM Entries AS en WHERE counter_id = ? ORDER BY entry_date DESC", new String[] { Long.toString(counterId) });
-		
-		//(SELECT value FROM Entries WHERE counter_id = ? AND entry_date < en.entry_date ORDER BY entry_date DESC LIMIT 1) AS value
+		return getReadableDatabase().rawQuery(
+				"SELECT _id, counter_id, entry_date, value," +
+				"value - ifnull((SELECT value FROM Entries WHERE counter_id = en.counter_id AND entry_date < en.entry_date ORDER BY entry_date DESC LIMIT 1), value) AS delta, " +
+				"round(rate * (value - ifnull((SELECT value FROM Entries WHERE counter_id = en.counter_id AND entry_date < en.entry_date ORDER BY entry_date DESC LIMIT 1), value)), 2) AS cost " +
+				"FROM Entries AS en WHERE counter_id = ? ORDER BY entry_date DESC", new String[] { Long.toString(counterId) });
 	}
 
-	public long insertEntry(long counterId, String entryDate, double value) {
+	public long insertEntry(long counterId, String entryDate, double value, double rate) {
 		ContentValues cv = new ContentValues();
 
 		cv.put("counter_id", counterId);
 		cv.put("entry_date", entryDate);
 		cv.put("value", value);
+		cv.put("rate", rate);
 
 		return getWritableDatabase().insert("Entries", null, cv);
 	}
