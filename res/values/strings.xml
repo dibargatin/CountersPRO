@@ -3,13 +3,11 @@
 
     <string name="app_name">Счетчики ЖКХ</string>
     <string name="entry_form_title">Показания счетчика</string>
-    <string name="action_add_counter">Добавить</string>
-    <string name="action_del_counter">Удалить</string>
+    <string name="action_add_counter">Добавить счетчик</string>
     <string name="action_settings">Настройки</string>
     
     <string name="action_add_entry">Добавить показание</string>
-    <string name="action_del_entry">Удалить счетчик</string>
-    
+        
     <string name="counters_edit_form_title_add">Добавление счетчика</string>
     <string name="counters_edit_form_title_edit">Редактирование счетчика</string>
     <string name="counters_edit_form_cnt_name">Название</string>
@@ -18,6 +16,7 @@
     <string name="counters_edit_form_btn_cancel">Отменить</string>
     
     <string name="entry_edit_form_title_add">Регистрация показаний</string>
+    <string name="entry_edit_form_title_edit">Редактирование показания</string>
     <string name="entry_edit_form_label_value">Значение</string>
     <string name="entry_edit_form_label_rate">Тариф</string>
     <string name="entry_edit_form_btn_ok">Сохранить</string>

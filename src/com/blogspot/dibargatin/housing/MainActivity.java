@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ListView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.SimpleCursorAdapter;
 
 public class MainActivity extends ListActivity implements OnClickListener {
@@ -62,6 +62,16 @@ public class MainActivity extends ListActivity implements OnClickListener {
 				startActivityForResult(intent, REQUEST_EDIT_COUNTER);
 			}
 		});
+		
+		getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> a, View v, int pos, long id) {
+				mDbHelper.deleteCounter(id);
+				mAdapter.getCursor().requery();
+				return true;
+			}
+		});
 	}
 
 	@Override
@@ -82,19 +92,7 @@ public class MainActivity extends ListActivity implements OnClickListener {
 			intent.setAction(Intent.ACTION_INSERT);
 			startActivityForResult(intent, REQUEST_ADD_COUNTER);
 			break;
-
-		case R.id.action_del_counter:
-			// TODO Удалить
-			String[] from = new String[] { "name" };
-			int[] to = new int[] { android.R.id.text1 };
-
-			ListView list = getListView();
-			mAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_multiple_choice, mDbHelper.fetchAllCounters(), from, to);
-
-			list.setAdapter(mAdapter);
-			list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-			break;
-
+			
 		default:
 			result = super.onOptionsItemSelected(item);
 		}

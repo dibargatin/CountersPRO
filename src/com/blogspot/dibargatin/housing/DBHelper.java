@@ -12,7 +12,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	// Constants
 	// ===========================================================
 	public static String DB_NAME = "housing_db.sqlite3";
-	public static int DB_VERSION = 4;
+	public static int DB_VERSION = 6;
 
 	// ===========================================================
 	// Fields
@@ -35,8 +35,8 @@ public class DBHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL("PRAGMA foreign_keys = ON;");
-		db.execSQL("CREATE TABLE Counters (_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, note TEXT);");
-		db.execSQL("CREATE TABLE Entries (_id INTEGER PRIMARY KEY AUTOINCREMENT, counter_id INTEGER REFERENCES Counters(_id), entry_date DATE, value REAL, rate REAL);");
+		db.execSQL("CREATE TABLE Counters (_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, note TEXT, measure TEXT);");
+		db.execSQL("CREATE TABLE Entries (_id INTEGER PRIMARY KEY AUTOINCREMENT, counter_id INTEGER REFERENCES Counters(_id) ON DELETE CASCADE, entry_date DATE, value REAL, rate REAL);");
 	}
 
 	@Override
@@ -52,9 +52,9 @@ public class DBHelper extends SQLiteOpenHelper {
 	public Cursor fetchAllCounters() {
 		return getReadableDatabase().rawQuery("SELECT * FROM Counters", null);
 	}
-	
+
 	public Cursor fetchCounterById(long id) {
-		return getReadableDatabase().rawQuery("SELECT * FROM Counters WHERE _id = ?", new String[]{Long.toString(id)});
+		return getReadableDatabase().rawQuery("SELECT * FROM Counters WHERE _id = ?", new String[] { Long.toString(id) });
 	}
 
 	public long insertCounter(String name, String note) {
@@ -76,22 +76,41 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 
 	public void deleteCounter(long id) {
-		getWritableDatabase().delete("Counters", "_id = ?", new String[] { Long.toString(id) });
+		SQLiteDatabase db = getWritableDatabase();
+		db.execSQL("PRAGMA foreign_keys = ON;");
+		db.delete("Counters", "_id = ?", new String[] { Long.toString(id) });
 	}
 
 	public void deleteAllCounters() {
-		getWritableDatabase().delete("Counters", null, null);
+		SQLiteDatabase db = getWritableDatabase();
+		db.execSQL("PRAGMA foreign_keys = ON;");
+		db.delete("Counters", null, null);
 	}
 
 	// ===========================================================
 	// Entries Methods
 	// ===========================================================
+	public Cursor fetchEntryById(long id) {
+		return getReadableDatabase().rawQuery("SELECT * FROM Entries WHERE _id = ?", new String[] { Long.toString(id) });
+	}
+
 	public Cursor fetchEntriesByCounterId(long counterId) {
-		return getReadableDatabase().rawQuery(
-				"SELECT _id, counter_id, entry_date, value," +
-				"value - ifnull((SELECT value FROM Entries WHERE counter_id = en.counter_id AND entry_date < en.entry_date ORDER BY entry_date DESC LIMIT 1), value) AS delta, " +
-				"round(rate * (value - ifnull((SELECT value FROM Entries WHERE counter_id = en.counter_id AND entry_date < en.entry_date ORDER BY entry_date DESC LIMIT 1), value)), 2) AS cost " +
-				"FROM Entries AS en WHERE counter_id = ? ORDER BY entry_date DESC", new String[] { Long.toString(counterId) });
+		return getReadableDatabase()
+				.rawQuery(
+						"SELECT _id, counter_id, entry_date, value,"
+								+ "value - ifnull((SELECT value FROM Entries WHERE counter_id = en.counter_id AND entry_date < en.entry_date ORDER BY entry_date DESC LIMIT 1), 0) AS delta, "
+								+ "round(rate * (value - ifnull((SELECT value FROM Entries WHERE counter_id = en.counter_id AND entry_date < en.entry_date ORDER BY entry_date DESC LIMIT 1), 0)), 2) AS cost "
+								+ "FROM Entries AS en WHERE counter_id = ? ORDER BY entry_date DESC", new String[] { Long.toString(counterId) });
+	}
+
+	public Cursor fetchLastRateByCounterId(long counterId) {
+		return getReadableDatabase().rawQuery("SELECT rate FROM Entries WHERE counter_id = ? ORDER BY entry_date DESC LIMIT 1",
+				new String[] { Long.toString(counterId) });
+	}
+
+	public Cursor fetchRateByCounterId(long counterId, String date) {
+		return getReadableDatabase().rawQuery("SELECT rate FROM Entries WHERE counter_id = ? AND entry_date < ? ORDER BY entry_date DESC LIMIT 1",
+				new String[] { Long.toString(counterId), date });
 	}
 
 	public long insertEntry(long counterId, String entryDate, double value, double rate) {
@@ -103,6 +122,20 @@ public class DBHelper extends SQLiteOpenHelper {
 		cv.put("rate", rate);
 
 		return getWritableDatabase().insert("Entries", null, cv);
+	}
+	
+	public void updateEntry(long id, String entryDate, double value, double rate) {
+		ContentValues cv = new ContentValues();
+		
+		cv.put("entry_date", entryDate);
+		cv.put("value", value);
+		cv.put("rate", rate);
+
+		getWritableDatabase().update("Entries", cv, "_id = ?", new String[] { Long.toString(id) });
+	}
+	
+	public void deleteEntry(long id) {
+		getWritableDatabase().delete("Entries", "_id = ?", new String[] { Long.toString(id) });
 	}
 
 	// ===========================================================
