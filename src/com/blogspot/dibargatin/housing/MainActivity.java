@@ -1,3 +1,4 @@
+
 package com.blogspot.dibargatin.housing;
 
 import android.app.ListActivity;
@@ -14,128 +15,136 @@ import android.widget.SimpleCursorAdapter;
 
 public class MainActivity extends ListActivity implements OnClickListener {
 
-	// ===========================================================
-	// Constants
-	// ===========================================================
-	public final static String LOG_TAG = "Housing";
-	private final static int REQUEST_ADD_COUNTER = 1;
-	private final static int REQUEST_EDIT_COUNTER = 2;
+    // ===========================================================
+    // Constants
+    // ===========================================================
+    public final static String LOG_TAG = "Housing";
 
-	// ===========================================================
-	// Fields
-	// ===========================================================
-	DBHelper mDbHelper;
-	SimpleCursorAdapter mAdapter;
+    private final static int REQUEST_ADD_COUNTER = 1;
 
-	// ===========================================================
-	// Constructors
-	// ===========================================================
+    private final static int REQUEST_EDIT_COUNTER = 2;
 
-	// ===========================================================
-	// Getter & Setter
-	// ===========================================================
+    // ===========================================================
+    // Fields
+    // ===========================================================
+    DBHelper mDbHelper;
 
-	// ===========================================================
-	// Methods for/from SuperClass/Interfaces
-	// ===========================================================
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    SimpleCursorAdapter mAdapter;
 
-		mDbHelper = new DBHelper(this);
-		
-		String[] from = new String[] { "name", "note" };
-		int[] to = new int[] { R.id.tvCounterName, R.id.tvCounterNote };
+    // ===========================================================
+    // Constructors
+    // ===========================================================
 
-		mAdapter = new SimpleCursorAdapter(this, R.layout.counters_list_item, mDbHelper.fetchAllCounters(), from, to);
-		getListView().setAdapter(mAdapter);
+    // ===========================================================
+    // Getter & Setter
+    // ===========================================================
 
-		getListView().setOnItemClickListener(new OnItemClickListener() {
+    // ===========================================================
+    // Methods for/from SuperClass/Interfaces
+    // ===========================================================
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-			@Override
-			public void onItemClick(AdapterView<?> a, View v, int pos, long id) {
-				Intent intent = new Intent(MainActivity.this, EntryActivity.class);
-				
-				intent.setAction(Intent.ACTION_EDIT);
-				intent.putExtra(CounterActivity.EXTRA_COUNTER_ID, id);
+        mDbHelper = new DBHelper(this);
 
-				startActivityForResult(intent, REQUEST_EDIT_COUNTER);
-			}
-		});
-		
-		getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
+        String[] from = new String[] {
+                "name", "note"
+        };
+        int[] to = new int[] {
+                R.id.tvCounterName, R.id.tvCounterNote
+        };
 
-			@Override
-			public boolean onItemLongClick(AdapterView<?> a, View v, int pos, long id) {
-				mDbHelper.deleteCounter(id);
-				mAdapter.getCursor().requery();
-				return true;
-			}
-		});
-	}
+        mAdapter = new SimpleCursorAdapter(this, R.layout.counters_list_item,
+                mDbHelper.fetchAllCounters(), from, to);
+        getListView().setAdapter(mAdapter);
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
+        getListView().setOnItemClickListener(new OnItemClickListener() {
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+            @Override
+            public void onItemClick(AdapterView<?> a, View v, int pos, long id) {
+                Intent intent = new Intent(MainActivity.this, EntryActivity.class);
 
-		boolean result = true;
+                intent.setAction(Intent.ACTION_EDIT);
+                intent.putExtra(CounterActivity.EXTRA_COUNTER_ID, id);
 
-		switch (item.getItemId()) {
-		case R.id.action_add_counter:
-			Intent intent = new Intent(MainActivity.this, CounterActivity.class);
+                startActivityForResult(intent, REQUEST_EDIT_COUNTER);
+            }
+        });
 
-			intent.setAction(Intent.ACTION_INSERT);
-			startActivityForResult(intent, REQUEST_ADD_COUNTER);
-			break;
-			
-		default:
-			result = super.onOptionsItemSelected(item);
-		}
+        getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
 
-		return result;
-	}
+            @Override
+            public boolean onItemLongClick(AdapterView<?> a, View v, int pos, long id) {
+                mDbHelper.deleteCounter(id);
+                mAdapter.getCursor().requery();
+                return true;
+            }
+        });
+    }
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		switch (requestCode) {
-		case REQUEST_ADD_COUNTER:
-			if (resultCode == RESULT_OK) {
-				mAdapter.getCursor().requery();
-			}
-			break;
-		
-		case REQUEST_EDIT_COUNTER:
-			if (resultCode == RESULT_OK) {
-				mAdapter.getCursor().requery();
-			}
-			break;
-			
-		default:
-			break;
-		}
-	}
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
 
-	@Override
-	public void onClick(View v) {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
 
-	}
-	
-	@Override
-	protected void onDestroy() {
-		mDbHelper.close();
-		super.onDestroy();
-	}
+        boolean result = true;
 
-	// ===========================================================
-	// Methods
-	// ===========================================================
+        switch (item.getItemId()) {
+            case R.id.action_add_counter:
+                Intent intent = new Intent(MainActivity.this, CounterActivity.class);
 
-	// ===========================================================
-	// Inner and Anonymous Classes
-	// ===========================================================
+                intent.setAction(Intent.ACTION_INSERT);
+                startActivityForResult(intent, REQUEST_ADD_COUNTER);
+                break;
+
+            default:
+                result = super.onOptionsItemSelected(item);
+        }
+
+        return result;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_ADD_COUNTER:
+                if (resultCode == RESULT_OK) {
+                    mAdapter.getCursor().requery();
+                }
+                break;
+
+            case REQUEST_EDIT_COUNTER:
+                if (resultCode == RESULT_OK) {
+                    mAdapter.getCursor().requery();
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        mDbHelper.close();
+        super.onDestroy();
+    }
+
+    // ===========================================================
+    // Methods
+    // ===========================================================
+
+    // ===========================================================
+    // Inner and Anonymous Classes
+    // ===========================================================
 }
