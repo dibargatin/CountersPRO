@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    
+    <string name="color">Цвет</string>
+    <string name="choise">Выбор</string>
+    
     <string name="app_name">Счетчики ЖКХ</string>
     <string name="entry_form_title">Показания счетчика</string>
     <string name="action_add_counter">Добавить счетчик</string>
@@ -25,4 +31,20 @@
     <string name="test2">201,124</string>
     <string name="test3"><small>было</small> 201,124</string>
     <string name="test4"><small>+</small> 101,103 м<small><sup>3</sup></small></string>
+    
+    <string name="action">Действия</string>
+    <string name="action_counter_del_confirm">Удалить счетчик?</string>    
+    
+    <string-array name="counter_actions">
+        <item>Добавить показание</item>
+        <item>Изменить</item>
+        <item>Удалить</item>
+    </string-array>
+    
+    <string-array name="colors">
+        <item>#6DAAE9</item>
+        <item>#6DAA00</item>
+        <item>#F10000</item>
+    </string-array>
+    
 </resources>

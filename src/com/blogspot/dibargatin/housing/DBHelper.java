@@ -14,7 +14,7 @@ public class DBHelper extends SQLiteOpenHelper {
     // ===========================================================
     public static String DB_NAME = "housing_db.sqlite3";
 
-    public static int DB_VERSION = 6;
+    public static int DB_VERSION = 7;
 
     // ===========================================================
     // Fields
@@ -37,8 +37,26 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("PRAGMA foreign_keys = ON;");
-        db.execSQL("CREATE TABLE Counters (_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, note TEXT, measure TEXT);");
-        db.execSQL("CREATE TABLE Entries (_id INTEGER PRIMARY KEY AUTOINCREMENT, counter_id INTEGER REFERENCES Counters(_id) ON DELETE CASCADE, entry_date DATE, value REAL, rate REAL);");
+        
+        final String queryCounters = ""
+                + "CREATE TABLE Counters (" 
+                + " _id INTEGER PRIMARY KEY AUTOINCREMENT" 
+                + ",name TEXT" 
+                + ",note TEXT" 
+                + ",measure TEXT" 
+                + ",color TEXT);";
+        
+        db.execSQL(queryCounters);
+        
+        final String queryEntries = ""
+                + "CREATE TABLE Entries (" 
+                + " _id INTEGER PRIMARY KEY AUTOINCREMENT" 
+                + ",counter_id INTEGER REFERENCES Counters(_id) ON DELETE CASCADE" 
+                + ",entry_date DATE" 
+                + ",value REAL" 
+                + ",rate REAL);";
+        
+        db.execSQL(queryEntries);
     }
 
     @Override
@@ -52,7 +70,24 @@ public class DBHelper extends SQLiteOpenHelper {
     // Counter Methods
     // ===========================================================
     public Cursor fetchAllCounters() {
-        return getReadableDatabase().rawQuery("SELECT * FROM Counters", null);
+        final String query = ""
+                + "SELECT *"
+                + "      ,IFNULL(e.value, 0) AS value"
+                + "      ,entry_date"
+                + "  FROM Counters AS c" 
+                + "  LEFT JOIN (SELECT counter_id"
+                + "                   ,value"
+                + "                   ,entry_date"
+                + "               FROM Entries AS e"
+                + "              WHERE _id = (SELECT _id"
+                + "                             FROM Entries"
+                + "                            WHERE counter_id = e.counter_id"
+                + "                            ORDER BY entry_date DESC"
+                + "                            LIMIT 1)"
+                + "            ) AS e"
+                + "         ON e.counter_id = c._id";
+        
+        return getReadableDatabase().rawQuery(query, null);
     }
 
     public Cursor fetchCounterById(long id) {

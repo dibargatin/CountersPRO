@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <TextView
+        android:id="@+id/tvRelative"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/tvCost"
+        android:layout_below="@+id/tvCost"
+        android:text="+ 50 м3"
+        android:textColor="#00a000" />
+
+    <TextView
+        android:id="@+id/tvCost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/tvAbsolute"
+        android:layout_alignBottom="@+id/tvAbsolute"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="16dp"
+        android:text="- 250 р."
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#c00000" />
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="4dp"
+        android:layout_marginTop="4dp"
+        android:src="@android:drawable/ic_menu_agenda" />
+
+    <TextView
+        android:id="@+id/tvAbsolute"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/imageView1"
+        android:layout_toRightOf="@+id/imageView1"
+        android:text="235.234 м3"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvPeriod"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/tvRelative"
+        android:layout_alignBottom="@+id/tvRelative"
+        android:layout_alignLeft="@+id/tvAbsolute"
+        android:text="март 2013" />
+
+</RelativeLayout>
