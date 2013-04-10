@@ -6,13 +6,16 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.larswerkman.colorpicker.ColorPicker;
+import com.larswerkman.colorpicker.SaturationBar;
 
 public class CounterActivity extends Activity implements OnClickListener {
     // ===========================================================
@@ -26,6 +29,10 @@ public class CounterActivity extends Activity implements OnClickListener {
     DBHelper mDbHelper;
 
     long mCounterId;
+
+    View mColor;
+
+    int mPickedColor = -20480;
 
     // ===========================================================
     // Constructors
@@ -46,6 +53,16 @@ public class CounterActivity extends Activity implements OnClickListener {
         mDbHelper = new DBHelper(this);
 
         TextView title = (TextView)findViewById(R.id.counters_edit_form_title);
+
+        mColor = (View)findViewById(R.id.view1);
+        mColor.setOnClickListener(this);
+
+        Button ok = (Button)findViewById(R.id.counters_edit_form_btn_ok);
+        ok.setOnClickListener(this);
+
+        Button cancel = (Button)findViewById(R.id.counters_edit_form_btn_cancel);
+        cancel.setOnClickListener(this);
+
         Intent intent = getIntent();
 
         if (intent.getAction().equals(Intent.ACTION_INSERT)) {
@@ -60,19 +77,15 @@ public class CounterActivity extends Activity implements OnClickListener {
 
                 Cursor c = mDbHelper.fetchCounterById(mCounterId);
                 c.moveToFirst();
+
                 name.setText(c.getString(c.getColumnIndex("name")));
                 note.setText(c.getString(c.getColumnIndex("note")));
+
+                mPickedColor = c.getInt(c.getColumnIndex("color"));
             }
         }
-
-        View color = (View)findViewById(R.id.vColor1);
-        color.setOnClickListener(this);
-
-        Button ok = (Button)findViewById(R.id.counters_edit_form_btn_ok);
-        ok.setOnClickListener(this);
-
-        Button cancel = (Button)findViewById(R.id.counters_edit_form_btn_cancel);
-        cancel.setOnClickListener(this);
+        
+        mColor.setBackgroundColor(mPickedColor);
     }
 
     @Override
@@ -83,10 +96,11 @@ public class CounterActivity extends Activity implements OnClickListener {
                 EditText note = (EditText)findViewById(R.id.counters_edit_form_et_note);
 
                 if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
-                    mDbHelper.insertCounter(name.getText().toString(), note.getText().toString());
+                    mDbHelper.insertCounter(name.getText().toString(), note.getText().toString(),
+                            mPickedColor);
                 } else {
                     mDbHelper.updateCounter(mCounterId, name.getText().toString(), note.getText()
-                            .toString());
+                            .toString(), mPickedColor);
                 }
 
                 setResult(RESULT_OK);
@@ -97,19 +111,42 @@ public class CounterActivity extends Activity implements OnClickListener {
                 finish();
                 break;
 
-            case R.id.vColor1:
+            case R.id.view1:
+                AlertDialog.Builder alert = new AlertDialog.Builder(CounterActivity.this);
+                alert.setTitle(getResources().getString(R.string.pick_the_color));
+                
+                final LinearLayout layout = new LinearLayout(CounterActivity.this);
+                final SaturationBar sb = new SaturationBar(CounterActivity.this);
+                final ColorPicker cp = new ColorPicker(CounterActivity.this);
+                
+                cp.setColor(mPickedColor);
+                cp.setOldCenterColor(mPickedColor);
+                cp.setNewCenterColor(mPickedColor);
+                cp.addSaturationBar(sb);
+                
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.addView(sb);
+                layout.addView(cp);
+                
+                alert.setView(layout);
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(CounterActivity.this);
-                builder.setTitle(R.string.choise);
-                builder.setItems(R.array.colors, new DialogInterface.OnClickListener() {
+                alert.setPositiveButton(getResources().getString(R.string.ok),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                mPickedColor = cp.getColor();
+                                mColor.setBackgroundColor(mPickedColor);
+                            }
+                        });
 
-                    public void onClick(DialogInterface dialog, int which) {
-                        String[] colors = getResources().getStringArray(R.array.colors);
-                        View c = (View)CounterActivity.this.findViewById(R.id.vColor1);
-                        c.setBackgroundColor(Color.parseColor(colors[which]));
-                    }
-                });
-                builder.create().show();
+                alert.setNegativeButton(getResources().getString(R.string.cancel),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                // На нет и суда нет
+                            }
+                        });
+
+                alert.show();
+
                 break;
 
             default:

@@ -4,8 +4,12 @@
     <string name="yes">Да</string>
     <string name="no">Нет</string>
     
+    <string name="ok">OK</string>
+    <string name="cancel">Отмена</string>
+        
     <string name="color">Цвет</string>
     <string name="choise">Выбор</string>
+    <string name="pick_the_color">Выберите цвет</string>
     
     <string name="app_name">Счетчики ЖКХ</string>
     <string name="entry_form_title">Показания счетчика</string>

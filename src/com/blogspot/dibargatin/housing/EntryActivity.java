@@ -54,8 +54,9 @@ public class EntryActivity extends Activity implements OnClickListener {
 
         mDbHelper = new DBHelper(this);
 
-        TextView name = (TextView)findViewById(R.id.tv_entry_form_counter_name);
-        TextView note = (TextView)findViewById(R.id.tv_entry_form_counter_note);
+        TextView name = (TextView)findViewById(R.id.tvCounterName);
+        TextView note = (TextView)findViewById(R.id.tvCounterNote);
+        View color = (View)findViewById(R.id.vColor);
 
         ImageView ivEdit = (ImageView)findViewById(R.id.ivEdit);
         ivEdit.setOnClickListener(this);
@@ -67,6 +68,7 @@ public class EntryActivity extends Activity implements OnClickListener {
         c.moveToFirst();
         name.setText(c.getString(c.getColumnIndex("name")));
         note.setText(c.getString(c.getColumnIndex("note")));
+        color.setBackgroundColor(c.getInt(c.getColumnIndex("color")));
 
         String[] from = new String[] {
                 "value", "entry_date", "delta", "cost"
@@ -108,11 +110,10 @@ public class EntryActivity extends Activity implements OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ivEdit:
-                Intent intent = new Intent(EntryActivity.this, CounterActivity.class);
-
-                intent.setAction(Intent.ACTION_EDIT);
+                Intent intent = new Intent(EntryActivity.this, EntryEditActivity.class);
+                intent.setAction(Intent.ACTION_INSERT);
                 intent.putExtra(CounterActivity.EXTRA_COUNTER_ID, mCounterId);
-                startActivityForResult(intent, REQUEST_EDIT_COUNTER);
+                startActivityForResult(intent, REQUEST_ADD_ENTRY);
                 break;
         }
     }
@@ -154,8 +155,8 @@ public class EntryActivity extends Activity implements OnClickListener {
 
             case REQUEST_EDIT_COUNTER:
                 if (resultCode == RESULT_OK) {
-                    TextView name = (TextView)findViewById(R.id.tv_entry_form_counter_name);
-                    TextView note = (TextView)findViewById(R.id.tv_entry_form_counter_note);
+                    TextView name = (TextView)findViewById(R.id.tvCounterName);
+                    TextView note = (TextView)findViewById(R.id.tvCounterNote);
 
                     Cursor c = mDbHelper.fetchCounterById(mCounterId);
                     c.moveToFirst();

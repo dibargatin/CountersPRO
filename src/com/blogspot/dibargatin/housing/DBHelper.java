@@ -14,7 +14,7 @@ public class DBHelper extends SQLiteOpenHelper {
     // ===========================================================
     public static String DB_NAME = "housing_db.sqlite3";
 
-    public static int DB_VERSION = 7;
+    public static int DB_VERSION = 8;
 
     // ===========================================================
     // Fields
@@ -44,7 +44,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 + ",name TEXT" 
                 + ",note TEXT" 
                 + ",measure TEXT" 
-                + ",color TEXT);";
+                + ",color INTEGER"
+                + ");";
         
         db.execSQL(queryCounters);
         
@@ -54,7 +55,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 + ",counter_id INTEGER REFERENCES Counters(_id) ON DELETE CASCADE" 
                 + ",entry_date DATE" 
                 + ",value REAL" 
-                + ",rate REAL);";
+                + ",rate REAL"
+                + ");";
         
         db.execSQL(queryEntries);
     }
@@ -64,6 +66,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS Counters;");
         db.execSQL("DROP TABLE IF EXISTS Entries;");
         onCreate(db);
+        db.execSQL("INSERT INTO Counters (name, note, measure, color) VALUES ('Холодная вода', 'Дом', 'м3', -20480)");
     }
 
     // ===========================================================
@@ -96,20 +99,22 @@ public class DBHelper extends SQLiteOpenHelper {
         });
     }
 
-    public long insertCounter(String name, String note) {
+    public long insertCounter(String name, String note, int color) {
         ContentValues cv = new ContentValues();
 
         cv.put("name", name);
         cv.put("note", note);
+        cv.put("color", color);
 
         return getWritableDatabase().insert("Counters", null, cv);
     }
 
-    public void updateCounter(long id, String name, String note) {
+    public void updateCounter(long id, String name, String note, int color) {
         ContentValues cv = new ContentValues();
 
         cv.put("name", name);
         cv.put("note", note);
+        cv.put("color", color);
 
         getWritableDatabase().update("Counters", cv, "_id = ?", new String[] {
             Long.toString(id)
@@ -140,12 +145,32 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchEntriesByCounterId(long counterId) {
-        return getReadableDatabase()
-                .rawQuery(
-                        "SELECT _id, counter_id, entry_date, value,"
-                                + "value - ifnull((SELECT value FROM Entries WHERE counter_id = en.counter_id AND entry_date < en.entry_date ORDER BY entry_date DESC LIMIT 1), 0) AS delta, "
-                                + "round(rate * (value - ifnull((SELECT value FROM Entries WHERE counter_id = en.counter_id AND entry_date < en.entry_date ORDER BY entry_date DESC LIMIT 1), 0)), 2) AS cost "
-                                + "FROM Entries AS en WHERE counter_id = ? ORDER BY entry_date DESC",
+        final String query = ""
+                + "SELECT _id" 
+                + "      ,counter_id"
+                + "      ,entry_date" 
+                + "      ,value"
+                + "      ,value - ifnull((SELECT value"
+                + "                         FROM Entries " 
+                + "                        WHERE counter_id = en.counter_id " 
+                + "                          AND entry_date < en.entry_date "
+                + "                        ORDER BY entry_date DESC "
+                + "                        LIMIT 1), 0)"
+                + "       AS delta"
+                + "      ,round(rate * (value "
+                + "                     - ifnull((SELECT value "
+                + "                                 FROM Entries " 
+                + "                                WHERE counter_id = en.counter_id "
+                + "                                  AND entry_date < en.entry_date "
+                + "                                ORDER BY entry_date DESC "
+                + "                                LIMIT 1), 0)), 2) "
+                + "       AS cost "
+                + "  FROM Entries AS en "
+                + " WHERE counter_id = ? "
+                + " ORDER BY entry_date DESC";
+        
+        return getReadableDatabase().rawQuery(
+                        query, 
                         new String[] {
                             Long.toString(counterId)
                         });

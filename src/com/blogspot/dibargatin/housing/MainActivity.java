@@ -7,7 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,6 +53,9 @@ public class MainActivity extends ListActivity {
         super.onCreate(savedInstanceState);
 
         mDbHelper = new DBHelper(this);
+        
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        db.close();
 
         String[] from = new String[] {
                 "name", "note", "value", "entry_date"
@@ -220,9 +223,8 @@ public class MainActivity extends ListActivity {
             super.bindView(view, context, cursor);
 
             try {
-                String color = cursor.getString(cursor.getColumnIndex("color"));
-                int c = Color.parseColor(color);
-                view.findViewById(R.id.vColor).setBackgroundColor(c);
+                int color = cursor.getInt(cursor.getColumnIndex("color"));
+                view.findViewById(R.id.vColor).setBackgroundColor(color);
             } catch (Exception e) {
                 // Нет цвета
             }
