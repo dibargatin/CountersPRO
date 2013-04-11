@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Счетчики PRO</string>
     
     <string name="yes">Да</string>
     <string name="no">Нет</string>
@@ -8,20 +9,30 @@
     <string name="cancel">Отмена</string>
         
     <string name="color">Цвет</string>
-    <string name="choise">Выбор</string>
     <string name="pick_the_color">Выберите цвет</string>
     
-    <string name="app_name">Счетчики ЖКХ</string>
+    <string name="action">Действия</string>
+    <string name="action_counter_del_confirm">Удалить счетчик?</string>    
+    <string-array name="counter_actions">
+        <item>Добавить показание</item>
+        <item>Изменить</item>
+        <item>Удалить</item>
+    </string-array>
+    
     <string name="entry_form_title">Показания счетчика</string>
     <string name="action_add_counter">Добавить счетчик</string>
     <string name="action_settings">Настройки</string>
     <string name="action_add_entry">Добавить показание</string>
+    
     <string name="counters_edit_form_title_add">Добавление счетчика</string>
     <string name="counters_edit_form_title_edit">Редактирование счетчика</string>
     <string name="counters_edit_form_cnt_name">Название</string>
     <string name="counters_edit_form_cnt_note">Примечание</string>
     <string name="counters_edit_form_btn_ok">Сохранить</string>
     <string name="counters_edit_form_btn_cancel">Отменить</string>
+    
+    <string name="measure">Единица измерения</string>
+        
     <string name="entry_edit_form_title_add">Регистрация показаний</string>
     <string name="entry_edit_form_title_edit">Редактирование показания</string>
     <string name="entry_edit_form_label_value">Значение</string>
@@ -35,20 +46,4 @@
     <string name="test2">201,124</string>
     <string name="test3"><small>было</small> 201,124</string>
     <string name="test4"><small>+</small> 101,103 м<small><sup>3</sup></small></string>
-    
-    <string name="action">Действия</string>
-    <string name="action_counter_del_confirm">Удалить счетчик?</string>    
-    
-    <string-array name="counter_actions">
-        <item>Добавить показание</item>
-        <item>Изменить</item>
-        <item>Удалить</item>
-    </string-array>
-    
-    <string-array name="colors">
-        <item>#6DAAE9</item>
-        <item>#6DAA00</item>
-        <item>#F10000</item>
-    </string-array>
-    
 </resources>

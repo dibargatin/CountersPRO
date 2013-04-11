@@ -6,8 +6,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#ccccfc" >
+        android:layout_height="wrap_content" >
 
         <ImageView
             android:id="@+id/ivEdit"
@@ -27,22 +26,15 @@
             android:layout_toLeftOf="@id/ivEdit"
             android:src="@android:drawable/ic_menu_camera"
             android:visibility="invisible" />
-
-        <View
-            android:id="@+id/vColor"
-            android:layout_width="20.0dip"
-            android:layout_height="82dp"
-            android:background="#6DAAE9" />
-
+        
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="false"
             android:layout_centerVertical="true"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="25dp"
             android:layout_marginLeft="8dp"
-            android:layout_marginTop="20dp"
-            android:layout_toRightOf="@id/vColor"
+            android:layout_marginTop="25dp"
             android:orientation="vertical" >
 
             <TextView
@@ -59,7 +51,15 @@
                 android:text="Small Text"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
         </LinearLayout>
+
+
     </RelativeLayout>
+
+    <View
+        android:id="@+id/vColor"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:background="#6DAAE9" />
 
     <ListView
         android:id="@+id/listView1"

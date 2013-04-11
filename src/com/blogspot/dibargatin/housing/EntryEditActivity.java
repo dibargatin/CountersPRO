@@ -57,8 +57,8 @@ public class EntryEditActivity extends Activity implements OnClickListener {
         Button cancel = (Button)findViewById(R.id.btn_entry_edit_form_btn_cancel);
         cancel.setOnClickListener(this);
 
-        TextView title = (TextView)findViewById(R.id.tv_entry_form_title);
-        EditText rate = (EditText)findViewById(R.id.et_entry_form_rate);
+        TextView title = (TextView)findViewById(R.id.tvEntryEditTitle);
+        EditText rate = (EditText)findViewById(R.id.etRate);
 
         if (intent.getAction().equals(Intent.ACTION_INSERT)) {
             title.setText(getResources().getString(R.string.entry_edit_form_title_add));
@@ -76,11 +76,11 @@ public class EntryEditActivity extends Activity implements OnClickListener {
             if (cur.getCount() > 0) {
                 cur.moveToFirst();
 
-                DatePicker date = (DatePicker)findViewById(R.id.dp_entry_form_period);
+                DatePicker date = (DatePicker)findViewById(R.id.dpPeriod);
                 Date d = Date.valueOf(cur.getString(cur.getColumnIndex("entry_date")));
                 date.updateDate(d.getYear() + 1900, d.getMonth(), d.getDay());
 
-                EditText value = (EditText)findViewById(R.id.et_entry_form_value);
+                EditText value = (EditText)findViewById(R.id.etValue);
                 value.setText(cur.getString(cur.getColumnIndex("value")));
 
                 rate.setText(cur.getString(cur.getColumnIndex("rate")));
@@ -92,13 +92,13 @@ public class EntryEditActivity extends Activity implements OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_entry_edit_form_btn_ok:
-                DatePicker date = (DatePicker)findViewById(R.id.dp_entry_form_period);
+                DatePicker date = (DatePicker)findViewById(R.id.dpPeriod);
                 Date d = new Date(date.getYear() - 1900, date.getMonth(), date.getDayOfMonth());
 
-                EditText value = (EditText)findViewById(R.id.et_entry_form_value);
+                EditText value = (EditText)findViewById(R.id.etValue);
                 double va = Double.parseDouble(value.getText().toString());
 
-                EditText rate = (EditText)findViewById(R.id.et_entry_form_rate);
+                EditText rate = (EditText)findViewById(R.id.etRate);
                 double r = Double.parseDouble(rate.getText().toString());
 
                 if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {

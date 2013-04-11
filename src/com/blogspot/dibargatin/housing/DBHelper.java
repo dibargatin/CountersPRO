@@ -75,7 +75,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public Cursor fetchAllCounters() {
         final String query = ""
                 + "SELECT *"
-                + "      ,IFNULL(e.value, 0) AS value"
+                + "      ,CAST(IFNULL(e.value, 0) AS TEXT) AS value"
                 + "      ,entry_date"
                 + "  FROM Counters AS c" 
                 + "  LEFT JOIN (SELECT counter_id"
@@ -99,22 +99,24 @@ public class DBHelper extends SQLiteOpenHelper {
         });
     }
 
-    public long insertCounter(String name, String note, int color) {
+    public long insertCounter(String name, String note, int color, String measure) {
         ContentValues cv = new ContentValues();
 
         cv.put("name", name);
         cv.put("note", note);
         cv.put("color", color);
+        cv.put("measure", measure);
 
         return getWritableDatabase().insert("Counters", null, cv);
     }
 
-    public void updateCounter(long id, String name, String note, int color) {
+    public void updateCounter(long id, String name, String note, int color, String measure) {
         ContentValues cv = new ContentValues();
 
         cv.put("name", name);
         cv.put("note", note);
         cv.put("color", color);
+        cv.put("measure", measure);
 
         getWritableDatabase().update("Counters", cv, "_id = ?", new String[] {
             Long.toString(id)

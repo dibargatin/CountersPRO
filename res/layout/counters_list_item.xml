@@ -42,13 +42,27 @@
         android:layout_marginTop="16dp"
         android:orientation="vertical" >
 
-        <TextView
-            android:id="@+id/tvValue"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:text="@string/test6"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:gravity="right" >
+
+            <TextView
+                android:id="@+id/tvValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/test6"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <TextView
+                android:id="@+id/tvMeasure"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:text="куб.м"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tvPeriod"

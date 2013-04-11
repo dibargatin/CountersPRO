@@ -1,6 +1,8 @@
 
 package com.blogspot.dibargatin.housing;
 
+import java.util.Date;
+
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
@@ -9,6 +11,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 public class MainActivity extends ListActivity {
 
@@ -53,22 +58,23 @@ public class MainActivity extends ListActivity {
         super.onCreate(savedInstanceState);
 
         mDbHelper = new DBHelper(this);
-        
+
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         db.close();
 
         String[] from = new String[] {
-                "name", "note", "value", "entry_date"
+                "name", "note", "value", "measure", "entry_date"
         };
 
         int[] to = new int[] {
-                R.id.tvCounterName, R.id.tvCounterNote, R.id.tvValue, R.id.tvPeriod
+                R.id.tvCounterName, R.id.tvCounterNote, R.id.tvValue, R.id.tvMeasure, R.id.tvPeriod
         };
 
         mAdapter = new CountersCursorAdapter(this, R.layout.counters_list_item,
                 mDbHelper.fetchAllCounters(), from, to);
         getListView().setAdapter(mAdapter);
 
+        // При нажатии на счетчик, перейдем к списку показаний
         getListView().setOnItemClickListener(new OnItemClickListener() {
 
             @Override
@@ -82,6 +88,7 @@ public class MainActivity extends ListActivity {
             }
         });
 
+        // При долгом нажатии на счетчик отобразим диалог выбора
         getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
 
             @Override
@@ -131,7 +138,6 @@ public class MainActivity extends ListActivity {
 
                                                 mDbHelper.deleteCounter(itemId);
                                                 mAdapter.getCursor().requery();
-
                                             }
 
                                         });
@@ -187,11 +193,14 @@ public class MainActivity extends ListActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_ADD_COUNTER:
-            case REQUEST_EDIT_COUNTER:
             case REQUEST_ADD_ENTRY:
                 if (resultCode == RESULT_OK) {
                     mAdapter.getCursor().requery();
                 }
+                break;
+
+            case REQUEST_EDIT_COUNTER:
+                mAdapter.getCursor().requery();
                 break;
 
             default:
@@ -227,6 +236,23 @@ public class MainActivity extends ListActivity {
                 view.findViewById(R.id.vColor).setBackgroundColor(color);
             } catch (Exception e) {
                 // Нет цвета
+            }
+            
+            try {
+                TextView measure = (TextView)view.findViewById(R.id.tvMeasure);
+                String m = cursor.getString(cursor.getColumnIndex("measure"));
+                measure.setText(Html.fromHtml(m));
+            } catch (Exception e) {
+                // Нет единицы измерения
+            }
+
+            try {
+                TextView period = (TextView)view.findViewById(R.id.tvPeriod);
+                String date = cursor.getString(cursor.getColumnIndex("entry_date"));
+                Date d = new Date(java.sql.Date.valueOf(date).getTime());
+                period.setText(DateFormat.format("dd.MM.yyyy", d));
+            } catch (Exception e) {
+                // Нет показаний
             }
         }
 

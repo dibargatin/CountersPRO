@@ -32,6 +32,12 @@ public class CounterActivity extends Activity implements OnClickListener {
 
     View mColor;
 
+    EditText mName;
+
+    EditText mNote;
+
+    EditText mMeasure;
+
     int mPickedColor = -20480;
 
     // ===========================================================
@@ -52,15 +58,20 @@ public class CounterActivity extends Activity implements OnClickListener {
 
         mDbHelper = new DBHelper(this);
 
-        TextView title = (TextView)findViewById(R.id.counters_edit_form_title);
+        TextView title = (TextView)findViewById(R.id.tvEntryEditTitle);
 
-        mColor = (View)findViewById(R.id.view1);
+        mColor = (View)findViewById(R.id.vColor);
         mColor.setOnClickListener(this);
 
-        Button ok = (Button)findViewById(R.id.counters_edit_form_btn_ok);
+        mName = (EditText)findViewById(R.id.etName);
+        mNote = (EditText)findViewById(R.id.etNote);
+        mMeasure = (EditText)findViewById(R.id.etMeasure);        
+        
+
+        Button ok = (Button)findViewById(R.id.btnOk);
         ok.setOnClickListener(this);
 
-        Button cancel = (Button)findViewById(R.id.counters_edit_form_btn_cancel);
+        Button cancel = (Button)findViewById(R.id.btnCancel);
         cancel.setOnClickListener(this);
 
         Intent intent = getIntent();
@@ -72,62 +83,57 @@ public class CounterActivity extends Activity implements OnClickListener {
             mCounterId = intent.getLongExtra(EXTRA_COUNTER_ID, -1);
 
             if (mCounterId != -1) {
-                EditText name = (EditText)findViewById(R.id.counters_edit_form_et_name);
-                EditText note = (EditText)findViewById(R.id.counters_edit_form_et_note);
-
                 Cursor c = mDbHelper.fetchCounterById(mCounterId);
                 c.moveToFirst();
 
-                name.setText(c.getString(c.getColumnIndex("name")));
-                note.setText(c.getString(c.getColumnIndex("note")));
-
                 mPickedColor = c.getInt(c.getColumnIndex("color"));
+                mName.setText(c.getString(c.getColumnIndex("name")));
+                mNote.setText(c.getString(c.getColumnIndex("note")));
+                mMeasure.setText(c.getString(c.getColumnIndex("measure")));
             }
         }
-        
+
         mColor.setBackgroundColor(mPickedColor);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.counters_edit_form_btn_ok:
-                EditText name = (EditText)findViewById(R.id.counters_edit_form_et_name);
-                EditText note = (EditText)findViewById(R.id.counters_edit_form_et_note);
+            case R.id.btnOk:
 
                 if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
-                    mDbHelper.insertCounter(name.getText().toString(), note.getText().toString(),
-                            mPickedColor);
+                    mDbHelper.insertCounter(mName.getText().toString(), mNote.getText().toString(),
+                            mPickedColor, mMeasure.getText().toString());
                 } else {
-                    mDbHelper.updateCounter(mCounterId, name.getText().toString(), note.getText()
-                            .toString(), mPickedColor);
+                    mDbHelper.updateCounter(mCounterId, mName.getText().toString(), mNote.getText()
+                            .toString(), mPickedColor, mMeasure.getText().toString());
                 }
 
                 setResult(RESULT_OK);
                 finish();
                 break;
 
-            case R.id.counters_edit_form_btn_cancel:
+            case R.id.btnCancel:
                 finish();
                 break;
 
-            case R.id.view1:
+            case R.id.vColor:
                 AlertDialog.Builder alert = new AlertDialog.Builder(CounterActivity.this);
                 alert.setTitle(getResources().getString(R.string.pick_the_color));
-                
+
                 final LinearLayout layout = new LinearLayout(CounterActivity.this);
                 final SaturationBar sb = new SaturationBar(CounterActivity.this);
                 final ColorPicker cp = new ColorPicker(CounterActivity.this);
-                
+
+                cp.addSaturationBar(sb);
                 cp.setColor(mPickedColor);
                 cp.setOldCenterColor(mPickedColor);
                 cp.setNewCenterColor(mPickedColor);
-                cp.addSaturationBar(sb);
-                
+
                 layout.setOrientation(LinearLayout.VERTICAL);
                 layout.addView(sb);
                 layout.addView(cp);
-                
+
                 alert.setView(layout);
 
                 alert.setPositiveButton(getResources().getString(R.string.ok),

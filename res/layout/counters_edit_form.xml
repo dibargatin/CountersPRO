@@ -4,6 +4,28 @@
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="12dp" >
+
+        <Button
+            android:id="@+id/btnOk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/counters_edit_form_btn_ok" />
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/counters_edit_form_btn_cancel" />
+    </LinearLayout>
+
     <ScrollView
         android:id="@+id/scrollView1"
         android:layout_width="match_parent"
@@ -11,11 +33,11 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical" >
 
             <TextView
-                android:id="@+id/counters_edit_form_title"
+                android:id="@+id/tvEntryEditTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
@@ -39,11 +61,15 @@
                     android:text="@string/color" />
 
                 <View
-                    android:id="@+id/view1"
+                    android:id="@+id/vColor"
                     android:layout_width="wrap_content"
                     android:layout_height="42dp"
-                    android:background="#6DAAE9" />
+                    android:background="#6DAAE9"
+                    android:clickable="true"
+                    android:focusable="true" >
 
+                    <requestFocus />
+                </View>
             </LinearLayout>
 
             <LinearLayout
@@ -55,66 +81,65 @@
                 android:orientation="vertical" >
 
                 <TextView
-                    android:id="@+id/counters_edit_form_lbl_name"
+                    android:id="@+id/tvName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/counters_edit_form_cnt_name" />
 
                 <EditText
-                    android:id="@+id/counters_edit_form_et_name"
+                    android:id="@+id/etName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:inputType="text" >
-
-                    <requestFocus />
                 </EditText>
             </LinearLayout>
-       
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="8dp"
-            android:orientation="vertical" >
-
-            <TextView
-                android:id="@+id/counters_edit_form_lbl_note"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/counters_edit_form_cnt_note" />
-
-            <EditText
-                android:id="@+id/counters_edit_form_et_note"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="text" >
-            </EditText>
-        </LinearLayout>
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical" >
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="12dp" >
+                <TextView
+                    android:id="@+id/tvNote"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/counters_edit_form_cnt_note" />
 
-            <Button
-                android:id="@+id/counters_edit_form_btn_ok"
-                android:layout_width="wrap_content"
+                <EditText
+                    android:id="@+id/etNote"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="text" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/counters_edit_form_btn_ok" />
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical" >
 
-            <Button
-                android:id="@+id/counters_edit_form_btn_cancel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/counters_edit_form_btn_cancel" />
+                <TextView
+                    android:id="@+id/tvMeasure"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/measure" />
+
+                <EditText
+                    android:id="@+id/etMeasure"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="text" />
+
+            </LinearLayout>
         </LinearLayout>
-     </LinearLayout>
     </ScrollView>
 
 </LinearLayout>
