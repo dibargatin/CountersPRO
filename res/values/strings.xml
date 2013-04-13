@@ -32,7 +32,8 @@
     <string name="counters_edit_form_btn_cancel">Отменить</string>
     
     <string name="measure">Единица измерения</string>
-        
+    <string name="rate">Тариф</string>
+    
     <string name="entry_edit_form_title_add">Регистрация показаний</string>
     <string name="entry_edit_form_title_edit">Редактирование показания</string>
     <string name="entry_edit_form_label_value">Значение</string>
@@ -40,10 +41,18 @@
     <string name="entry_edit_form_btn_ok">Сохранить</string>
     <string name="entry_edit_form_btn_cancel">Отменить</string>
     
-    <string name="test">до 10 м<small><sup>3</sup></small> = 4 р.</string>
-    <string name="test6">101,103</string>
-    <string name="test5">свыше 10 м<small><sup>3</sup></small> = 4 р.</string>
-    <string name="test2">201,124</string>
-    <string name="test3"><small>было</small> 201,124</string>
-    <string name="test4"><small>+</small> 101,103 м<small><sup>3</sup></small></string>
+    <string-array name="month_list">
+        <item>Январь</item>
+        <item>Февраль</item>
+        <item>Март</item>
+        <item>Апрель</item>
+        <item>Май</item>
+        <item>Июнь</item>
+        <item>Июль</item>
+        <item>Август</item>
+        <item>Сентябрь</item>
+        <item>Октябрь</item>
+        <item>Ноябрь</item>
+        <item>Декабрь</item>
+    </string-array>
 </resources>

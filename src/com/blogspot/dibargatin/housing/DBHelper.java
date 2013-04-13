@@ -146,30 +146,35 @@ public class DBHelper extends SQLiteOpenHelper {
         });
     }
 
-    public Cursor fetchEntriesByCounterId(long counterId) {
+    public Cursor fetchEntriesByCounterId(long counterId) {                
         final String query = ""
-                + "SELECT _id" 
-                + "      ,counter_id"
-                + "      ,entry_date" 
-                + "      ,value"
-                + "      ,value - ifnull((SELECT value"
+                + "SELECT e._id AS _id"
+                + "      ,e.counter_id AS counter_id"
+                + "      ,e.entry_date AS entry_date" 
+                + "      ,e.value AS value"
+                + "      ,e.prev_value AS prev_value"
+                + "      ,e.value - e.prev_value AS delta"
+                + "      ,round(e.rate * (e.value - e.prev_value), 2) AS cost"
+                + "      ,e.rate AS rate"
+                + "      ,c.measure AS measure"
+                + "  FROM (SELECT _id" 
+                + "              ,counter_id"
+                + "              ,entry_date" 
+                + "              ,value"
+                + "              ,ifnull((SELECT value"
                 + "                         FROM Entries " 
                 + "                        WHERE counter_id = en.counter_id " 
                 + "                          AND entry_date < en.entry_date "
                 + "                        ORDER BY entry_date DESC "
                 + "                        LIMIT 1), 0)"
-                + "       AS delta"
-                + "      ,round(rate * (value "
-                + "                     - ifnull((SELECT value "
-                + "                                 FROM Entries " 
-                + "                                WHERE counter_id = en.counter_id "
-                + "                                  AND entry_date < en.entry_date "
-                + "                                ORDER BY entry_date DESC "
-                + "                                LIMIT 1), 0)), 2) "
-                + "       AS cost "
-                + "  FROM Entries AS en "
-                + " WHERE counter_id = ? "
-                + " ORDER BY entry_date DESC";
+                + "               AS prev_value"
+                + "              ,rate"
+                + "          FROM Entries AS en "
+                + "         WHERE counter_id = ? "
+                + "         ORDER BY entry_date DESC"
+                + "       ) AS e"
+                + " INNER JOIN Counters AS c"
+                + "         ON c._id = e.counter_id";
         
         return getReadableDatabase().rawQuery(
                         query, 
