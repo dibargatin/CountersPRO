@@ -38,6 +38,8 @@ public class CounterActivity extends Activity implements OnClickListener {
 
     EditText mMeasure;
 
+    EditText mCurrency;
+
     int mPickedColor = -20480;
 
     // ===========================================================
@@ -65,8 +67,8 @@ public class CounterActivity extends Activity implements OnClickListener {
 
         mName = (EditText)findViewById(R.id.etName);
         mNote = (EditText)findViewById(R.id.etNote);
-        mMeasure = (EditText)findViewById(R.id.etMeasure);        
-        
+        mMeasure = (EditText)findViewById(R.id.etMeasure);
+        mCurrency = (EditText)findViewById(R.id.etCurrency);
 
         Button ok = (Button)findViewById(R.id.btnOk);
         ok.setOnClickListener(this);
@@ -90,6 +92,7 @@ public class CounterActivity extends Activity implements OnClickListener {
                 mName.setText(c.getString(c.getColumnIndex("name")));
                 mNote.setText(c.getString(c.getColumnIndex("note")));
                 mMeasure.setText(c.getString(c.getColumnIndex("measure")));
+                mCurrency.setText(c.getString(c.getColumnIndex("currency")));
             }
         }
 
@@ -103,10 +106,12 @@ public class CounterActivity extends Activity implements OnClickListener {
 
                 if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
                     mDbHelper.insertCounter(mName.getText().toString(), mNote.getText().toString(),
-                            mPickedColor, mMeasure.getText().toString());
+                            mPickedColor, mMeasure.getText().toString(), mCurrency.getText()
+                                    .toString());
                 } else {
                     mDbHelper.updateCounter(mCounterId, mName.getText().toString(), mNote.getText()
-                            .toString(), mPickedColor, mMeasure.getText().toString());
+                            .toString(), mPickedColor, mMeasure.getText().toString(), mCurrency
+                            .getText().toString());
                 }
 
                 setResult(RESULT_OK);

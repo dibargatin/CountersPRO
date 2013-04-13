@@ -14,8 +14,51 @@ public class DBHelper extends SQLiteOpenHelper {
     // ===========================================================
     public static String DB_NAME = "housing_db.sqlite3";
 
-    public static int DB_VERSION = 8;
-
+    public static int DB_VERSION = 1;
+    
+    private static final Patch[] PATCHES = new Patch[] {
+        // №1
+        new Patch() {
+           public void apply(SQLiteDatabase db) {
+               db.execSQL("PRAGMA foreign_keys = ON;");
+               
+               final String queryCounters = ""
+                       + "CREATE TABLE Counters (" 
+                       + " _id INTEGER PRIMARY KEY AUTOINCREMENT" 
+                       + ",name TEXT" 
+                       + ",note TEXT" 
+                       + ",measure TEXT" 
+                       + ",color INTEGER"
+                       + ",currency TEXT"
+                       + ");";
+               
+               db.execSQL(queryCounters);
+               
+               final String queryEntries = ""
+                       + "CREATE TABLE Entries (" 
+                       + " _id INTEGER PRIMARY KEY AUTOINCREMENT" 
+                       + ",counter_id INTEGER REFERENCES Counters(_id) ON DELETE CASCADE" 
+                       + ",entry_date DATE" 
+                       + ",value REAL" 
+                       + ",rate REAL"
+                       + ");";
+               
+               db.execSQL(queryEntries);
+           }
+      
+           public void revert(SQLiteDatabase db) {
+               db.execSQL("DROP TABLE IF EXISTS Counters;");
+               db.execSQL("DROP TABLE IF EXISTS Entries;");
+           }
+        }
+        /*
+        , new Patch() {
+           public void apply(SQLiteDatabase db) { ... }
+           public void revert(SQLiteDatabase db) { ... }
+        }
+        */
+     };
+    
     // ===========================================================
     // Fields
     // ===========================================================
@@ -36,38 +79,23 @@ public class DBHelper extends SQLiteOpenHelper {
     // ===========================================================
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("PRAGMA foreign_keys = ON;");
-        
-        final String queryCounters = ""
-                + "CREATE TABLE Counters (" 
-                + " _id INTEGER PRIMARY KEY AUTOINCREMENT" 
-                + ",name TEXT" 
-                + ",note TEXT" 
-                + ",measure TEXT" 
-                + ",color INTEGER"
-                + ");";
-        
-        db.execSQL(queryCounters);
-        
-        final String queryEntries = ""
-                + "CREATE TABLE Entries (" 
-                + " _id INTEGER PRIMARY KEY AUTOINCREMENT" 
-                + ",counter_id INTEGER REFERENCES Counters(_id) ON DELETE CASCADE" 
-                + ",entry_date DATE" 
-                + ",value REAL" 
-                + ",rate REAL"
-                + ");";
-        
-        db.execSQL(queryEntries);
+        for (int i=0; i<PATCHES.length; i++) {
+            PATCHES[i].apply(db);
+          }
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS Counters;");
-        db.execSQL("DROP TABLE IF EXISTS Entries;");
-        onCreate(db);
-        db.execSQL("INSERT INTO Counters (name, note, measure, color) VALUES ('Холодная вода', 'Дом', 'м3', -20480)");
+        for (int i=oldVersion; i<newVersion; i++) {
+            PATCHES[i].apply(db);
+          }                
     }
+    
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        for (int i=oldVersion; i>newVersion; i++) {
+          PATCHES[i-1].revert(db);
+        }
+      }
 
     // ===========================================================
     // Counter Methods
@@ -99,24 +127,26 @@ public class DBHelper extends SQLiteOpenHelper {
         });
     }
 
-    public long insertCounter(String name, String note, int color, String measure) {
+    public long insertCounter(String name, String note, int color, String measure, String currency) {
         ContentValues cv = new ContentValues();
 
         cv.put("name", name);
         cv.put("note", note);
         cv.put("color", color);
         cv.put("measure", measure);
+        cv.put("currency", currency);
 
         return getWritableDatabase().insert("Counters", null, cv);
     }
 
-    public void updateCounter(long id, String name, String note, int color, String measure) {
+    public void updateCounter(long id, String name, String note, int color, String measure, String currency) {
         ContentValues cv = new ContentValues();
 
         cv.put("name", name);
         cv.put("note", note);
         cv.put("color", color);
         cv.put("measure", measure);
+        cv.put("currency", currency);
 
         getWritableDatabase().update("Counters", cv, "_id = ?", new String[] {
             Long.toString(id)
@@ -157,6 +187,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 + "      ,round(e.rate * (e.value - e.prev_value), 2) AS cost"
                 + "      ,e.rate AS rate"
                 + "      ,c.measure AS measure"
+                + "      ,c.currency AS currency"
                 + "  FROM (SELECT _id" 
                 + "              ,counter_id"
                 + "              ,entry_date" 
@@ -232,4 +263,9 @@ public class DBHelper extends SQLiteOpenHelper {
     // ===========================================================
     // Inner and Anonymous Classes
     // ===========================================================
+    private static class Patch {
+        public void apply(SQLiteDatabase db) {}
+       
+        public void revert(SQLiteDatabase db) {}
+    }
 }

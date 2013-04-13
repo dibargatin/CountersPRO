@@ -55,32 +55,6 @@
                 android:orientation="vertical" >
 
                 <TextView
-                    android:id="@+id/tvColor"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/color" />
-
-                <View
-                    android:id="@+id/vColor"
-                    android:layout_width="wrap_content"
-                    android:layout_height="42dp"
-                    android:background="#6DAAE9"
-                    android:clickable="true"
-                    android:focusable="true" >
-
-                    <requestFocus />
-                </View>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical" >
-
-                <TextView
                     android:id="@+id/tvName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -139,6 +113,55 @@
                     android:inputType="text" />
 
             </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/tvCurrency"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/rate_currency" />
+
+                <EditText
+                    android:id="@+id/etCurrency"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="text"
+                    android:text="@string/currency" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/tvColor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/color" />
+
+                <View
+                    android:id="@+id/vColor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="42dp"
+                    android:background="#6DAAE9"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
 

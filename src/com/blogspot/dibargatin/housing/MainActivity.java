@@ -129,7 +129,7 @@ public class MainActivity extends ListActivity {
                                 AlertDialog.Builder confirm = new AlertDialog.Builder(
                                         MainActivity.this);
 
-                                confirm.setMessage(R.string.action_counter_del_confirm);
+                                confirm.setTitle(R.string.action_counter_del_confirm);
                                 confirm.setPositiveButton(R.string.yes,
                                         new DialogInterface.OnClickListener() {
 

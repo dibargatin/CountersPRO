@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class EntryEditActivity extends Activity implements OnClickListener {
     // ===========================================================
@@ -28,6 +29,12 @@ public class EntryEditActivity extends Activity implements OnClickListener {
     long mEntryId;
 
     long mCounterId;
+
+    EditText mValue;
+
+    EditText mRate;
+
+    DatePicker mPeriod;
 
     // ===========================================================
     // Constructors
@@ -58,7 +65,9 @@ public class EntryEditActivity extends Activity implements OnClickListener {
         cancel.setOnClickListener(this);
 
         TextView title = (TextView)findViewById(R.id.tvEntryEditTitle);
-        EditText rate = (EditText)findViewById(R.id.etRate);
+        mValue = (EditText)findViewById(R.id.etValue);
+        mRate = (EditText)findViewById(R.id.etRate);
+        mPeriod = (DatePicker)findViewById(R.id.dpPeriod);
 
         if (intent.getAction().equals(Intent.ACTION_INSERT)) {
             title.setText(getResources().getString(R.string.entry_edit_form_title_add));
@@ -66,7 +75,7 @@ public class EntryEditActivity extends Activity implements OnClickListener {
 
             if (cur.getCount() > 0) {
                 cur.moveToFirst();
-                rate.setText(cur.getString(cur.getColumnIndex("rate")));
+                mRate.setText(cur.getString(cur.getColumnIndex("rate")));
             }
 
         } else {
@@ -76,14 +85,11 @@ public class EntryEditActivity extends Activity implements OnClickListener {
             if (cur.getCount() > 0) {
                 cur.moveToFirst();
 
-                DatePicker date = (DatePicker)findViewById(R.id.dpPeriod);
                 Date d = Date.valueOf(cur.getString(cur.getColumnIndex("entry_date")));
-                date.updateDate(d.getYear() + 1900, d.getMonth(), d.getDay());
+                mPeriod.updateDate(d.getYear() + 1900, d.getMonth(), d.getDay());
 
-                EditText value = (EditText)findViewById(R.id.etValue);
-                value.setText(cur.getString(cur.getColumnIndex("value")));
-
-                rate.setText(cur.getString(cur.getColumnIndex("rate")));
+                mValue.setText(cur.getString(cur.getColumnIndex("value")));
+                mRate.setText(cur.getString(cur.getColumnIndex("rate")));
             }
         }
     }
@@ -92,19 +98,33 @@ public class EntryEditActivity extends Activity implements OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_entry_edit_form_btn_ok:
-                DatePicker date = (DatePicker)findViewById(R.id.dpPeriod);
-                Date d = new Date(date.getYear() - 1900, date.getMonth(), date.getDayOfMonth());
+                Date d = new Date(mPeriod.getYear() - 1900, mPeriod.getMonth(),
+                        mPeriod.getDayOfMonth());
+                double va = 0;
+                double r = 0;
 
-                EditText value = (EditText)findViewById(R.id.etValue);
-                double va = Double.parseDouble(value.getText().toString());
+                try {
+                    va = Double.parseDouble(mValue.getText().toString());
+                } catch (NumberFormatException e) {
+                    Toast.makeText(EntryEditActivity.this,
+                            getResources().getString(R.string.error_entry_value),
+                            Toast.LENGTH_SHORT).show();
+                    mValue.requestFocus();
+                    return;
+                }
 
-                EditText rate = (EditText)findViewById(R.id.etRate);
-                double r = Double.parseDouble(rate.getText().toString());
+                try {
+                    r = Double.parseDouble(mRate.getText().toString());
+                } catch (NumberFormatException e) {
+                    Toast.makeText(EntryEditActivity.this,
+                            getResources().getString(R.string.error_entry_rate), Toast.LENGTH_SHORT)
+                            .show();
+                    mRate.requestFocus();
+                    return;
+                }
 
                 if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
-                    mDbHelper.insertEntry(mCounterId, d.toString(),
-                            Double.parseDouble(value.getText().toString()),
-                            Double.parseDouble(rate.getText().toString()));
+                    mDbHelper.insertEntry(mCounterId, d.toString(), va, r);
                 } else {
                     mDbHelper.updateEntry(mEntryId, d.toString(), va, r);
                 }

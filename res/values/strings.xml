@@ -19,12 +19,14 @@
         <item>Удалить</item>
     </string-array>
     
+    <string name="action_entry_del_confirm">Удалить показание?</string>
+    
     <string name="entry_form_title">Показания счетчика</string>
     <string name="action_add_counter">Добавить счетчик</string>
     <string name="action_settings">Настройки</string>
     <string name="action_add_entry">Добавить показание</string>
     
-    <string name="counters_edit_form_title_add">Добавление счетчика</string>
+    <string name="counters_edit_form_title_add">Создание счетчика</string>
     <string name="counters_edit_form_title_edit">Редактирование счетчика</string>
     <string name="counters_edit_form_cnt_name">Название</string>
     <string name="counters_edit_form_cnt_note">Примечание</string>
@@ -32,7 +34,9 @@
     <string name="counters_edit_form_btn_cancel">Отменить</string>
     
     <string name="measure">Единица измерения</string>
-    <string name="rate">Тариф</string>
+    <string name="rate">Тариф за</string>
+    <string name="currency">р.</string>
+    <string name="rate_currency">Валюта тарифа</string>
     
     <string name="entry_edit_form_title_add">Регистрация показаний</string>
     <string name="entry_edit_form_title_edit">Редактирование показания</string>
@@ -40,6 +44,9 @@
     <string name="entry_edit_form_label_rate">Тариф</string>
     <string name="entry_edit_form_btn_ok">Сохранить</string>
     <string name="entry_edit_form_btn_cancel">Отменить</string>
+    
+    <string name="error_entry_value">Укажите значение</string>
+    <string name="error_entry_rate">Укажите тариф</string>
     
     <string-array name="month_list">
         <item>Январь</item>
