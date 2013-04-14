@@ -249,7 +249,7 @@ public class EntryActivity extends Activity implements OnClickListener {
                 String entryDate = cursor.getString(cursor.getColumnIndex("entry_date"));
                 Date d = new Date(java.sql.Date.valueOf(entryDate).getTime());
                 
-                date.setText(DateFormat.format("dd.MM.yyyy", d));
+                date.setText(DateFormat.format(getResources().getString(R.string.date_format), d));
                 month.setText(ml[d.getMonth()]);
             } catch (Exception e) {
                 // Нет даты

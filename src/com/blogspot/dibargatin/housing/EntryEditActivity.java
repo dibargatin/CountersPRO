@@ -2,6 +2,8 @@
 package com.blogspot.dibargatin.housing;
 
 import java.sql.Date;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -84,10 +86,15 @@ public class EntryEditActivity extends Activity implements OnClickListener {
 
             if (cur.getCount() > 0) {
                 cur.moveToFirst();
-
-                Date d = Date.valueOf(cur.getString(cur.getColumnIndex("entry_date")));
-                mPeriod.updateDate(d.getYear() + 1900, d.getMonth(), d.getDay());
-
+                
+                String d = cur.getString(cur.getColumnIndex("entry_date"));
+                Date date = java.sql.Date.valueOf(d);
+                
+                GregorianCalendar c = (GregorianCalendar)Calendar.getInstance();
+                c.setTime(date);
+                
+                mPeriod.updateDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+                
                 mValue.setText(cur.getString(cur.getColumnIndex("value")));
                 mRate.setText(cur.getString(cur.getColumnIndex("rate")));
             }
@@ -100,6 +107,7 @@ public class EntryEditActivity extends Activity implements OnClickListener {
             case R.id.btn_entry_edit_form_btn_ok:
                 Date d = new Date(mPeriod.getYear() - 1900, mPeriod.getMonth(),
                         mPeriod.getDayOfMonth());
+                
                 double va = 0;
                 double r = 0;
 

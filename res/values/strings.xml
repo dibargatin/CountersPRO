@@ -48,6 +48,7 @@
     <string name="error_entry_value">Укажите значение</string>
     <string name="error_entry_rate">Укажите тариф</string>
     
+    <string name="date_format">dd.MM.yyyy</string>
     <string-array name="month_list">
         <item>Январь</item>
         <item>Февраль</item>
