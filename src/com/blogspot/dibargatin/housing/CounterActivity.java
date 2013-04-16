@@ -9,9 +9,13 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.larswerkman.colorpicker.ColorPicker;
@@ -39,6 +43,8 @@ public class CounterActivity extends Activity implements OnClickListener {
     EditText mMeasure;
 
     EditText mCurrency;
+
+    Spinner mRateType;
 
     int mPickedColor = -20480;
 
@@ -69,6 +75,31 @@ public class CounterActivity extends Activity implements OnClickListener {
         mNote = (EditText)findViewById(R.id.etNote);
         mMeasure = (EditText)findViewById(R.id.etMeasure);
         mCurrency = (EditText)findViewById(R.id.etCurrency);
+        mRateType = (Spinner)findViewById(R.id.sRateType);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, getResources().getStringArray(
+                        R.array.rate_type_list));
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mRateType.setAdapter(adapter);
+        mRateType.setSelection(1);
+
+        mRateType.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                LinearLayout l = (LinearLayout)CounterActivity.this.findViewById(R.id.lCurrency);
+                
+                if (id == 0) { // Без тарифа                    
+                    l.setVisibility(View.GONE);
+                } else {
+                    l.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+            }
+        });
 
         Button ok = (Button)findViewById(R.id.btnOk);
         ok.setOnClickListener(this);
@@ -93,6 +124,15 @@ public class CounterActivity extends Activity implements OnClickListener {
                 mNote.setText(c.getString(c.getColumnIndex("note")));
                 mMeasure.setText(c.getString(c.getColumnIndex("measure")));
                 mCurrency.setText(c.getString(c.getColumnIndex("currency")));
+                mRateType.setSelection(c.getInt(c.getColumnIndex("rate_type")));
+                
+                LinearLayout l = (LinearLayout)CounterActivity.this.findViewById(R.id.lCurrency);
+                
+                if (mRateType.getSelectedItemId() == 0) { // Без тарифа                    
+                    l.setVisibility(View.GONE);
+                } else {
+                    l.setVisibility(View.VISIBLE);
+                }
             }
         }
 
@@ -107,11 +147,11 @@ public class CounterActivity extends Activity implements OnClickListener {
                 if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
                     mDbHelper.insertCounter(mName.getText().toString(), mNote.getText().toString(),
                             mPickedColor, mMeasure.getText().toString(), mCurrency.getText()
-                                    .toString());
+                                    .toString(), mRateType.getSelectedItemPosition());
                 } else {
                     mDbHelper.updateCounter(mCounterId, mName.getText().toString(), mNote.getText()
                             .toString(), mPickedColor, mMeasure.getText().toString(), mCurrency
-                            .getText().toString());
+                            .getText().toString(), mRateType.getSelectedItemPosition());
                 }
 
                 setResult(RESULT_OK);

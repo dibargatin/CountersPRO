@@ -14,6 +14,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +36,8 @@ public class EntryEditActivity extends Activity implements OnClickListener {
     EditText mValue;
 
     EditText mRate;
+    
+    int mRateType = 1;
 
     DatePicker mPeriod;
 
@@ -70,7 +73,7 @@ public class EntryEditActivity extends Activity implements OnClickListener {
         mValue = (EditText)findViewById(R.id.etValue);
         mRate = (EditText)findViewById(R.id.etRate);
         mPeriod = (DatePicker)findViewById(R.id.dpPeriod);
-
+        
         if (intent.getAction().equals(Intent.ACTION_INSERT)) {
             title.setText(getResources().getString(R.string.entry_edit_form_title_add));
             Cursor cur = mDbHelper.fetchLastRateByCounterId(mCounterId);
@@ -78,6 +81,7 @@ public class EntryEditActivity extends Activity implements OnClickListener {
             if (cur.getCount() > 0) {
                 cur.moveToFirst();
                 mRate.setText(cur.getString(cur.getColumnIndex("rate")));
+                mRateType = cur.getInt(cur.getColumnIndex("rate_type"));
             }
 
         } else {
@@ -97,7 +101,13 @@ public class EntryEditActivity extends Activity implements OnClickListener {
                 
                 mValue.setText(cur.getString(cur.getColumnIndex("value")));
                 mRate.setText(cur.getString(cur.getColumnIndex("rate")));
+                mRateType = cur.getInt(cur.getColumnIndex("rate_type"));
             }
+        }
+        
+        if (mRateType == 0) { // Счетчик без тарифа
+            LinearLayout l = (LinearLayout)findViewById(R.id.lRate);
+            l.setVisibility(View.GONE);
         }
     }
 
@@ -124,11 +134,15 @@ public class EntryEditActivity extends Activity implements OnClickListener {
                 try {
                     r = Double.parseDouble(mRate.getText().toString());
                 } catch (NumberFormatException e) {
-                    Toast.makeText(EntryEditActivity.this,
-                            getResources().getString(R.string.error_entry_rate), Toast.LENGTH_SHORT)
-                            .show();
-                    mRate.requestFocus();
-                    return;
+                    if (mRateType > 0) {
+                        Toast.makeText(EntryEditActivity.this,
+                                getResources().getString(R.string.error_entry_rate), Toast.LENGTH_SHORT)
+                                .show();
+                        mRate.requestFocus();
+                        return;
+                    } else { // Счетчик без тарифа
+                        r = 0;
+                    }
                 }
 
                 if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {

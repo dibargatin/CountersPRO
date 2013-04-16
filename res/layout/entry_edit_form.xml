@@ -47,46 +47,59 @@
                 android:text="@string/entry_edit_form_title_add"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
-            <TextView
-                android:id="@+id/tv_entry_form_value_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="12dp"
-                android:text="@string/entry_edit_form_label_value" />
-
-            <EditText
-                android:id="@+id/etValue"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
-                android:ems="10"
-                android:inputType="numberDecimal" />
+                android:layout_marginTop="8dp"
+                android:orientation="vertical" >
 
-            <TextView
-                android:id="@+id/tv_entry_form_rate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="12dp"
-                android:text="@string/entry_edit_form_label_rate" />
+                <TextView
+                    android:id="@+id/tv_entry_form_value_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/entry_edit_form_label_value" />
 
-            <EditText
-                android:id="@+id/etRate"
+                <EditText
+                    android:id="@+id/etValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="numberDecimal" >
+
+                    <requestFocus />
+                </EditText>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/lRate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
-                android:ems="10"
-                android:inputType="numberDecimal" />
+                android:layout_marginTop="8dp"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/tv_entry_form_rate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/entry_edit_form_label_rate" />
+
+                <EditText
+                    android:id="@+id/etRate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="numberDecimal" />
+            </LinearLayout>
 
             <DatePicker
                 android:id="@+id/dpPeriod"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginLeft="4dp"
                 android:layout_marginTop="8dp" />
 
         </LinearLayout>

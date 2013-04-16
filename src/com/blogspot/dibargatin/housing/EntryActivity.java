@@ -20,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -222,22 +223,37 @@ public class EntryActivity extends Activity implements OnClickListener {
             
             CharSequence m = "";
             CharSequence r = "";
+            int rateType = 0;
+            
+            try {
+                rateType = cursor.getInt(cursor.getColumnIndex("rate_type"));
+            } catch(Exception e) {
+                // Не вышло прочитать вид тарифа
+            }
+            
+            if (rateType > 0) {
+                try {
+                    TextView c = (TextView)view.findViewById(R.id.tvCurrency);
+                    TextView c2 = (TextView)view.findViewById(R.id.tvCurrency2);
+                    
+                    r = Html.fromHtml(cursor.getString(cursor.getColumnIndex("currency")));
+                    c.setText(r);
+                    c2.setText(r);
+                } catch(Exception e) {
+                    // Не вышло прочитать тариф
+                }
+            } else { // Без тарифа
+                LinearLayout l1 = (LinearLayout)view.findViewById(R.id.lRateInfo);
+                LinearLayout l2 = (LinearLayout)view.findViewById(R.id.lCost);
+                
+                l1.setVisibility(View.GONE);
+                l2.setVisibility(View.GONE);
+            }
             
             try {
                 m = Html.fromHtml(cursor.getString(cursor.getColumnIndex("measure")));
             } catch(Exception e) {
                 // Не вышло прочитать единицу измерения
-            }
-            
-            try {
-                TextView c = (TextView)view.findViewById(R.id.tvCurrency);
-                TextView c2 = (TextView)view.findViewById(R.id.tvCurrency2);
-                
-                r = Html.fromHtml(cursor.getString(cursor.getColumnIndex("currency")));
-                c.setText(r);
-                c2.setText(r);
-            } catch(Exception e) {
-                // Не вышло прочитать тариф
             }
             
             try {

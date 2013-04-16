@@ -38,6 +38,13 @@
     <string name="currency">р.</string>
     <string name="rate_currency">Валюта тарифа</string>
     
+    <string name="rate_type">Вид тарифа</string>
+    <string-array name="rate_type_list">
+        <item>Без тарифа</item>
+        <item>Простой тариф</item>
+        <item>Формула</item>
+    </string-array>
+    
     <string name="entry_edit_form_title_add">Регистрация показаний</string>
     <string name="entry_edit_form_title_edit">Редактирование показания</string>
     <string name="entry_edit_form_label_value">Значение</string>
