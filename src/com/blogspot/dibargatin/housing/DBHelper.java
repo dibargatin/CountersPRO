@@ -362,6 +362,26 @@ public class DBHelper extends SQLiteOpenHelper {
                         Long.toString(counterId), date
                 });
     }
+    
+    public boolean isEntryExists(long counterId, String entryDate) {
+        final String query = ""
+                + "SELECT EXISTS ("
+                + "         SELECT 1"
+                + "           FROM Entries"
+                + "          WHERE counter_id = ?"
+                + "            AND entry_date = ?"
+                + "          LIMIT 1"
+                + "         ) AS cnt;";
+        
+        final Cursor c = getReadableDatabase().rawQuery(
+                query,
+                new String[] {
+                        Long.toString(counterId), entryDate
+                });
+        c.moveToFirst();
+        
+        return c.getInt(c.getColumnIndex("cnt")) != 0;
+    }
 
     public long insertEntry(long counterId, String entryDate, double value, double rate) {
         ContentValues cv = new ContentValues();

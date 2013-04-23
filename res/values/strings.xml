@@ -49,13 +49,18 @@
     <string name="entry_edit_form_title_edit">Редактирование показания</string>
     <string name="entry_edit_form_label_value">Значение</string>
     <string name="entry_edit_form_label_rate">Тариф</string>
+    <string name="entry_edit_form_label_time">Время</string>
+    <string name="entry_edit_form_label_date">Дата</string>
     <string name="entry_edit_form_btn_ok">Сохранить</string>
     <string name="entry_edit_form_btn_cancel">Отменить</string>
     
     <string name="error_entry_value">Укажите значение</string>
     <string name="error_entry_rate">Укажите тариф</string>
+    <string name="error_entry_datetime">В указанное время уже зарегистрировано показание</string>
     
     <string name="date_format">dd.MM.yyyy</string>
+    <string name="date_time_format">dd.MM.yyyy HH:mm</string>
+    <string name="date_time">Дата и время</string>
     <string-array name="month_list">
         <item>Январь</item>
         <item>Февраль</item>

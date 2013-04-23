@@ -249,7 +249,7 @@ public class MainActivity extends ListActivity {
             try {
                 TextView period = (TextView)view.findViewById(R.id.tvPeriod);
                 String date = cursor.getString(cursor.getColumnIndex("entry_date"));
-                Date d = new Date(java.sql.Date.valueOf(date).getTime());
+                Date d = new Date(java.sql.Timestamp.valueOf(date).getTime());
                 period.setText(DateFormat.format(getResources().getString(R.string.date_format), d));
             } catch (Exception e) {
                 // Нет показаний

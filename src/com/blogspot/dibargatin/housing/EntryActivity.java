@@ -1,6 +1,7 @@
 
 package com.blogspot.dibargatin.housing;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import android.app.Activity;
@@ -11,7 +12,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.text.Html;
-import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -263,9 +263,9 @@ public class EntryActivity extends Activity implements OnClickListener {
                 String[] ml = getResources().getStringArray(R.array.month_list);
                 
                 String entryDate = cursor.getString(cursor.getColumnIndex("entry_date"));
-                Date d = new Date(java.sql.Date.valueOf(entryDate).getTime());
+                Date d = new Date(java.sql.Timestamp.valueOf(entryDate).getTime());
                 
-                date.setText(DateFormat.format(getResources().getString(R.string.date_format), d));
+                date.setText(new SimpleDateFormat(getResources().getString(R.string.date_time_format)).format(d));
                 month.setText(ml[d.getMonth()]);
             } catch (Exception e) {
                 // Нет даты
