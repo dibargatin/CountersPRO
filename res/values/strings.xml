@@ -45,7 +45,7 @@
         <item>Формула</item>
     </string-array>
     
-    <string name="entry_edit_form_title_add">Регистрация показаний</string>
+    <string name="entry_edit_form_title_add">Регистрация показания</string>
     <string name="entry_edit_form_title_edit">Редактирование показания</string>
     <string name="entry_edit_form_label_value">Значение</string>
     <string name="entry_edit_form_label_rate">Тариф</string>
@@ -60,19 +60,30 @@
     
     <string name="date_format">dd.MM.yyyy</string>
     <string name="date_time_format">dd.MM.yyyy HH:mm</string>
-    <string name="date_time">Дата и время</string>
+    <string name="time_format">HH:mm</string>
+    <string name="date">Дата</string>
+    <string name="time">Время</string>
     <string-array name="month_list">
-        <item>Январь</item>
-        <item>Февраль</item>
-        <item>Март</item>
-        <item>Апрель</item>
-        <item>Май</item>
-        <item>Июнь</item>
-        <item>Июль</item>
-        <item>Август</item>
-        <item>Сентябрь</item>
-        <item>Октябрь</item>
-        <item>Ноябрь</item>
-        <item>Декабрь</item>
+        <item>январь</item>
+        <item>февраль</item>
+        <item>март</item>
+        <item>апрель</item>
+        <item>май</item>
+        <item>июнь</item>
+        <item>июль</item>
+        <item>август</item>
+        <item>сентябрь</item>
+        <item>октябрь</item>
+        <item>ноябрь</item>
+        <item>декабрь</item>
+    </string-array>
+    <string name="entry_period_type">Период показаний</string>
+    <string name="year">год</string>
+    <string-array name="period_type_list">
+        <item>Год</item>
+        <item>Месяц</item>
+        <item>День</item>
+        <item>Час</item>
+        <item>Минута</item>
     </string-array>
 </resources>

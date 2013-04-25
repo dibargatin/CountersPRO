@@ -46,6 +46,8 @@ public class CounterActivity extends Activity implements OnClickListener {
 
     Spinner mRateType;
 
+    Spinner mPeriodType;
+
     int mPickedColor = -20480;
 
     // ===========================================================
@@ -66,21 +68,28 @@ public class CounterActivity extends Activity implements OnClickListener {
 
         mDbHelper = new DBHelper(this);
 
-        TextView title = (TextView)findViewById(R.id.tvEntryEditTitle);
+        // Определим список элементов диалога
+        Button ok = (Button)findViewById(R.id.btnOk);
+        ok.setOnClickListener(this);
 
-        mColor = (View)findViewById(R.id.vColor);
-        mColor.setOnClickListener(this);
+        Button cancel = (Button)findViewById(R.id.btnCancel);
+        cancel.setOnClickListener(this);
+
+        TextView title = (TextView)findViewById(R.id.tvEntryEditTitle);
 
         mName = (EditText)findViewById(R.id.etName);
         mNote = (EditText)findViewById(R.id.etNote);
         mMeasure = (EditText)findViewById(R.id.etMeasure);
         mCurrency = (EditText)findViewById(R.id.etCurrency);
+
+        // Контрол для выбора вида тарифа
         mRateType = (Spinner)findViewById(R.id.sRateType);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, getResources().getStringArray(
                         R.array.rate_type_list));
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
         mRateType.setAdapter(adapter);
         mRateType.setSelection(1);
 
@@ -88,8 +97,8 @@ public class CounterActivity extends Activity implements OnClickListener {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 LinearLayout l = (LinearLayout)CounterActivity.this.findViewById(R.id.lCurrency);
-                
-                if (id == 0) { // Без тарифа                    
+
+                if (id == 0) { // Без тарифа
                     l.setVisibility(View.GONE);
                 } else {
                     l.setVisibility(View.VISIBLE);
@@ -101,17 +110,27 @@ public class CounterActivity extends Activity implements OnClickListener {
             }
         });
 
-        Button ok = (Button)findViewById(R.id.btnOk);
-        ok.setOnClickListener(this);
+        // Контрол для выбора вида периода
+        mPeriodType = (Spinner)findViewById(R.id.sPeriodType);
 
-        Button cancel = (Button)findViewById(R.id.btnCancel);
-        cancel.setOnClickListener(this);
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,
+                getResources().getStringArray(R.array.period_type_list));
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
+        mPeriodType.setAdapter(adapter);
+        mPeriodType.setSelection(1);
+
+        // Контрол для выбора цвета
+        mColor = (View)findViewById(R.id.vColor);
+        mColor.setOnClickListener(this);
+
+        // Прочитаем переданные параметры
         Intent intent = getIntent();
 
+        // Создание нового счетчика
         if (intent.getAction().equals(Intent.ACTION_INSERT)) {
             title.setText(getResources().getString(R.string.counters_edit_form_title_add));
-        } else {
+        } else { // Редактирование счетчика
             title.setText(getResources().getString(R.string.counters_edit_form_title_edit));
             mCounterId = intent.getLongExtra(EXTRA_COUNTER_ID, -1);
 
@@ -125,10 +144,11 @@ public class CounterActivity extends Activity implements OnClickListener {
                 mMeasure.setText(c.getString(c.getColumnIndex("measure")));
                 mCurrency.setText(c.getString(c.getColumnIndex("currency")));
                 mRateType.setSelection(c.getInt(c.getColumnIndex("rate_type")));
-                
+                mPeriodType.setSelection(c.getInt(c.getColumnIndex("period_type")));
+
                 LinearLayout l = (LinearLayout)CounterActivity.this.findViewById(R.id.lCurrency);
-                
-                if (mRateType.getSelectedItemId() == 0) { // Без тарифа                    
+
+                if (mRateType.getSelectedItemId() == 0) { // Без тарифа
                     l.setVisibility(View.GONE);
                 } else {
                     l.setVisibility(View.VISIBLE);
@@ -143,17 +163,20 @@ public class CounterActivity extends Activity implements OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnOk:
-
+                // Сохраним результат
                 if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
                     mDbHelper.insertCounter(mName.getText().toString(), mNote.getText().toString(),
                             mPickedColor, mMeasure.getText().toString(), mCurrency.getText()
-                                    .toString(), mRateType.getSelectedItemPosition());
+                                    .toString(), mRateType.getSelectedItemPosition(), mPeriodType
+                                    .getSelectedItemPosition());
                 } else {
                     mDbHelper.updateCounter(mCounterId, mName.getText().toString(), mNote.getText()
                             .toString(), mPickedColor, mMeasure.getText().toString(), mCurrency
-                            .getText().toString(), mRateType.getSelectedItemPosition());
+                            .getText().toString(), mRateType.getSelectedItemPosition(), mPeriodType
+                            .getSelectedItemPosition());
                 }
 
+                // Завершим диалог
                 setResult(RESULT_OK);
                 finish();
                 break;
@@ -163,6 +186,7 @@ public class CounterActivity extends Activity implements OnClickListener {
                 break;
 
             case R.id.vColor:
+                // Сформируем диалог для выбора цвета
                 AlertDialog.Builder alert = new AlertDialog.Builder(CounterActivity.this);
                 alert.setTitle(getResources().getString(R.string.pick_the_color));
 

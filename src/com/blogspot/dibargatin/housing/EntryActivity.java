@@ -2,7 +2,8 @@
 package com.blogspot.dibargatin.housing;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -82,7 +83,8 @@ public class EntryActivity extends Activity implements OnClickListener {
                 "entry_date", "value", "delta", "cost", "rate", "measure", "measure", "measure"
         };
         int[] to = new int[] {
-                R.id.tvDate, R.id.tvValue, R.id.tvDelta, R.id.tvCost, R.id.tvRateValue, R.id.tvMeasure, R.id.tvMeasure2, R.id.tvMeasure3
+                R.id.tvDate, R.id.tvValue, R.id.tvDelta, R.id.tvCost, R.id.tvRateValue,
+                R.id.tvMeasure, R.id.tvMeasure2, R.id.tvMeasure3
         };
 
         mAdapter = new EntriesCursorAdapter(this, R.layout.entry_list_item,
@@ -108,35 +110,32 @@ public class EntryActivity extends Activity implements OnClickListener {
             @Override
             public boolean onItemLongClick(AdapterView<?> a, View v, int pos, long id) {
                 final long itemId = id;
-                
-                AlertDialog.Builder confirm = new AlertDialog.Builder(
-                        EntryActivity.this);
+
+                AlertDialog.Builder confirm = new AlertDialog.Builder(EntryActivity.this);
 
                 confirm.setTitle(R.string.action_entry_del_confirm);
-                confirm.setPositiveButton(R.string.yes,
-                        new DialogInterface.OnClickListener() {
+                confirm.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-                                mDbHelper.deleteEntry(itemId);
-                                mAdapter.getCursor().requery();
-                            }
+                        mDbHelper.deleteEntry(itemId);
+                        mAdapter.getCursor().requery();
+                    }
 
-                        });
-                confirm.setNegativeButton(R.string.no,
-                        new DialogInterface.OnClickListener() {
+                });
+                confirm.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-                                // На нет и суда нет
+                        // На нет и суда нет
 
-                            }
+                    }
 
-                        });
-                confirm.show();                
-                
+                });
+                confirm.show();
+
                 return true;
             }
         });
@@ -220,71 +219,110 @@ public class EntryActivity extends Activity implements OnClickListener {
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
             super.bindView(view, context, cursor);
-            
+
             CharSequence m = "";
             CharSequence r = "";
             int rateType = 0;
-            
+            int periodType = 1;
+
             try {
                 rateType = cursor.getInt(cursor.getColumnIndex("rate_type"));
-            } catch(Exception e) {
+            } catch (Exception e) {
                 // Не вышло прочитать вид тарифа
             }
-            
+
+            try {
+                periodType = cursor.getInt(cursor.getColumnIndex("period_type"));
+            } catch (Exception e) {
+                // Не вышло прочитать вид периода
+            }
+
             if (rateType > 0) {
                 try {
                     TextView c = (TextView)view.findViewById(R.id.tvCurrency);
                     TextView c2 = (TextView)view.findViewById(R.id.tvCurrency2);
-                    
+
                     r = Html.fromHtml(cursor.getString(cursor.getColumnIndex("currency")));
                     c.setText(r);
                     c2.setText(r);
-                } catch(Exception e) {
+                } catch (Exception e) {
                     // Не вышло прочитать тариф
                 }
             } else { // Без тарифа
                 LinearLayout l1 = (LinearLayout)view.findViewById(R.id.lRateInfo);
                 LinearLayout l2 = (LinearLayout)view.findViewById(R.id.lCost);
-                
+
                 l1.setVisibility(View.GONE);
                 l2.setVisibility(View.GONE);
             }
-            
+
             try {
                 m = Html.fromHtml(cursor.getString(cursor.getColumnIndex("measure")));
-            } catch(Exception e) {
+            } catch (Exception e) {
                 // Не вышло прочитать единицу измерения
             }
-            
+
             try {
+                String entryDate = cursor.getString(cursor.getColumnIndex("entry_date"));
+                GregorianCalendar c = (GregorianCalendar)Calendar.getInstance();
+                c.setTimeInMillis(java.sql.Timestamp.valueOf(entryDate).getTime());
+                
                 TextView date = (TextView)view.findViewById(R.id.tvDate);
                 TextView month = (TextView)view.findViewById(R.id.tvMonth);
-                
-                String[] ml = getResources().getStringArray(R.array.month_list);
-                
-                String entryDate = cursor.getString(cursor.getColumnIndex("entry_date"));
-                Date d = new Date(java.sql.Timestamp.valueOf(entryDate).getTime());
-                
-                date.setText(new SimpleDateFormat(getResources().getString(R.string.date_time_format)).format(d));
-                month.setText(ml[d.getMonth()]);
+
+                switch (periodType) {
+                    case 0: // Год
+                        month.setText(Integer.toString(c.get(Calendar.YEAR)) + " " + getResources().getString(R.string.year));
+                        date.setText(new SimpleDateFormat(getResources().getString(
+                                R.string.date_time_format)).format(c.getTime()));
+                        break;
+
+                    case 1: // Месяц
+                        String[] ml = getResources().getStringArray(R.array.month_list);
+                        month.setText(ml[c.get(Calendar.MONTH)]);
+                        date.setText(new SimpleDateFormat(getResources().getString(
+                                R.string.date_time_format)).format(c.getTime()));
+                       
+                        break;
+                    
+                    case 2: // День
+                        month.setText(new SimpleDateFormat("EEEEEEE", context.getResources().getConfiguration().locale).format(c.getTime()));
+                        date.setText(new SimpleDateFormat(getResources().getString(
+                                R.string.date_time_format)).format(c.getTime()));
+                        break;
+                        
+                    case 3: // Час
+                    case 4: // Минута
+                        month.setText(new SimpleDateFormat(getResources().getString(
+                                R.string.time_format)).format(c.getTime()));
+                        date.setText(new SimpleDateFormat(getResources().getString(
+                                R.string.date_format)).format(c.getTime()));
+                        break;
+
+                    default:
+                        String[] ml2 = getResources().getStringArray(R.array.month_list);
+                        month.setText(ml2[c.get(Calendar.MONTH)]);
+                        date.setText(new SimpleDateFormat(getResources().getString(
+                                R.string.date_time_format)).format(c.getTime()));
+                }
             } catch (Exception e) {
                 // Нет даты
             }
-            
+
             try {
                 TextView value = (TextView)view.findViewById(R.id.tvValue);
-                float v = cursor.getFloat(cursor.getColumnIndex("value"));                
-                
+                float v = cursor.getFloat(cursor.getColumnIndex("value"));
+
                 value.setText(Float.toString(v));
-                
+
             } catch (Exception e) {
                 // Нет значения
             }
-            
+
             try {
                 TextView delta = (TextView)view.findViewById(R.id.tvDelta);
                 float d = cursor.getFloat(cursor.getColumnIndex("delta"));
-                
+
                 if (d < 0) {
                     delta.setText(Float.toString(d));
                 } else {
@@ -293,12 +331,12 @@ public class EntryActivity extends Activity implements OnClickListener {
             } catch (Exception e) {
                 // Нет дельты
             }
-            
+
             try {
                 TextView measure = (TextView)view.findViewById(R.id.tvMeasure);
                 TextView measure2 = (TextView)view.findViewById(R.id.tvMeasure2);
                 TextView measure3 = (TextView)view.findViewById(R.id.tvMeasure3);
-                
+
                 measure.setText(m);
                 measure2.setText(m);
                 measure3.setText(m);

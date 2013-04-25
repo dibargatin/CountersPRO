@@ -43,7 +43,9 @@ public class EntryEditActivity extends Activity implements OnClickListener {
 
     int mRateType = 1;
     
-    EditText mEditDateTime;
+    EditText mEditDate;
+    
+    EditText mEditTime;
     
     Timestamp mDateTime;
 
@@ -62,10 +64,11 @@ public class EntryEditActivity extends Activity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entry_edit_form);
-
-        // Прочитаем параметры вызова
-        Intent intent = getIntent();
+        
         mDbHelper = new DBHelper(this);
+        
+        // Прочитаем параметры вызова
+        Intent intent = getIntent();        
 
         mCounterId = intent.getLongExtra(CounterActivity.EXTRA_COUNTER_ID, -1);
         mEntryId = intent.getLongExtra(EntryEditActivity.EXTRA_ENTRY_ID, -1);
@@ -84,43 +87,77 @@ public class EntryEditActivity extends Activity implements OnClickListener {
         final GregorianCalendar c = (GregorianCalendar)Calendar.getInstance();
         mDateTime = new Timestamp(c.getTimeInMillis());
         
-        mEditDateTime = (EditText)findViewById(R.id.etDateTime);        
-        mEditDateTime.setText(new SimpleDateFormat(getResources().getString(R.string.date_time_format)).format(c.getTime()));
-        mEditDateTime.setOnClickListener(new OnClickListener() {
+        // Контрол выбора даты показания
+        mEditDate = (EditText)findViewById(R.id.etDate);        
+        mEditDate.setText(new SimpleDateFormat(getResources().getString(R.string.date_format)).format(c.getTime()));
+        mEditDate.setOnClickListener(new OnClickListener() {
             
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(EntryEditActivity.this);
-                alert.setTitle(getResources().getString(R.string.date_time));
+                alert.setTitle(getResources().getString(R.string.date));
                 
-                final LinearLayout layout = new LinearLayout(EntryEditActivity.this);
                 final DatePicker date = new DatePicker(EntryEditActivity.this);
-                final TimePicker time = new TimePicker(EntryEditActivity.this);
-                
-                time.setIs24HourView(true); // TODO: preference
                 
                 c.setTime(mDateTime);
-
                 date.updateDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH),
                         c.get(Calendar.DAY_OF_MONTH));
-                time.setCurrentHour(c.get(Calendar.HOUR_OF_DAY)); // TODO: если 12-часовой формат, то использовать HOUR
-                time.setCurrentMinute(c.get(Calendar.MINUTE));
-                
-                layout.setOrientation(LinearLayout.VERTICAL);
-                layout.addView(date);
-                layout.addView(time);
-                                                
-                alert.setView(layout);
+                                                                
+                alert.setView(date);
                 
                 alert.setPositiveButton(getResources().getString(R.string.ok),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                c.set(date.getYear(), date.getMonth(), date.getDayOfMonth(),
-                                        time.getCurrentHour(), time.getCurrentMinute(), 0);
+                                c.setTime(mDateTime); 
+                                c.set(date.getYear(), date.getMonth(), date.getDayOfMonth());
+                                
+                                mDateTime.setTime(c.getTimeInMillis());
+                                mEditDate.setText(new SimpleDateFormat(getResources().getString(R.string.date_format)).format(c.getTime()));
+                            }
+                        });
+
+                alert.setNegativeButton(getResources().getString(R.string.cancel),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                // На нет и суда нет
+                            }
+                        });
+                
+                alert.show();
+                
+            }
+        });
+        
+        // Контрол выбора времени показания
+        mEditTime = (EditText)findViewById(R.id.etTime);        
+        mEditTime.setText(new SimpleDateFormat(getResources().getString(R.string.time_format)).format(c.getTime()));
+        mEditTime.setOnClickListener(new OnClickListener() {
+            
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(EntryEditActivity.this);
+                alert.setTitle(getResources().getString(R.string.time));
+                                
+                final TimePicker time = new TimePicker(EntryEditActivity.this);                
+                time.setIs24HourView(true); // TODO: preference
+                
+                c.setTime(mDateTime);                
+                time.setCurrentHour(c.get(Calendar.HOUR_OF_DAY)); // TODO: если 12-часовой формат, то использовать HOUR
+                time.setCurrentMinute(c.get(Calendar.MINUTE));
+                                                
+                alert.setView(time);
+                
+                alert.setPositiveButton(getResources().getString(R.string.ok),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                c.setTime(mDateTime); 
+                                c.set(Calendar.HOUR_OF_DAY, time.getCurrentHour());  // TODO: если 12-часовой формат, то использовать HOUR
+                                c.set(Calendar.MINUTE, time.getCurrentMinute());
+                                c.set(Calendar.SECOND, 0);
                                 c.set(Calendar.MILLISECOND, 0);
                                 
                                 mDateTime.setTime(c.getTimeInMillis());
-                                mEditDateTime.setText(new SimpleDateFormat(getResources().getString(R.string.date_time_format)).format(c.getTime()));
+                                mEditTime.setText(new SimpleDateFormat(getResources().getString(R.string.time_format)).format(c.getTime()));
                             }
                         });
 
@@ -158,7 +195,8 @@ public class EntryEditActivity extends Activity implements OnClickListener {
                 mDateTime = java.sql.Timestamp.valueOf(d);
                 
                 c.setTime(mDateTime);
-                mEditDateTime.setText(new SimpleDateFormat(getResources().getString(R.string.date_time_format)).format(c.getTime()));
+                mEditDate.setText(new SimpleDateFormat(getResources().getString(R.string.date_format)).format(c.getTime()));
+                mEditTime.setText(new SimpleDateFormat(getResources().getString(R.string.time_format)).format(c.getTime()));
                 
                 mValue.setText(cur.getString(cur.getColumnIndex("value")));
                 mRate.setText(cur.getString(cur.getColumnIndex("rate")));
@@ -176,7 +214,8 @@ public class EntryEditActivity extends Activity implements OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_entry_edit_form_btn_ok:
-                                                
+                
+                // Проверим на наличие показания на указанные дату и время
                 boolean exists = mDbHelper.isEntryExists(mCounterId, mDateTime.toString());                
                 
                 if (exists) {
@@ -186,6 +225,7 @@ public class EntryEditActivity extends Activity implements OnClickListener {
                     return;
                 }
                 
+                // Прочитаем значение и тариф
                 double va = 0;
                 double r = 0;
 
@@ -212,13 +252,15 @@ public class EntryEditActivity extends Activity implements OnClickListener {
                         r = 0;
                     }
                 }
-
+                
+                // Сохраним результат
                 if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
                     mDbHelper.insertEntry(mCounterId, mDateTime.toString(), va, r);
                 } else {
                     mDbHelper.updateEntry(mEntryId, mDateTime.toString(), va, r);
                 }
-
+                
+                // Завершим диалог 
                 setResult(RESULT_OK);
                 finish();
                 break;

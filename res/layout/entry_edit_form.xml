@@ -104,19 +104,42 @@
                 android:orientation="vertical" >
 
                 <TextView
-                    android:id="@+id/tvDateTime"
+                    android:id="@+id/tvDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/date_time" />
+                    android:text="@string/date" />
 
                 <EditText
-                    android:id="@+id/etDateTime"
+                    android:id="@+id/etDate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:focusable="false"
                     android:inputType="date|time" />
 
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/tvTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/time" />
+
+                <EditText
+                    android:id="@+id/etTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:focusable="false"
+                    android:inputType="date|time" />
             </LinearLayout>
 
         </LinearLayout>
