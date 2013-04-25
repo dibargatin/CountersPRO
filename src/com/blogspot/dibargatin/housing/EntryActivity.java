@@ -1,6 +1,7 @@
 
 package com.blogspot.dibargatin.housing;
 
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -26,6 +27,8 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import com.blogspot.dibargatin.housing.util.FormulaEvaluator;
+
 public class EntryActivity extends Activity implements OnClickListener {
     // ===========================================================
     // Constants
@@ -45,6 +48,10 @@ public class EntryActivity extends Activity implements OnClickListener {
 
     long mCounterId;
 
+    String[] mFormulaValueAliases;
+
+    String[] mFormulaDeltaAliases;
+
     // ===========================================================
     // Constructors
     // ===========================================================
@@ -62,6 +69,9 @@ public class EntryActivity extends Activity implements OnClickListener {
         setContentView(R.layout.entries_form);
 
         mDbHelper = new DBHelper(this);
+
+        mFormulaValueAliases = getResources().getStringArray(R.array.formula_var_value_aliases);
+        mFormulaDeltaAliases = getResources().getStringArray(R.array.formula_var_delta_aliases);
 
         TextView name = (TextView)findViewById(R.id.tvCounterName);
         TextView note = (TextView)findViewById(R.id.tvCounterNote);
@@ -222,22 +232,75 @@ public class EntryActivity extends Activity implements OnClickListener {
 
             CharSequence m = "";
             CharSequence r = "";
+            
             int rateType = 0;
             int periodType = 1;
+            
+            double v = 0;
+            double d = 0;
 
+            NumberFormat nf = NumberFormat.getNumberInstance(context.getResources()
+                    .getConfiguration().locale);
+            
+            // Читаем и устанавливаем значение
+            try {
+                TextView value = (TextView)view.findViewById(R.id.tvValue);
+                v = cursor.getDouble(cursor.getColumnIndex("value"));
+
+                value.setText(nf.format(v));
+
+            } catch (Exception e) {
+                // Нет значения
+            }
+
+            // Читаем и устанавливаем дельту
+            try {
+                TextView delta = (TextView)view.findViewById(R.id.tvDelta);
+                d = cursor.getDouble(cursor.getColumnIndex("delta"));
+
+                if (d < 0) {
+                    delta.setText(nf.format(d));
+                } else {
+                    delta.setText("+ " + nf.format(d));
+                }
+            } catch (Exception e) {
+                // Нет дельты
+            }
+
+            // Читаем вид тарифа
             try {
                 rateType = cursor.getInt(cursor.getColumnIndex("rate_type"));
             } catch (Exception e) {
                 // Не вышло прочитать вид тарифа
             }
 
+            // Читаем единицу измерения
             try {
-                periodType = cursor.getInt(cursor.getColumnIndex("period_type"));
+                m = Html.fromHtml(cursor.getString(cursor.getColumnIndex("measure")));
             } catch (Exception e) {
-                // Не вышло прочитать вид периода
+                // Не вышло прочитать единицу измерения
             }
 
-            if (rateType > 0) {
+            // Устанавливаем единицу измерения
+            try {
+                TextView measure = (TextView)view.findViewById(R.id.tvMeasure);
+                TextView measure2 = (TextView)view.findViewById(R.id.tvMeasure2);
+                TextView measure3 = (TextView)view.findViewById(R.id.tvMeasure3);
+
+                measure.setText(m);
+                measure2.setText(m);
+
+                if (rateType == 1) { // Простой тариф
+                    measure3.setText(m);
+                } else {
+                    measure3.setText("");
+                }
+            } catch (Exception e) {
+                // Нет единицы измерения
+            }
+
+            // Выводим инфорацию о тарифе и о затратах
+            if (rateType == 1) { // Простой тариф
                 try {
                     TextView c = (TextView)view.findViewById(R.id.tvCurrency);
                     TextView c2 = (TextView)view.findViewById(R.id.tvCurrency2);
@@ -245,9 +308,39 @@ public class EntryActivity extends Activity implements OnClickListener {
                     r = Html.fromHtml(cursor.getString(cursor.getColumnIndex("currency")));
                     c.setText(r);
                     c2.setText(r);
+                    
+                    double res = cursor.getDouble(cursor.getColumnIndex("cost"));
+                                        
+                    TextView cost = (TextView)view.findViewById(R.id.tvCost);
+                    cost.setText(nf.format(res));
+                    
                 } catch (Exception e) {
                     // Не вышло прочитать тариф
                 }
+
+            } else if (rateType == 2) { // Формула
+                TextView c = (TextView)view.findViewById(R.id.tvCurrency);
+                c.setText("");
+
+                TextView rn = (TextView)view.findViewById(R.id.tvRateName);
+                rn.setText(getResources().getString(R.string.formula));
+
+                TextView rv = (TextView)view.findViewById(R.id.tvRateValue);
+
+                TextView cost = (TextView)view.findViewById(R.id.tvCost);
+                final FormulaEvaluator eval = new FormulaEvaluator(mFormulaValueAliases, v,
+                        mFormulaDeltaAliases, d);
+
+                try {
+                    String expression = cursor.getString(cursor.getColumnIndex("formula"));
+                    rv.setText(expression);
+
+                    double res = eval.evaluate(expression);
+                    cost.setText(nf.format(res));
+                } catch (IllegalArgumentException e) {
+                    cost.setText(getResources().getString(R.string.error_evaluator_expression));
+                }
+
             } else { // Без тарифа
                 LinearLayout l1 = (LinearLayout)view.findViewById(R.id.lRateInfo);
                 LinearLayout l2 = (LinearLayout)view.findViewById(R.id.lCost);
@@ -256,23 +349,26 @@ public class EntryActivity extends Activity implements OnClickListener {
                 l2.setVisibility(View.GONE);
             }
 
+            // Читаем вид периода
             try {
-                m = Html.fromHtml(cursor.getString(cursor.getColumnIndex("measure")));
+                periodType = cursor.getInt(cursor.getColumnIndex("period_type"));
             } catch (Exception e) {
-                // Не вышло прочитать единицу измерения
+                // Не вышло прочитать вид периода
             }
 
+            // Выводим дату и время показания
             try {
                 String entryDate = cursor.getString(cursor.getColumnIndex("entry_date"));
                 GregorianCalendar c = (GregorianCalendar)Calendar.getInstance();
                 c.setTimeInMillis(java.sql.Timestamp.valueOf(entryDate).getTime());
-                
+
                 TextView date = (TextView)view.findViewById(R.id.tvDate);
                 TextView month = (TextView)view.findViewById(R.id.tvMonth);
 
                 switch (periodType) {
                     case 0: // Год
-                        month.setText(Integer.toString(c.get(Calendar.YEAR)) + " " + getResources().getString(R.string.year));
+                        month.setText(Integer.toString(c.get(Calendar.YEAR)) + " "
+                                + getResources().getString(R.string.year));
                         date.setText(new SimpleDateFormat(getResources().getString(
                                 R.string.date_time_format)).format(c.getTime()));
                         break;
@@ -282,15 +378,16 @@ public class EntryActivity extends Activity implements OnClickListener {
                         month.setText(ml[c.get(Calendar.MONTH)]);
                         date.setText(new SimpleDateFormat(getResources().getString(
                                 R.string.date_time_format)).format(c.getTime()));
-                       
+
                         break;
-                    
+
                     case 2: // День
-                        month.setText(new SimpleDateFormat("EEEEEEE", context.getResources().getConfiguration().locale).format(c.getTime()));
+                        month.setText(new SimpleDateFormat("EEEEEEE", context.getResources()
+                                .getConfiguration().locale).format(c.getTime()));
                         date.setText(new SimpleDateFormat(getResources().getString(
                                 R.string.date_time_format)).format(c.getTime()));
                         break;
-                        
+
                     case 3: // Час
                     case 4: // Минута
                         month.setText(new SimpleDateFormat(getResources().getString(
@@ -307,41 +404,6 @@ public class EntryActivity extends Activity implements OnClickListener {
                 }
             } catch (Exception e) {
                 // Нет даты
-            }
-
-            try {
-                TextView value = (TextView)view.findViewById(R.id.tvValue);
-                float v = cursor.getFloat(cursor.getColumnIndex("value"));
-
-                value.setText(Float.toString(v));
-
-            } catch (Exception e) {
-                // Нет значения
-            }
-
-            try {
-                TextView delta = (TextView)view.findViewById(R.id.tvDelta);
-                float d = cursor.getFloat(cursor.getColumnIndex("delta"));
-
-                if (d < 0) {
-                    delta.setText(Float.toString(d));
-                } else {
-                    delta.setText("+ " + Float.toString(d));
-                }
-            } catch (Exception e) {
-                // Нет дельты
-            }
-
-            try {
-                TextView measure = (TextView)view.findViewById(R.id.tvMeasure);
-                TextView measure2 = (TextView)view.findViewById(R.id.tvMeasure2);
-                TextView measure3 = (TextView)view.findViewById(R.id.tvMeasure3);
-
-                measure.setText(m);
-                measure2.setText(m);
-                measure3.setText(m);
-            } catch (Exception e) {
-                // Нет единицы измерения
             }
         }
 

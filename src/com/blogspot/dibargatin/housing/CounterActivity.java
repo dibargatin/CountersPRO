@@ -17,7 +17,9 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.blogspot.dibargatin.housing.util.FormulaEvaluator;
 import com.larswerkman.colorpicker.ColorPicker;
 import com.larswerkman.colorpicker.SaturationBar;
 
@@ -45,6 +47,8 @@ public class CounterActivity extends Activity implements OnClickListener {
     EditText mCurrency;
 
     Spinner mRateType;
+
+    EditText mFormula;
 
     Spinner mPeriodType;
 
@@ -81,6 +85,7 @@ public class CounterActivity extends Activity implements OnClickListener {
         mNote = (EditText)findViewById(R.id.etNote);
         mMeasure = (EditText)findViewById(R.id.etMeasure);
         mCurrency = (EditText)findViewById(R.id.etCurrency);
+        mFormula = (EditText)findViewById(R.id.etFormula);
 
         // Контрол для выбора вида тарифа
         mRateType = (Spinner)findViewById(R.id.sRateType);
@@ -96,12 +101,22 @@ public class CounterActivity extends Activity implements OnClickListener {
         mRateType.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                LinearLayout l = (LinearLayout)CounterActivity.this.findViewById(R.id.lCurrency);
+                final LinearLayout l = (LinearLayout)CounterActivity.this
+                        .findViewById(R.id.lCurrency);
 
                 if (id == 0) { // Без тарифа
                     l.setVisibility(View.GONE);
                 } else {
                     l.setVisibility(View.VISIBLE);
+                }
+
+                final LinearLayout lf = (LinearLayout)CounterActivity.this
+                        .findViewById(R.id.lFormula);
+
+                if (id == 2) { // Формула
+                    lf.setVisibility(View.VISIBLE);
+                } else {
+                    lf.setVisibility(View.GONE);
                 }
             }
 
@@ -145,6 +160,7 @@ public class CounterActivity extends Activity implements OnClickListener {
                 mCurrency.setText(c.getString(c.getColumnIndex("currency")));
                 mRateType.setSelection(c.getInt(c.getColumnIndex("rate_type")));
                 mPeriodType.setSelection(c.getInt(c.getColumnIndex("period_type")));
+                mFormula.setText(c.getString(c.getColumnIndex("formula")));
 
                 LinearLayout l = (LinearLayout)CounterActivity.this.findViewById(R.id.lCurrency);
 
@@ -152,6 +168,15 @@ public class CounterActivity extends Activity implements OnClickListener {
                     l.setVisibility(View.GONE);
                 } else {
                     l.setVisibility(View.VISIBLE);
+                }
+
+                final LinearLayout lf = (LinearLayout)CounterActivity.this
+                        .findViewById(R.id.lFormula);
+
+                if (mRateType.getSelectedItemId() == 2) { // Формула
+                    lf.setVisibility(View.VISIBLE);
+                } else {
+                    lf.setVisibility(View.GONE);
                 }
             }
         }
@@ -163,17 +188,47 @@ public class CounterActivity extends Activity implements OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnOk:
+                // Проверим корректность введенной формулы
+                if (mRateType.getSelectedItemId() == 2) { // Формула
+                    String[] val = getResources().getStringArray(R.array.formula_var_value_aliases);
+                    String[] dlt = getResources().getStringArray(R.array.formula_var_delta_aliases);
+                    
+                    final FormulaEvaluator eval = new FormulaEvaluator(val, 1.0, dlt, 11.0);
+                    String expression = mFormula.getText().toString();
+
+                    try {                        
+                        /*
+                        Toast.makeText(
+                                CounterActivity.this,
+                                expression + " = " + Double.toString(eval.evaluate(expression)),
+                                Toast.LENGTH_SHORT).show();
+                        //*/
+                        eval.evaluate(expression);
+                    } catch (IllegalArgumentException e) {
+                        Toast.makeText(
+                                CounterActivity.this,
+                                (expression
+                                        + " "
+                                        + getResources().getString(
+                                                R.string.error_evaluator_expression)).trim(),
+                                Toast.LENGTH_SHORT).show();
+                        mFormula.requestFocus();
+                        
+                        return;
+                    }
+                }
+
                 // Сохраним результат
                 if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
                     mDbHelper.insertCounter(mName.getText().toString(), mNote.getText().toString(),
                             mPickedColor, mMeasure.getText().toString(), mCurrency.getText()
                                     .toString(), mRateType.getSelectedItemPosition(), mPeriodType
-                                    .getSelectedItemPosition());
+                                    .getSelectedItemPosition(), mFormula.getText().toString());
                 } else {
                     mDbHelper.updateCounter(mCounterId, mName.getText().toString(), mNote.getText()
                             .toString(), mPickedColor, mMeasure.getText().toString(), mCurrency
                             .getText().toString(), mRateType.getSelectedItemPosition(), mPeriodType
-                            .getSelectedItemPosition());
+                            .getSelectedItemPosition(), mFormula.getText().toString());
                 }
 
                 // Завершим диалог

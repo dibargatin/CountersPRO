@@ -15,7 +15,7 @@ public class DBHelper extends SQLiteOpenHelper {
     // ===========================================================
     public static String DB_NAME = "housing_db.sqlite3";
 
-    public static int DB_VERSION = 3;
+    public static int DB_VERSION = 4;
     
     private static final Patch[] PATCHES = new Patch[] {
         // №1 Таблицы для храненения счетчиков и показаний
@@ -227,6 +227,84 @@ public class DBHelper extends SQLiteOpenHelper {
                 }
             }
          }
+        
+        // №4 Формула в таблицу счетчиков
+        ,new Patch() {
+            public void apply(SQLiteDatabase db) {
+                db.beginTransaction();
+                
+                try {
+                    db.execSQL("ALTER TABLE Counters RENAME TO Counters_old;");
+                                    
+                    final String queryCounters = ""
+                            + "CREATE TABLE Counters (" 
+                            + " _id INTEGER PRIMARY KEY" 
+                            + ",name TEXT" 
+                            + ",note TEXT" 
+                            + ",measure TEXT" 
+                            + ",color INTEGER"
+                            + ",currency TEXT"
+                            + ",rate_type INTEGER"
+                            + ",period_type INTEGER"
+                            + ",formula TEXT"
+                            + ");";
+                    
+                    db.execSQL(queryCounters);
+                    
+                    final String queryCopyData = ""
+                            + "INSERT INTO Counters (_id, name, note, measure, color, currency, rate_type, period_type, formula) "
+                            + "SELECT _id, name, note, measure, color, currency, 1 AS rate_type, 1 AS period_type, '' AS formula FROM Counters_old;";
+                    
+                    db.execSQL(queryCopyData);
+                    
+                    db.execSQL("DROP TABLE IF EXISTS Counters_old;");
+                    
+                    db.setTransactionSuccessful();
+                    
+                } catch (Exception e) {
+                    Log.d(MainActivity.LOG_TAG, e.getStackTrace().toString());
+                } finally {
+                    db.endTransaction();
+                }                
+            }
+            
+            public void revert(SQLiteDatabase db) { 
+                db.beginTransaction();
+                
+                try {
+                    db.execSQL("ALTER TABLE Counters RENAME TO Counters_old");
+                                    
+                    final String queryCounters = ""
+                            + "CREATE TABLE Counters (" 
+                            + " _id INTEGER PRIMARY KEY" 
+                            + ",name TEXT" 
+                            + ",note TEXT" 
+                            + ",measure TEXT" 
+                            + ",color INTEGER"
+                            + ",currency TEXT"
+                            + ",rate_type INTEGER"
+                            + ",period_type INTEGER"
+                            + ");";
+                    
+                    db.execSQL(queryCounters);
+                    
+                    final String queryCopyData = ""
+                            + "INSERT INTO Counters (_id, name, note, measure, color, currency, rate_type, period_type) "
+                            + "SELECT _id, name, note, measure, color, currency, rate_type, period_type FROM Counters_old";
+                    
+                    db.execSQL(queryCopyData);
+                    
+                    db.execSQL("DROP TABLE IF EXISTS Counters_old;");
+                    
+                    db.setTransactionSuccessful();
+                    
+                } catch (Exception e) {
+                    Log.d(MainActivity.LOG_TAG, e.getStackTrace().toString());
+                } finally {
+                    db.endTransaction();
+                }
+            }
+         }
         /*
         , new Patch() {
            public void apply(SQLiteDatabase db) { ... }
@@ -304,7 +382,7 @@ public class DBHelper extends SQLiteOpenHelper {
         });
     }
 
-    public long insertCounter(String name, String note, int color, String measure, String currency, int rateType, int periodType) {
+    public long insertCounter(String name, String note, int color, String measure, String currency, int rateType, int periodType, String formula) {
         ContentValues cv = new ContentValues();
 
         cv.put("name", name);
@@ -314,11 +392,12 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("currency", currency);
         cv.put("rate_type", rateType);
         cv.put("period_type", periodType);
+        cv.put("formula", formula);
 
         return getWritableDatabase().insert("Counters", null, cv);
     }
 
-    public void updateCounter(long id, String name, String note, int color, String measure, String currency, int rateType, int periodType) {
+    public void updateCounter(long id, String name, String note, int color, String measure, String currency, int rateType, int periodType, String formula) {
         ContentValues cv = new ContentValues();
 
         cv.put("name", name);
@@ -328,7 +407,8 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("currency", currency);
         cv.put("rate_type", rateType);
         cv.put("period_type", periodType);
-
+        cv.put("formula", formula);
+        
         getWritableDatabase().update("Counters", cv, "_id = ?", new String[] {
             Long.toString(id)
         });
@@ -379,6 +459,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 + "      ,c.currency AS currency"
                 + "      ,c.rate_type AS rate_type"
                 + "      ,c.period_type AS period_type"
+                + "      ,c.formula AS formula"
                 + "  FROM (SELECT _id" 
                 + "              ,counter_id"
                 + "              ,entry_date" 

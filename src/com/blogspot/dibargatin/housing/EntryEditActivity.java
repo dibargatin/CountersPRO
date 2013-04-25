@@ -204,7 +204,7 @@ public class EntryEditActivity extends Activity implements OnClickListener {
             }
         }
 
-        if (mRateType == 0) { // Счетчик без тарифа
+        if (mRateType != 1) { // Счетчик без тарифа
             LinearLayout l = (LinearLayout)findViewById(R.id.lRate);
             l.setVisibility(View.GONE);
         }

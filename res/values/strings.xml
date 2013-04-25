@@ -33,10 +33,28 @@
     <string name="counters_edit_form_btn_ok">Сохранить</string>
     <string name="counters_edit_form_btn_cancel">Отменить</string>
     
+    <string name="error_evaluator_expression">неверное выражение</string>
+    
     <string name="measure">Единица измерения</string>
     <string name="rate">Тариф за</string>
     <string name="currency">р.</string>
     <string name="rate_currency">Валюта тарифа</string>
+    <string name="formula">формула</string>
+    <string name="formula_text">Текст формулы</string>
+    
+    <string-array name="formula_var_value_aliases">
+        <item>v</item>
+        <item>value</item>
+        <item>значение</item>
+        <item>знач</item>
+    </string-array>
+    
+    <string-array name="formula_var_delta_aliases">
+        <item>d</item>
+        <item>delta</item>
+        <item>дельта</item>
+        <item>длт</item>
+    </string-array>
     
     <string name="rate_type">Вид тарифа</string>
     <string-array name="rate_type_list">

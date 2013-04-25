@@ -1,6 +1,7 @@
 
 package com.blogspot.dibargatin.housing;
 
+import java.text.NumberFormat;
 import java.util.Date;
 
 import android.app.AlertDialog;
@@ -230,12 +231,26 @@ public class MainActivity extends ListActivity {
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
             super.bindView(view, context, cursor);
-
+            
+            NumberFormat nf = NumberFormat.getNumberInstance(context.getResources()
+                    .getConfiguration().locale);
+            
             try {
                 int color = cursor.getInt(cursor.getColumnIndex("color"));
                 view.findViewById(R.id.vColor).setBackgroundColor(color);
             } catch (Exception e) {
                 // Нет цвета
+            }
+            
+            // Читаем и устанавливаем значение
+            try {
+                TextView value = (TextView)view.findViewById(R.id.tvValue);
+                double v = cursor.getDouble(cursor.getColumnIndex("value"));
+
+                value.setText(nf.format(v));
+
+            } catch (Exception e) {
+                // Нет значения
             }
             
             try {
