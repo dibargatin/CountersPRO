@@ -261,7 +261,7 @@ public class EntryActivity extends Activity implements OnClickListener {
                 if (d < 0) {
                     delta.setText(nf.format(d));
                 } else {
-                    delta.setText("+ " + nf.format(d));
+                    delta.setText("+" + nf.format(d));
                 }
             } catch (Exception e) {
                 // Нет дельты
@@ -308,6 +308,11 @@ public class EntryActivity extends Activity implements OnClickListener {
                     r = Html.fromHtml(cursor.getString(cursor.getColumnIndex("currency")));
                     c.setText(r);
                     c2.setText(r);
+                                        
+                    double rv = cursor.getDouble(cursor.getColumnIndex("rate"));
+                    
+                    TextView rate = (TextView)view.findViewById(R.id.tvRateValue);
+                    rate.setText(nf.format(rv));
                     
                     double res = cursor.getDouble(cursor.getColumnIndex("cost"));
                                         

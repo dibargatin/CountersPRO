@@ -36,7 +36,7 @@
     <string name="error_evaluator_expression">неверное выражение</string>
     
     <string name="measure">Единица измерения</string>
-    <string name="rate">Тариф за</string>
+    <string name="rate">тариф за</string>
     <string name="currency">р.</string>
     <string name="rate_currency">Валюта тарифа</string>
     <string name="formula">формула</string>
