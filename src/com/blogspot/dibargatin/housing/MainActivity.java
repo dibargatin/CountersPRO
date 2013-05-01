@@ -232,6 +232,23 @@ public class MainActivity extends ListActivity {
         public void bindView(View view, Context context, Cursor cursor) {
             super.bindView(view, context, cursor);
             
+            /*
+            // Рисуем график динамики показаний
+            final LinearLayout l = (LinearLayout)view.findViewById(R.id.lCounterItem);
+            l.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
+            
+            final Bitmap b = Bitmap.createBitmap(l.getMeasuredHeight(), l.getMeasuredHeight(), Config.ARGB_8888);
+            final Canvas c = new Canvas(b);
+            
+            final Paint paint = new Paint();
+            paint.setStyle(Paint.Style.FILL);            
+            paint.setColor(Color.BLUE);
+            
+            c.drawCircle(l.getMeasuredHeight() * 0.5f, l.getMeasuredHeight()  * 0.5f, 10, paint);
+            l.setBackgroundDrawable(new BitmapDrawable(b));
+            */
+            
+            // Выводим значения
             NumberFormat nf = NumberFormat.getNumberInstance(context.getResources()
                     .getConfiguration().locale);
             

@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.Menu;
@@ -23,10 +24,16 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import com.blogspot.dibargatin.housing.graph.GraphSeries;
+import com.blogspot.dibargatin.housing.graph.GraphSeries.GraphData;
+import com.blogspot.dibargatin.housing.graph.GraphSeries.GraphSeriesStyle;
+import com.blogspot.dibargatin.housing.graph.LineGraph;
 import com.blogspot.dibargatin.housing.util.FormulaEvaluator;
 
 public class EntryActivity extends Activity implements OnClickListener {
@@ -97,8 +104,8 @@ public class EntryActivity extends Activity implements OnClickListener {
                 R.id.tvMeasure, R.id.tvMeasure2, R.id.tvMeasure3
         };
 
-        mAdapter = new EntriesCursorAdapter(this, R.layout.entry_list_item,
-                mDbHelper.fetchEntriesByCounterId(mCounterId), from, to);
+        final Cursor ec = mDbHelper.fetchEntriesByCounterId(mCounterId);
+        mAdapter = new EntriesCursorAdapter(this, R.layout.entry_list_item, ec, from, to);
 
         ListView list = (ListView)findViewById(R.id.listView1);
         list.setAdapter(mAdapter);
@@ -149,6 +156,37 @@ public class EntryActivity extends Activity implements OnClickListener {
                 return true;
             }
         });
+
+        // Рисуем график
+        final int entryCount = ec.getCount();
+
+        if (entryCount > 1) {
+            RelativeLayout rl = (RelativeLayout)findViewById(R.id.rlHeader);
+
+            LineGraph lg = new LineGraph(this);
+            GraphSeriesStyle s = new GraphSeriesStyle();
+            
+            float[] hsv = new float[3];
+            Color.colorToHSV(c.getInt(c.getColumnIndex("color")), hsv);
+            hsv[1] = 0.2f;            
+            s.graphColor = Color.HSVToColor(hsv);
+
+            GraphData[] gd = new GraphData[entryCount];
+            int indx = 0;
+
+            ec.moveToFirst();
+            do {
+                String entryDate = ec.getString(ec.getColumnIndex("entry_date"));
+                float x = java.sql.Timestamp.valueOf(entryDate).getTime();
+                float y = ec.getFloat(ec.getColumnIndex("delta"));
+                gd[indx++] = new GraphData(x, y);
+            } while (ec.moveToNext());            
+
+            lg.addSeries(new GraphSeries(gd, "", "", "", s));
+            lg.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
+                    LayoutParams.MATCH_PARENT));
+            rl.addView(lg, 0);
+        }
     }
 
     @Override
@@ -232,16 +270,16 @@ public class EntryActivity extends Activity implements OnClickListener {
 
             CharSequence m = "";
             CharSequence r = "";
-            
+
             int rateType = 0;
             int periodType = 1;
-            
+
             double v = 0;
             double d = 0;
 
             NumberFormat nf = NumberFormat.getNumberInstance(context.getResources()
                     .getConfiguration().locale);
-            
+
             // Читаем и устанавливаем значение
             try {
                 TextView value = (TextView)view.findViewById(R.id.tvValue);
@@ -308,17 +346,17 @@ public class EntryActivity extends Activity implements OnClickListener {
                     r = Html.fromHtml(cursor.getString(cursor.getColumnIndex("currency")));
                     c.setText(r);
                     c2.setText(r);
-                                        
+
                     double rv = cursor.getDouble(cursor.getColumnIndex("rate"));
-                    
+
                     TextView rate = (TextView)view.findViewById(R.id.tvRateValue);
                     rate.setText(nf.format(rv));
-                    
+
                     double res = cursor.getDouble(cursor.getColumnIndex("cost"));
-                                        
+
                     TextView cost = (TextView)view.findViewById(R.id.tvCost);
                     cost.setText(nf.format(res));
-                    
+
                 } catch (Exception e) {
                     // Не вышло прочитать тариф
                 }
