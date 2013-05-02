@@ -2,7 +2,8 @@
 
     <item
         android:id="@+id/action_add_counter"
-        android:orderInCategory="100"
+        android:icon="@drawable/content_new"
+        android:showAsAction="always|withText"
         android:title="@string/action_add_counter"/>
 
 </menu>

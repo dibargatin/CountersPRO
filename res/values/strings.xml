@@ -21,13 +21,14 @@
     
     <string name="action_entry_del_confirm">Удалить показание?</string>
     
-    <string name="entry_form_title">Показания счетчика</string>
-    <string name="action_add_counter">Добавить счетчик</string>
+    <string name="entry_form_title">ПОКАЗАНИЯ</string>
+    <string name="action_add_counter">Добавить</string>
     <string name="action_settings">Настройки</string>
-    <string name="action_add_entry">Добавить показание</string>
+    <string name="action_add_entry">Добавить</string>
     
-    <string name="counters_edit_form_title_add">Создание счетчика</string>
-    <string name="counters_edit_form_title_edit">Редактирование счетчика</string>
+    <string name="counters">СЧЕТЧИКИ</string>
+    <string name="counters_edit_form_title_add">НОВЫЙ СЧЕТЧИК</string>
+    <string name="counters_edit_form_title_edit">СЧЕТЧИК</string>
     <string name="counters_edit_form_cnt_name">Название</string>
     <string name="counters_edit_form_cnt_note">Примечание</string>
     <string name="counters_edit_form_btn_ok">Сохранить</string>
@@ -63,8 +64,8 @@
         <item>Формула</item>
     </string-array>
     
-    <string name="entry_edit_form_title_add">Регистрация показания</string>
-    <string name="entry_edit_form_title_edit">Редактирование показания</string>
+    <string name="entry_edit_form_title_add">НОВОЕ ПОКАЗАНИЕ</string>
+    <string name="entry_edit_form_title_edit">ПОКАЗАНИЕ</string>
     <string name="entry_edit_form_label_value">Значение</string>
     <string name="entry_edit_form_label_rate">Тариф</string>
     <string name="entry_edit_form_label_time">Время</string>

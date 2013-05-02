@@ -8,26 +8,6 @@
         android:id="@+id/rlHeader"
         android:layout_width="match_parent"
         android:layout_height="72dp" >
-
-        <ImageView
-            android:id="@+id/ivEdit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="false"
-            android:layout_centerVertical="false"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="16dp"
-            android:src="@android:drawable/ic_menu_add" />
-
-        <ImageView
-            android:id="@+id/imageView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@id/ivEdit"
-            android:src="@android:drawable/ic_menu_camera"
-            android:visibility="invisible" />
         
         <LinearLayout
             android:layout_width="wrap_content"
@@ -41,7 +21,6 @@
                 android:id="@+id/tvCounterName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:text="Large Text"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 

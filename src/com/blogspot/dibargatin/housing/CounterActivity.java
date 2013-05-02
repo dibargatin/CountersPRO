@@ -1,7 +1,6 @@
 
 package com.blogspot.dibargatin.housing;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,18 +11,20 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 
 import com.blogspot.dibargatin.housing.util.FormulaEvaluator;
 import com.larswerkman.colorpicker.ColorPicker;
 import com.larswerkman.colorpicker.SaturationBar;
 
-public class CounterActivity extends Activity implements OnClickListener {
+public class CounterActivity extends SherlockActivity implements OnClickListener {
     // ===========================================================
     // Constants
     // ===========================================================
@@ -71,16 +72,11 @@ public class CounterActivity extends Activity implements OnClickListener {
         setContentView(R.layout.counters_edit_form);
 
         mDbHelper = new DBHelper(this);
-
+        
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(false);
+        
         // Определим список элементов диалога
-        Button ok = (Button)findViewById(R.id.btnOk);
-        ok.setOnClickListener(this);
-
-        Button cancel = (Button)findViewById(R.id.btnCancel);
-        cancel.setOnClickListener(this);
-
-        TextView title = (TextView)findViewById(R.id.tvEntryEditTitle);
-
         mName = (EditText)findViewById(R.id.etName);
         mNote = (EditText)findViewById(R.id.etNote);
         mMeasure = (EditText)findViewById(R.id.etMeasure);
@@ -144,9 +140,9 @@ public class CounterActivity extends Activity implements OnClickListener {
 
         // Создание нового счетчика
         if (intent.getAction().equals(Intent.ACTION_INSERT)) {
-            title.setText(getResources().getString(R.string.counters_edit_form_title_add));
+            getSupportActionBar().setTitle(getResources().getString(R.string.counters_edit_form_title_add));
         } else { // Редактирование счетчика
-            title.setText(getResources().getString(R.string.counters_edit_form_title_edit));
+            getSupportActionBar().setTitle(getResources().getString(R.string.counters_edit_form_title_edit));
             mCounterId = intent.getLongExtra(EXTRA_COUNTER_ID, -1);
 
             if (mCounterId != -1) {
@@ -187,59 +183,7 @@ public class CounterActivity extends Activity implements OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btnOk:
-                // Проверим корректность введенной формулы
-                if (mRateType.getSelectedItemId() == 2) { // Формула
-                    String[] val = getResources().getStringArray(R.array.formula_var_value_aliases);
-                    String[] dlt = getResources().getStringArray(R.array.formula_var_delta_aliases);
-                    
-                    final FormulaEvaluator eval = new FormulaEvaluator(val, 1.0, dlt, 11.0);
-                    String expression = mFormula.getText().toString();
-
-                    try {                        
-                        /*
-                        Toast.makeText(
-                                CounterActivity.this,
-                                expression + " = " + Double.toString(eval.evaluate(expression)),
-                                Toast.LENGTH_SHORT).show();
-                        //*/
-                        eval.evaluate(expression);
-                    } catch (IllegalArgumentException e) {
-                        Toast.makeText(
-                                CounterActivity.this,
-                                (expression
-                                        + " "
-                                        + getResources().getString(
-                                                R.string.error_evaluator_expression)).trim(),
-                                Toast.LENGTH_SHORT).show();
-                        mFormula.requestFocus();
-                        
-                        return;
-                    }
-                }
-
-                // Сохраним результат
-                if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
-                    mDbHelper.insertCounter(mName.getText().toString(), mNote.getText().toString(),
-                            mPickedColor, mMeasure.getText().toString(), mCurrency.getText()
-                                    .toString(), mRateType.getSelectedItemPosition(), mPeriodType
-                                    .getSelectedItemPosition(), mFormula.getText().toString());
-                } else {
-                    mDbHelper.updateCounter(mCounterId, mName.getText().toString(), mNote.getText()
-                            .toString(), mPickedColor, mMeasure.getText().toString(), mCurrency
-                            .getText().toString(), mRateType.getSelectedItemPosition(), mPeriodType
-                            .getSelectedItemPosition(), mFormula.getText().toString());
-                }
-
-                // Завершим диалог
-                setResult(RESULT_OK);
-                finish();
-                break;
-
-            case R.id.btnCancel:
-                finish();
-                break;
-
+            
             case R.id.vColor:
                 // Сформируем диалог для выбора цвета
                 AlertDialog.Builder alert = new AlertDialog.Builder(CounterActivity.this);
@@ -288,6 +232,73 @@ public class CounterActivity extends Activity implements OnClickListener {
     protected void onDestroy() {
         mDbHelper.close();
         super.onDestroy();
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getSupportMenuInflater().inflate(R.menu.counter_edit_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+    
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        
+        switch (item.getItemId()) {
+        case android.R.id.home:
+            finish();
+            break;
+        
+        case R.id.action_save_counter:
+            // Проверим корректность введенной формулы
+            if (mRateType.getSelectedItemId() == 2) { // Формула
+                String[] val = getResources().getStringArray(R.array.formula_var_value_aliases);
+                String[] dlt = getResources().getStringArray(R.array.formula_var_delta_aliases);
+                
+                final FormulaEvaluator eval = new FormulaEvaluator(val, 1.0, dlt, 11.0);
+                String expression = mFormula.getText().toString();
+
+                try {                        
+                    /*
+                    Toast.makeText(
+                            CounterActivity.this,
+                            expression + " = " + Double.toString(eval.evaluate(expression)),
+                            Toast.LENGTH_SHORT).show();
+                    //*/
+                    eval.evaluate(expression);
+                } catch (IllegalArgumentException e) {
+                    Toast.makeText(
+                            CounterActivity.this,
+                            (expression
+                                    + " "
+                                    + getResources().getString(
+                                            R.string.error_evaluator_expression)).trim(),
+                            Toast.LENGTH_SHORT).show();
+                    mFormula.requestFocus();
+                    
+                    return true;
+                }
+            }
+
+            // Сохраним результат
+            if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
+                mDbHelper.insertCounter(mName.getText().toString(), mNote.getText().toString(),
+                        mPickedColor, mMeasure.getText().toString(), mCurrency.getText()
+                                .toString(), mRateType.getSelectedItemPosition(), mPeriodType
+                                .getSelectedItemPosition(), mFormula.getText().toString());
+            } else {
+                mDbHelper.updateCounter(mCounterId, mName.getText().toString(), mNote.getText()
+                        .toString(), mPickedColor, mMeasure.getText().toString(), mCurrency
+                        .getText().toString(), mRateType.getSelectedItemPosition(), mPeriodType
+                        .getSelectedItemPosition(), mFormula.getText().toString());
+            }
+
+            // Завершим диалог
+            setResult(RESULT_OK);
+            finish();
+            break;
+        }
+
+        return true;
     }
 
     // ===========================================================

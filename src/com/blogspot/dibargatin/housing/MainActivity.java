@@ -5,7 +5,6 @@ import java.text.NumberFormat;
 import java.util.Date;
 
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,8 +13,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.format.DateFormat;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -23,7 +20,11 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-public class MainActivity extends ListActivity {
+import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+
+public class MainActivity extends SherlockListActivity {
 
     // ===========================================================
     // Constants
@@ -62,7 +63,9 @@ public class MainActivity extends ListActivity {
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         db.close();
-
+        
+        getSupportActionBar().setDisplayShowHomeEnabled(false);
+        
         String[] from = new String[] {
                 "name", "note", "value", "measure", "entry_date"
         };
@@ -166,7 +169,7 @@ public class MainActivity extends ListActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
+        getSupportMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -231,23 +234,7 @@ public class MainActivity extends ListActivity {
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
             super.bindView(view, context, cursor);
-            
-            /*
-            // Рисуем график динамики показаний
-            final LinearLayout l = (LinearLayout)view.findViewById(R.id.lCounterItem);
-            l.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
-            
-            final Bitmap b = Bitmap.createBitmap(l.getMeasuredHeight(), l.getMeasuredHeight(), Config.ARGB_8888);
-            final Canvas c = new Canvas(b);
-            
-            final Paint paint = new Paint();
-            paint.setStyle(Paint.Style.FILL);            
-            paint.setColor(Color.BLUE);
-            
-            c.drawCircle(l.getMeasuredHeight() * 0.5f, l.getMeasuredHeight()  * 0.5f, 10, paint);
-            l.setBackgroundDrawable(new BitmapDrawable(b));
-            */
-            
+                                    
             // Выводим значения
             NumberFormat nf = NumberFormat.getNumberInstance(context.getResources()
                     .getConfiguration().locale);

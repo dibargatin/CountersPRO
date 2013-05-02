@@ -10,9 +10,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import com.blogspot.dibargatin.housing.util.DecimalKeyListener;
-
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,15 +17,18 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-public class EntryEditActivity extends Activity implements OnClickListener {
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.blogspot.dibargatin.housing.util.DecimalKeyListener;
+
+public class EntryEditActivity extends SherlockActivity {
     // ===========================================================
     // Constants
     // ===========================================================
@@ -73,20 +73,14 @@ public class EntryEditActivity extends Activity implements OnClickListener {
 
         mDbHelper = new DBHelper(this);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(false);
+
         // Прочитаем параметры вызова
         Intent intent = getIntent();
 
         mCounterId = intent.getLongExtra(CounterActivity.EXTRA_COUNTER_ID, -1);
         mEntryId = intent.getLongExtra(EntryEditActivity.EXTRA_ENTRY_ID, -1);
-
-        // Определим элементы диалога
-        Button ok = (Button)findViewById(R.id.btn_entry_edit_form_btn_ok);
-        ok.setOnClickListener(this);
-
-        Button cancel = (Button)findViewById(R.id.btn_entry_edit_form_btn_cancel);
-        cancel.setOnClickListener(this);
-
-        TextView title = (TextView)findViewById(R.id.tvEntryEditTitle);
 
         // Контрол для ввода значения показания
         mValue = (EditText)findViewById(R.id.etValue);
@@ -201,7 +195,8 @@ public class EntryEditActivity extends Activity implements OnClickListener {
 
         // Если регистрация нового показания
         if (intent.getAction().equals(Intent.ACTION_INSERT)) {
-            title.setText(getResources().getString(R.string.entry_edit_form_title_add));
+            getSupportActionBar().setTitle(
+                    getResources().getString(R.string.entry_edit_form_title_add));
             Cursor cur = mDbHelper.fetchLastRateByCounterId(mCounterId);
 
             if (cur.getCount() > 0) {
@@ -211,7 +206,8 @@ public class EntryEditActivity extends Activity implements OnClickListener {
             }
 
         } else { // Редактирование показания
-            title.setText(getResources().getString(R.string.entry_edit_form_title_edit));
+            getSupportActionBar().setTitle(
+                    getResources().getString(R.string.entry_edit_form_title_edit));
             Cursor cur = mDbHelper.fetchEntryById(mEntryId);
 
             if (cur.getCount() > 0) {
@@ -246,10 +242,26 @@ public class EntryEditActivity extends Activity implements OnClickListener {
     }
 
     @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_entry_edit_form_btn_ok:
+    protected void onDestroy() {
+        mDbHelper.close();
+        super.onDestroy();
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getSupportMenuInflater().inflate(R.menu.entry_edit_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+    
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+            
+            case R.id.action_save_entry:
                 // Проверим на наличие показания на указанные дату и время
                 boolean exists = mDbHelper.isEntryExists(mCounterId, mDateTime.toString());
 
@@ -257,7 +269,7 @@ public class EntryEditActivity extends Activity implements OnClickListener {
                     Toast.makeText(EntryEditActivity.this,
                             getResources().getString(R.string.error_entry_datetime),
                             Toast.LENGTH_SHORT).show();
-                    return;
+                    return true;
                 }
 
                 final DecimalFormatSymbols dfs = new DecimalFormatSymbols(getResources()
@@ -276,7 +288,7 @@ public class EntryEditActivity extends Activity implements OnClickListener {
                             getResources().getString(R.string.error_entry_value),
                             Toast.LENGTH_SHORT).show();
                     mValue.requestFocus();
-                    return;
+                    return true;
                 }
 
                 try {
@@ -287,7 +299,7 @@ public class EntryEditActivity extends Activity implements OnClickListener {
                                 getResources().getString(R.string.error_entry_rate),
                                 Toast.LENGTH_SHORT).show();
                         mRate.requestFocus();
-                        return;
+                        return true;
                     } else { // Счетчик без тарифа
                         r = 0;
                     }
@@ -304,17 +316,9 @@ public class EntryEditActivity extends Activity implements OnClickListener {
                 setResult(RESULT_OK);
                 finish();
                 break;
-
-            case R.id.btn_entry_edit_form_btn_cancel:
-                finish();
-                break;
         }
-    }
 
-    @Override
-    protected void onDestroy() {
-        mDbHelper.close();
-        super.onDestroy();
+        return true;
     }
 
     // ===========================================================

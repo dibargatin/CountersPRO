@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -15,14 +14,10 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Html;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
@@ -30,13 +25,17 @@ import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+
 import com.blogspot.dibargatin.housing.graph.GraphSeries;
 import com.blogspot.dibargatin.housing.graph.GraphSeries.GraphData;
 import com.blogspot.dibargatin.housing.graph.GraphSeries.GraphSeriesStyle;
 import com.blogspot.dibargatin.housing.graph.LineGraph;
 import com.blogspot.dibargatin.housing.util.FormulaEvaluator;
 
-public class EntryActivity extends Activity implements OnClickListener {
+public class EntryActivity extends SherlockActivity {
     // ===========================================================
     // Constants
     // ===========================================================
@@ -80,12 +79,12 @@ public class EntryActivity extends Activity implements OnClickListener {
         mFormulaValueAliases = getResources().getStringArray(R.array.formula_var_value_aliases);
         mFormulaDeltaAliases = getResources().getStringArray(R.array.formula_var_delta_aliases);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(false);
+
         TextView name = (TextView)findViewById(R.id.tvCounterName);
         TextView note = (TextView)findViewById(R.id.tvCounterNote);
         View color = (View)findViewById(R.id.vColor);
-
-        ImageView ivEdit = (ImageView)findViewById(R.id.ivEdit);
-        ivEdit.setOnClickListener(this);
 
         Intent intent = getIntent();
         mCounterId = intent.getLongExtra(CounterActivity.EXTRA_COUNTER_ID, -1);
@@ -165,10 +164,10 @@ public class EntryActivity extends Activity implements OnClickListener {
 
             LineGraph lg = new LineGraph(this);
             GraphSeriesStyle s = new GraphSeriesStyle();
-            
+
             float[] hsv = new float[3];
             Color.colorToHSV(c.getInt(c.getColumnIndex("color")), hsv);
-            hsv[1] = 0.2f;            
+            hsv[1] = 0.2f;
             s.graphColor = Color.HSVToColor(hsv);
 
             GraphData[] gd = new GraphData[entryCount];
@@ -178,9 +177,9 @@ public class EntryActivity extends Activity implements OnClickListener {
             do {
                 String entryDate = ec.getString(ec.getColumnIndex("entry_date"));
                 float x = java.sql.Timestamp.valueOf(entryDate).getTime();
-                float y = ec.getFloat(ec.getColumnIndex("delta"));
+                float y = ec.getFloat(ec.getColumnIndex("value"));
                 gd[indx++] = new GraphData(x, y);
-            } while (ec.moveToNext());            
+            } while (ec.moveToNext());
 
             lg.addSeries(new GraphSeries(gd, "", "", "", s));
             lg.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
@@ -190,26 +189,19 @@ public class EntryActivity extends Activity implements OnClickListener {
     }
 
     @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.ivEdit:
-                Intent intent = new Intent(EntryActivity.this, EntryEditActivity.class);
-                intent.setAction(Intent.ACTION_INSERT);
-                intent.putExtra(CounterActivity.EXTRA_COUNTER_ID, mCounterId);
-                startActivityForResult(intent, REQUEST_ADD_ENTRY);
-                break;
-        }
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.entry_form, menu);
-        return true;
+        getSupportMenuInflater().inflate(R.menu.entry_form, menu);
+        return super.onCreateOptionsMenu(menu);
     }
-
+    
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+
         switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+                
             case R.id.action_add_entry:
                 Intent intent = new Intent(EntryActivity.this, EntryEditActivity.class);
                 intent.setAction(Intent.ACTION_INSERT);
@@ -217,6 +209,7 @@ public class EntryActivity extends Activity implements OnClickListener {
                 startActivityForResult(intent, REQUEST_ADD_ENTRY);
                 break;
         }
+
         return true;
     }
 
