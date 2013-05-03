@@ -505,39 +505,41 @@ public class DBHelper extends SQLiteOpenHelper {
                 });
     }
 
-    public Cursor fetchRateByCounterId(long counterId, String date) {
+    public Cursor fetchValueByCounterId(long counterId, String date) {        
         final String query = ""
-                + "SELECT e.rate AS rate "
-                + "      ,c.rate_type AS rate_type "
-                + "  FROM Entries AS e "
-                + " INNER JOIN Counters AS c "
-                + "         ON c._id = e.counter_id "
-                + "WHERE e.counter_id = ? "
-                + "  AND e.entry_date < ? "
-                + "ORDER BY e.entry_date DESC "
-                + "LIMIT 1; ";
+                + "SELECT c.measure AS measure "
+                + "      ,IFNULL((SELECT value "
+                + "          FROM Entries "
+                + "         WHERE counter_id = c._id "
+                + "           AND entry_date < ? "
+                + "         ORDER BY entry_date DESC "
+                + "         LIMIT 1 "
+                + "       ), 0) AS value"
+                + "  FROM Counters AS c "
+                + " WHERE c._id = ?";
         
         return getReadableDatabase().rawQuery(
                 query,
                 new String[] {
-                        Long.toString(counterId), date
+                        date, Long.toString(counterId)
                 });
     }
     
-    public boolean isEntryExists(long counterId, String entryDate) {
+    public boolean isEntryExists(long counterId, String entryDate, long entryId) {
         final String query = ""
                 + "SELECT EXISTS ("
                 + "         SELECT 1"
                 + "           FROM Entries"
                 + "          WHERE counter_id = ?"
                 + "            AND entry_date = ?"
+                + "            AND _id <> ?"
                 + "          LIMIT 1"
                 + "         ) AS cnt;";
         
         final Cursor c = getReadableDatabase().rawQuery(
                 query,
                 new String[] {
-                        Long.toString(counterId), entryDate
+                        Long.toString(counterId), entryDate, Long.toString(entryId)
                 });
         c.moveToFirst();
         

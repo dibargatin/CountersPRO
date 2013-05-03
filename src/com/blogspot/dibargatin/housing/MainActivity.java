@@ -64,7 +64,9 @@ public class MainActivity extends SherlockListActivity {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         db.close();
         
-        getSupportActionBar().setDisplayShowHomeEnabled(false);
+        getSupportActionBar().setIcon(R.drawable.ic_menu_home);
+        getSupportActionBar().setTitle(
+                getResources().getString(R.string.counters));
         
         String[] from = new String[] {
                 "name", "note", "value", "measure", "entry_date"

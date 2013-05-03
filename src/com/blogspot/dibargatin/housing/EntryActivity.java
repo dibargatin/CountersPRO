@@ -80,7 +80,7 @@ public class EntryActivity extends SherlockActivity {
         mFormulaDeltaAliases = getResources().getStringArray(R.array.formula_var_delta_aliases);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(false);
+        getSupportActionBar().setIcon(R.drawable.ic_menu_home);
 
         TextView name = (TextView)findViewById(R.id.tvCounterName);
         TextView note = (TextView)findViewById(R.id.tvCounterNote);
@@ -116,6 +116,7 @@ public class EntryActivity extends SherlockActivity {
                 Intent intent = new Intent(EntryActivity.this, EntryEditActivity.class);
                 intent.setAction(Intent.ACTION_EDIT);
                 intent.putExtra(EntryEditActivity.EXTRA_ENTRY_ID, id);
+                intent.putExtra(CounterActivity.EXTRA_COUNTER_ID, mCounterId);
 
                 startActivityForResult(intent, REQUEST_EDIT_ENTRY);
             }

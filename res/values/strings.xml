@@ -66,7 +66,15 @@
     
     <string name="entry_edit_form_title_add">НОВОЕ ПОКАЗАНИЕ</string>
     <string name="entry_edit_form_title_edit">ПОКАЗАНИЕ</string>
-    <string name="entry_edit_form_label_value">Значение</string>
+    <string name="entry_edit_form_label_last_value">Пердыдущее значение</string>
+    <string name="entry_edit_form_label_value">Текущее значение</string>
+    
+    <string name="entry_edit_form_label_value_type">Вид текущего значения</string>
+    <string-array name="value_type_list">
+        <item>Абсолютное</item>
+        <item>Относительное</item>
+    </string-array>
+    
     <string name="entry_edit_form_label_rate">Тариф</string>
     <string name="entry_edit_form_label_time">Время</string>
     <string name="entry_edit_form_label_date">Дата</string>

@@ -74,7 +74,7 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
         mDbHelper = new DBHelper(this);
         
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(false);
+        getSupportActionBar().setIcon(R.drawable.ic_menu_home);
         
         // Определим список элементов диалога
         mName = (EditText)findViewById(R.id.etName);

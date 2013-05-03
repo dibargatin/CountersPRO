@@ -15,11 +15,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -43,7 +47,15 @@ public class EntryEditActivity extends SherlockActivity {
 
     long mCounterId;
 
+    double mPrevValue;
+
+    TextView mPrevValueView;
+
+    TextView mMeasure;
+
     EditText mValue;
+
+    Spinner mValueType;
 
     EditText mRate;
 
@@ -74,7 +86,7 @@ public class EntryEditActivity extends SherlockActivity {
         mDbHelper = new DBHelper(this);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(false);
+        getSupportActionBar().setIcon(R.drawable.ic_menu_home);
 
         // Прочитаем параметры вызова
         Intent intent = getIntent();
@@ -85,6 +97,17 @@ public class EntryEditActivity extends SherlockActivity {
         // Контрол для ввода значения показания
         mValue = (EditText)findViewById(R.id.etValue);
         mValue.setKeyListener(new DecimalKeyListener(this));
+
+        // Контрол для выбора вида значения
+        mValueType = (Spinner)findViewById(R.id.sValueType);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, getResources().getStringArray(
+                        R.array.value_type_list));
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        mValueType.setAdapter(adapter);
+        mValueType.setSelection(0);
 
         // Контрол для ввода тарифа
         mRate = (EditText)findViewById(R.id.etRate);
@@ -121,6 +144,8 @@ public class EntryEditActivity extends SherlockActivity {
                                 mDateTime.setTime(c.getTimeInMillis());
                                 mEditDate.setText(new SimpleDateFormat(getResources().getString(
                                         R.string.date_format)).format(c.getTime()));
+
+                                refreshPrevValue();
                             }
                         });
 
@@ -178,6 +203,8 @@ public class EntryEditActivity extends SherlockActivity {
                                 mDateTime.setTime(c.getTimeInMillis());
                                 mEditTime.setText(new SimpleDateFormat(getResources().getString(
                                         R.string.time_format)).format(c.getTime()));
+
+                                refreshPrevValue();
                             }
                         });
 
@@ -239,6 +266,12 @@ public class EntryEditActivity extends SherlockActivity {
             LinearLayout l = (LinearLayout)findViewById(R.id.lRate);
             l.setVisibility(View.GONE);
         }
+
+        // Контрол для отображения последнего значения
+        mPrevValueView = (TextView)findViewById(R.id.tvPrevValue);
+        mMeasure = (TextView)findViewById(R.id.tvMeasure);
+
+        refreshPrevValue();
     }
 
     @Override
@@ -252,7 +285,7 @@ public class EntryEditActivity extends SherlockActivity {
         getSupportMenuInflater().inflate(R.menu.entry_edit_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
-    
+
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
 
@@ -260,10 +293,10 @@ public class EntryEditActivity extends SherlockActivity {
             case android.R.id.home:
                 finish();
                 break;
-            
+
             case R.id.action_save_entry:
                 // Проверим на наличие показания на указанные дату и время
-                boolean exists = mDbHelper.isEntryExists(mCounterId, mDateTime.toString());
+                boolean exists = mDbHelper.isEntryExists(mCounterId, mDateTime.toString(), mEntryId);
 
                 if (exists) {
                     Toast.makeText(EntryEditActivity.this,
@@ -304,6 +337,11 @@ public class EntryEditActivity extends SherlockActivity {
                         r = 0;
                     }
                 }
+                
+                // Если вводили относительное значение, то расчитаем абсолютное
+                if (mValueType.getSelectedItemId() == 1) { // Относительное
+                    va += mPrevValue;
+                }
 
                 // Сохраним результат
                 if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
@@ -324,6 +362,23 @@ public class EntryEditActivity extends SherlockActivity {
     // ===========================================================
     // Methods
     // ===========================================================
+    private void refreshPrevValue() {
+        Cursor c = mDbHelper.fetchValueByCounterId(mCounterId, mDateTime.toString());
+        
+        if (!c.moveToFirst()) {
+            mPrevValueView.setText("---");
+            mMeasure.setText("");
+            return;
+        }
+
+        NumberFormat nf = NumberFormat.getNumberInstance(getResources().getConfiguration().locale);
+
+        mPrevValue = c.getDouble(c.getColumnIndex("value"));
+        mPrevValueView.setText(nf.format(mPrevValue));
+        mMeasure.setText(Html.fromHtml(c.getString(c.getColumnIndex("measure"))));
+
+        c.close();
+    }
 
     // ===========================================================
     // Inner and Anonymous Classes
