@@ -15,6 +15,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -57,6 +58,10 @@ public class EntryActivity extends SherlockActivity {
     String[] mFormulaValueAliases;
 
     String[] mFormulaDeltaAliases;
+
+    LineGraph mLineGraph;
+
+    GraphSeriesStyle mLineGraphStyle;
 
     // ===========================================================
     // Constructors
@@ -108,7 +113,11 @@ public class EntryActivity extends SherlockActivity {
 
         ListView list = (ListView)findViewById(R.id.listView1);
         list.setAdapter(mAdapter);
-
+        
+        final View ev = View.inflate(this, R.layout.entry_list_empty, null);        
+        list.setEmptyView(ev);
+        addContentView(ev, new ViewGroup.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        
         list.setOnItemClickListener(new OnItemClickListener() {
 
             @Override
@@ -137,7 +146,11 @@ public class EntryActivity extends SherlockActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
                         mDbHelper.deleteEntry(itemId);
-                        mAdapter.getCursor().requery();
+
+                        final Cursor c = mAdapter.getCursor();
+                        c.requery();
+                        refreshLineGraphData(c);
+                        mLineGraph.postInvalidate();
                     }
 
                 });
@@ -158,35 +171,24 @@ public class EntryActivity extends SherlockActivity {
         });
 
         // Рисуем график
-        final int entryCount = ec.getCount();
+        RelativeLayout rl = (RelativeLayout)findViewById(R.id.rlHeader);
+        mLineGraph = new LineGraph(this);
 
-        if (entryCount > 1) {
-            RelativeLayout rl = (RelativeLayout)findViewById(R.id.rlHeader);
+        mLineGraph.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
+                LayoutParams.MATCH_PARENT));
+        rl.addView(mLineGraph, 0);
 
-            LineGraph lg = new LineGraph(this);
-            GraphSeriesStyle s = new GraphSeriesStyle();
+        mLineGraphStyle = new GraphSeriesStyle();
 
-            float[] hsv = new float[3];
-            Color.colorToHSV(c.getInt(c.getColumnIndex("color")), hsv);
-            hsv[1] = 0.2f;
-            s.graphColor = Color.HSVToColor(hsv);
+        float[] hsv = new float[3];
+        Color.colorToHSV(c.getInt(c.getColumnIndex("color")), hsv);
+        
+        mLineGraphStyle.pointsColor = Color.HSVToColor(hsv);
+        
+        hsv[1] = 0.2f;
+        mLineGraphStyle.graphColor = Color.HSVToColor(hsv);
 
-            GraphData[] gd = new GraphData[entryCount];
-            int indx = 0;
-
-            ec.moveToFirst();
-            do {
-                String entryDate = ec.getString(ec.getColumnIndex("entry_date"));
-                float x = java.sql.Timestamp.valueOf(entryDate).getTime();
-                float y = ec.getFloat(ec.getColumnIndex("value"));
-                gd[indx++] = new GraphData(x, y);
-            } while (ec.moveToNext());
-
-            lg.addSeries(new GraphSeries(gd, "", "", "", s));
-            lg.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
-                    LayoutParams.MATCH_PARENT));
-            rl.addView(lg, 0);
-        }
+        refreshLineGraphData(ec);
     }
 
     @Override
@@ -194,7 +196,7 @@ public class EntryActivity extends SherlockActivity {
         getSupportMenuInflater().inflate(R.menu.entry_form, menu);
         return super.onCreateOptionsMenu(menu);
     }
-    
+
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
 
@@ -202,7 +204,7 @@ public class EntryActivity extends SherlockActivity {
             case android.R.id.home:
                 finish();
                 break;
-                
+
             case R.id.action_add_entry:
                 Intent intent = new Intent(EntryActivity.this, EntryEditActivity.class);
                 intent.setAction(Intent.ACTION_INSERT);
@@ -226,7 +228,9 @@ public class EntryActivity extends SherlockActivity {
             case REQUEST_ADD_ENTRY:
             case REQUEST_EDIT_ENTRY:
                 if (resultCode == RESULT_OK) {
-                    mAdapter.getCursor().requery();
+                    final Cursor c = mAdapter.getCursor();
+                    c.requery();
+                    refreshLineGraphData(c);
                 }
                 break;
 
@@ -248,6 +252,27 @@ public class EntryActivity extends SherlockActivity {
     // ===========================================================
     // Methods
     // ===========================================================
+    private synchronized void refreshLineGraphData(Cursor c) {
+        
+        mLineGraph.clearSeries();
+        
+        final int entryCount = c.getCount();        
+
+        if (entryCount > 1) {
+            GraphData[] gd = new GraphData[entryCount];
+            int indx = 0;
+
+            c.moveToFirst();
+            do {
+                String entryDate = c.getString(c.getColumnIndex("entry_date"));
+                double x = java.sql.Timestamp.valueOf(entryDate).getTime();
+                double y = c.getDouble(c.getColumnIndex("value"));
+                gd[indx++] = new GraphData(x, y);
+            } while (c.moveToNext());
+            
+            mLineGraph.addSeries(new GraphSeries(gd, "", "", "", mLineGraphStyle));
+        }
+    }
 
     // ===========================================================
     // Inner and Anonymous Classes

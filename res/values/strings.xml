@@ -2,6 +2,9 @@
 <resources>
     <string name="app_name">Счетчики PRO</string>
     
+    <string name="counters_list_empty">Список пуст. Добавьте счетчик.</string>
+    <string name="entries_list_empty">Список пуст. Добавьте показание.</string>
+    
     <string name="yes">Да</string>
     <string name="no">Нет</string>
     
@@ -88,6 +91,10 @@
     <string name="date_format">dd.MM.yyyy</string>
     <string name="date_time_format">dd.MM.yyyy HH:mm</string>
     <string name="time_format">HH:mm</string>
+    
+    <!-- Формат времени для TimePicker. Возможные значения: 12, 24. -->
+    <string name="time_format_type">24</string>
+    
     <string name="date">Дата</string>
     <string name="time">Время</string>
     <string-array name="month_list">
@@ -104,6 +111,7 @@
         <item>ноябрь</item>
         <item>декабрь</item>
     </string-array>
+    
     <string name="entry_period_type">Период показаний</string>
     <string name="year">год</string>
     <string-array name="period_type_list">

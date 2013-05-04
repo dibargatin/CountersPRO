@@ -14,9 +14,11 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.LinearLayout;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
@@ -79,6 +81,10 @@ public class MainActivity extends SherlockListActivity {
         mAdapter = new CountersCursorAdapter(this, R.layout.counters_list_item,
                 mDbHelper.fetchAllCounters(), from, to);
         getListView().setAdapter(mAdapter);
+                
+        final View ev = View.inflate(this, R.layout.counters_list_empty, null);        
+        getListView().setEmptyView(ev);
+        addContentView(ev, new ViewGroup.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 
         // При нажатии на счетчик, перейдем к списку показаний
         getListView().setOnItemClickListener(new OnItemClickListener() {

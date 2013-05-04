@@ -114,6 +114,8 @@ public class EntryEditActivity extends SherlockActivity {
         mRate.setKeyListener(new DecimalKeyListener(this));
 
         final GregorianCalendar c = (GregorianCalendar)Calendar.getInstance();
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
         mDateTime = new Timestamp(c.getTimeInMillis());
 
         // Контрол выбора даты показания
@@ -161,6 +163,9 @@ public class EntryEditActivity extends SherlockActivity {
             }
         });
 
+        // Формат времени 12 или 24 часовой
+        final int timeType = Integer.parseInt(getResources().getString(R.string.time_format_type));
+
         // Контрол выбора времени показания
         mEditTime = (EditText)findViewById(R.id.etTime);
         mEditTime.setText(new SimpleDateFormat(getResources().getString(R.string.time_format))
@@ -173,14 +178,15 @@ public class EntryEditActivity extends SherlockActivity {
                 alert.setTitle(getResources().getString(R.string.time));
 
                 final TimePicker time = new TimePicker(EntryEditActivity.this);
-                time.setIs24HourView(true); // TODO: preference
-
+                
+                if (timeType == 24) {
+                    time.setIs24HourView(true);
+                } else { // Если 12 часовой формат
+                    time.setIs24HourView(false);
+                }
+                
                 c.setTime(mDateTime);
-                time.setCurrentHour(c.get(Calendar.HOUR_OF_DAY)); // TODO: если
-                                                                  // 12-часовой
-                                                                  // формат, то
-                                                                  // использовать
-                                                                  // HOUR
+                time.setCurrentHour(c.get(Calendar.HOUR_OF_DAY));
                 time.setCurrentMinute(c.get(Calendar.MINUTE));
 
                 alert.setView(time);
@@ -189,13 +195,7 @@ public class EntryEditActivity extends SherlockActivity {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 c.setTime(mDateTime);
-                                c.set(Calendar.HOUR_OF_DAY, time.getCurrentHour()); // TODO:
-                                                                                    // если
-                                                                                    // 12-часовой
-                                                                                    // формат,
-                                                                                    // то
-                                                                                    // использовать
-                                                                                    // HOUR
+                                c.set(Calendar.HOUR_OF_DAY, time.getCurrentHour());
                                 c.set(Calendar.MINUTE, time.getCurrentMinute());
                                 c.set(Calendar.SECOND, 0);
                                 c.set(Calendar.MILLISECOND, 0);
@@ -220,6 +220,9 @@ public class EntryEditActivity extends SherlockActivity {
             }
         });
 
+        final NumberFormat nf = NumberFormat
+                .getNumberInstance(getResources().getConfiguration().locale);
+
         // Если регистрация нового показания
         if (intent.getAction().equals(Intent.ACTION_INSERT)) {
             getSupportActionBar().setTitle(
@@ -228,7 +231,7 @@ public class EntryEditActivity extends SherlockActivity {
 
             if (cur.getCount() > 0) {
                 cur.moveToFirst();
-                mRate.setText(cur.getString(cur.getColumnIndex("rate")));
+                mRate.setText(nf.format(cur.getDouble(cur.getColumnIndex("rate"))));
                 mRateType = cur.getInt(cur.getColumnIndex("rate_type"));
             }
 
@@ -248,9 +251,6 @@ public class EntryEditActivity extends SherlockActivity {
                         R.string.date_format)).format(c.getTime()));
                 mEditTime.setText(new SimpleDateFormat(getResources().getString(
                         R.string.time_format)).format(c.getTime()));
-
-                final NumberFormat nf = NumberFormat.getNumberInstance(getResources()
-                        .getConfiguration().locale);
 
                 double v = cur.getDouble(cur.getColumnIndex("value"));
                 double r = cur.getDouble(cur.getColumnIndex("rate"));
@@ -296,7 +296,8 @@ public class EntryEditActivity extends SherlockActivity {
 
             case R.id.action_save_entry:
                 // Проверим на наличие показания на указанные дату и время
-                boolean exists = mDbHelper.isEntryExists(mCounterId, mDateTime.toString(), mEntryId);
+                boolean exists = mDbHelper
+                        .isEntryExists(mCounterId, mDateTime.toString(), mEntryId);
 
                 if (exists) {
                     Toast.makeText(EntryEditActivity.this,
@@ -337,7 +338,7 @@ public class EntryEditActivity extends SherlockActivity {
                         r = 0;
                     }
                 }
-                
+
                 // Если вводили относительное значение, то расчитаем абсолютное
                 if (mValueType.getSelectedItemId() == 1) { // Относительное
                     va += mPrevValue;
@@ -364,7 +365,7 @@ public class EntryEditActivity extends SherlockActivity {
     // ===========================================================
     private void refreshPrevValue() {
         Cursor c = mDbHelper.fetchValueByCounterId(mCounterId, mDateTime.toString());
-        
+
         if (!c.moveToFirst()) {
             mPrevValueView.setText("---");
             mMeasure.setText("");

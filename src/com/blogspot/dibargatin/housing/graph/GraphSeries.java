@@ -164,5 +164,11 @@ public class GraphSeries {
         public float axisThickness = 1f;
 
         public boolean isDrawAxis = false;
+        
+        public boolean isDrawPoints = true;
+        
+        public float pointsThickness = 2f;
+        
+        public int pointsColor = 0xffcccccc;
     }
 }
