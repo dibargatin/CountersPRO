@@ -3,15 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/imageView1"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"
-        android:text="@string/entries_list_empty" />
-
     <ImageView
         android:id="@+id/imageView1"
         android:layout_width="wrap_content"
@@ -19,5 +10,14 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:src="@drawable/ic_empty_list" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/imageView1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="8dp"
+        android:text="@string/entries_list_empty" />
 
 </RelativeLayout>

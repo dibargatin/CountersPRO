@@ -49,8 +49,8 @@ public class DBHelper extends SQLiteOpenHelper {
                    
                    db.execSQL(queryEntries);
                    
-                   db.execSQL("INSERT INTO Counters (_id, name, note, measure, color, currency) VALUES (1, 'Холодная вода', 'Дом', 'м<small><sup>3</sup></small>', -4000, 'руб');");
-                   db.execSQL("INSERT INTO Entries (counter_id, entry_date, value, rate) VALUES (1, '2013-04-16', 123, 2);");
+                   //db.execSQL("INSERT INTO Counters (_id, name, note, measure, color, currency) VALUES (1, 'Холодная вода', 'Дом', 'м<small><sup>3</sup></small>', -4000, 'руб');");
+                   //db.execSQL("INSERT INTO Entries (counter_id, entry_date, value, rate) VALUES (1, '2013-04-16', 123, 2);");
                    
                    db.setTransactionSuccessful();
                    

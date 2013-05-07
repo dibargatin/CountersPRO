@@ -83,8 +83,10 @@ public class MainActivity extends SherlockListActivity {
         getListView().setAdapter(mAdapter);
                 
         final View ev = View.inflate(this, R.layout.counters_list_empty, null);        
-        getListView().setEmptyView(ev);
-        addContentView(ev, new ViewGroup.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        ev.setLayoutParams(new ViewGroup.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        ev.setVisibility(View.GONE);
+        ((ViewGroup)getListView().getParent()).addView(ev);
+        getListView().setEmptyView(ev);        
 
         // При нажатии на счетчик, перейдем к списку показаний
         getListView().setOnItemClickListener(new OnItemClickListener() {

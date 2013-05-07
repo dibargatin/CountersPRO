@@ -115,9 +115,11 @@ public class EntryActivity extends SherlockActivity {
         list.setAdapter(mAdapter);
         
         final View ev = View.inflate(this, R.layout.entry_list_empty, null);        
+        ev.setLayoutParams(new ViewGroup.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        ev.setVisibility(View.GONE);
+        ((ViewGroup)list.getParent()).addView(ev);
         list.setEmptyView(ev);
-        addContentView(ev, new ViewGroup.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-        
+                
         list.setOnItemClickListener(new OnItemClickListener() {
 
             @Override

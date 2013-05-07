@@ -33,7 +33,7 @@
     <string name="counters_edit_form_title_add">НОВЫЙ СЧЕТЧИК</string>
     <string name="counters_edit_form_title_edit">СЧЕТЧИК</string>
     <string name="counters_edit_form_cnt_name">Название</string>
-    <string name="counters_edit_form_cnt_note">Примечание</string>
+    <string name="counters_edit_form_cnt_note">Описание</string>
     <string name="counters_edit_form_btn_ok">Сохранить</string>
     <string name="counters_edit_form_btn_cancel">Отменить</string>
     
