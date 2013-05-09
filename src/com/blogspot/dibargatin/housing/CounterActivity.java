@@ -253,8 +253,9 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
             if (mRateType.getSelectedItemId() == 2) { // Формула
                 String[] val = getResources().getStringArray(R.array.formula_var_value_aliases);
                 String[] dlt = getResources().getStringArray(R.array.formula_var_delta_aliases);
+                String[] trf = getResources().getStringArray(R.array.formula_var_tariff_aliases);
                 
-                final FormulaEvaluator eval = new FormulaEvaluator(val, 1.0, dlt, 11.0);
+                final FormulaEvaluator eval = new FormulaEvaluator(val, 1.0, dlt, 11.0, trf, 1.0);
                 String expression = mFormula.getText().toString();
 
                 try {                        

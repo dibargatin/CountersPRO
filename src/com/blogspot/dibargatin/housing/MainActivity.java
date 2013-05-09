@@ -2,6 +2,7 @@
 package com.blogspot.dibargatin.housing;
 
 import java.text.NumberFormat;
+import java.util.Currency;
 import java.util.Date;
 
 import android.app.AlertDialog;
@@ -65,11 +66,10 @@ public class MainActivity extends SherlockListActivity {
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         db.close();
-        
+
         getSupportActionBar().setIcon(R.drawable.ic_menu_home);
-        getSupportActionBar().setTitle(
-                getResources().getString(R.string.counters));
-        
+        getSupportActionBar().setTitle(getResources().getString(R.string.counters));
+
         String[] from = new String[] {
                 "name", "note", "value", "measure", "entry_date"
         };
@@ -81,12 +81,13 @@ public class MainActivity extends SherlockListActivity {
         mAdapter = new CountersCursorAdapter(this, R.layout.counters_list_item,
                 mDbHelper.fetchAllCounters(), from, to);
         getListView().setAdapter(mAdapter);
-                
-        final View ev = View.inflate(this, R.layout.counters_list_empty, null);        
-        ev.setLayoutParams(new ViewGroup.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+
+        final View ev = View.inflate(this, R.layout.counters_list_empty, null);
+        ev.setLayoutParams(new ViewGroup.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT));
         ev.setVisibility(View.GONE);
         ((ViewGroup)getListView().getParent()).addView(ev);
-        getListView().setEmptyView(ev);        
+        getListView().setEmptyView(ev);
 
         // При нажатии на счетчик, перейдем к списку показаний
         getListView().setOnItemClickListener(new OnItemClickListener() {
@@ -244,42 +245,57 @@ public class MainActivity extends SherlockListActivity {
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
             super.bindView(view, context, cursor);
-                                    
-            // Выводим значения
-            NumberFormat nf = NumberFormat.getNumberInstance(context.getResources()
-                    .getConfiguration().locale);
-            
+
+            // Цвет ярлыка
             try {
                 int color = cursor.getInt(cursor.getColumnIndex("color"));
                 view.findViewById(R.id.vColor).setBackgroundColor(color);
             } catch (Exception e) {
                 // Нет цвета
             }
-            
-            // Читаем и устанавливаем значение
+
+            // Значение и единица измерения
             try {
                 TextView value = (TextView)view.findViewById(R.id.tvValue);
                 double v = cursor.getDouble(cursor.getColumnIndex("value"));
 
-                value.setText(nf.format(v));
-
+                TextView measure = (TextView)view.findViewById(R.id.tvMeasure);
+                String m = cursor.getString(cursor.getColumnIndex("measure"));
+                
+                Currency cur = null;
+                
+                try {
+                    cur = Currency.getInstance(m);
+                } catch (Exception e) {
+                    // Не в формате ISO
+                }
+                
+                if (cur != null) {
+                    NumberFormat cnf = NumberFormat.getCurrencyInstance(context.getResources()
+                            .getConfiguration().locale);
+                    cnf.setCurrency(cur);
+                    value.setText(cnf.format(v));
+                    measure.setVisibility(View.GONE);
+                } else {
+                    NumberFormat nf = NumberFormat
+                            .getNumberInstance(context.getResources().getConfiguration().locale);
+                    value.setText(nf.format(v));
+                    measure.setText(Html.fromHtml(m));   
+                    measure.setVisibility(View.VISIBLE);
+                }
+                
             } catch (Exception e) {
                 // Нет значения
             }
             
-            try {
-                TextView measure = (TextView)view.findViewById(R.id.tvMeasure);
-                String m = cursor.getString(cursor.getColumnIndex("measure"));
-                measure.setText(Html.fromHtml(m));
-            } catch (Exception e) {
-                // Нет единицы измерения
-            }
-
+            // Дата последнего показания
             try {
                 TextView period = (TextView)view.findViewById(R.id.tvPeriod);
                 String date = cursor.getString(cursor.getColumnIndex("entry_date"));
                 Date d = new Date(java.sql.Timestamp.valueOf(date).getTime());
-                period.setText(DateFormat.format(getResources().getString(R.string.date_format), d));
+
+                final java.text.DateFormat df = DateFormat.getDateFormat(MainActivity.this);
+                period.setText(df.format(d));
             } catch (Exception e) {
                 // Нет показаний
             }

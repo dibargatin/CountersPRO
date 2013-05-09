@@ -18,7 +18,7 @@ public class FormulaEvaluator {
     // ===========================================================
     // Constructors
     // ===========================================================
-    public FormulaEvaluator(String[] valueAliases, Double value, String[] deltaAliases, Double delta) {
+    public FormulaEvaluator(String[] valueAliases, Double value, String[] deltaAliases, Double delta, String[] tariffAliases, Double tariff) {
         
         for (String v : valueAliases) {
             mVariables.set(v, value);
@@ -26,6 +26,10 @@ public class FormulaEvaluator {
         
         for (String d : deltaAliases) {
             mVariables.set(d, delta);
+        }
+        
+        for (String t : tariffAliases) {
+            mVariables.set(t, tariff);
         }
     }
 

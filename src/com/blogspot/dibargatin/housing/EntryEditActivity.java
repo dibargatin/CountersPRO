@@ -2,11 +2,11 @@
 package com.blogspot.dibargatin.housing;
 
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -119,9 +119,10 @@ public class EntryEditActivity extends SherlockActivity {
         mDateTime = new Timestamp(c.getTimeInMillis());
 
         // Контрол выбора даты показания
+        final java.text.DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, getResources().getConfiguration().locale);
+        
         mEditDate = (EditText)findViewById(R.id.etDate);
-        mEditDate.setText(new SimpleDateFormat(getResources().getString(R.string.date_format))
-                .format(c.getTime()));
+        mEditDate.setText(df.format(c.getTime()));
         mEditDate.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -144,8 +145,7 @@ public class EntryEditActivity extends SherlockActivity {
                                 c.set(date.getYear(), date.getMonth(), date.getDayOfMonth());
 
                                 mDateTime.setTime(c.getTimeInMillis());
-                                mEditDate.setText(new SimpleDateFormat(getResources().getString(
-                                        R.string.date_format)).format(c.getTime()));
+                                mEditDate.setText(df.format(c.getTime()));
 
                                 refreshPrevValue();
                             }
@@ -163,13 +163,16 @@ public class EntryEditActivity extends SherlockActivity {
             }
         });
 
-        // Формат времени 12 или 24 часовой
-        final int timeType = Integer.parseInt(getResources().getString(R.string.time_format_type));
-
+        
         // Контрол выбора времени показания
+        final DateFormat tf = android.text.format.DateFormat.getTimeFormat(EntryEditActivity.this);
+                //.getTimeInstance(DateFormat.SHORT, getResources().getConfiguration().locale);
+        
+        // Формат времени 12 или 24 часовой
+        final int timeType = android.text.format.DateFormat.is24HourFormat(EntryEditActivity.this) ? 24 : 12;
+        
         mEditTime = (EditText)findViewById(R.id.etTime);
-        mEditTime.setText(new SimpleDateFormat(getResources().getString(R.string.time_format))
-                .format(c.getTime()));
+        mEditTime.setText(tf.format(c.getTime()));
         mEditTime.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -201,8 +204,7 @@ public class EntryEditActivity extends SherlockActivity {
                                 c.set(Calendar.MILLISECOND, 0);
 
                                 mDateTime.setTime(c.getTimeInMillis());
-                                mEditTime.setText(new SimpleDateFormat(getResources().getString(
-                                        R.string.time_format)).format(c.getTime()));
+                                mEditTime.setText(tf.format(c.getTime()));
 
                                 refreshPrevValue();
                             }
@@ -247,11 +249,9 @@ public class EntryEditActivity extends SherlockActivity {
                 mDateTime = java.sql.Timestamp.valueOf(d);
 
                 c.setTime(mDateTime);
-                mEditDate.setText(new SimpleDateFormat(getResources().getString(
-                        R.string.date_format)).format(c.getTime()));
-                mEditTime.setText(new SimpleDateFormat(getResources().getString(
-                        R.string.time_format)).format(c.getTime()));
-
+                mEditDate.setText(df.format(c.getTime()));
+                mEditTime.setText(tf.format(c.getTime()));
+                
                 double v = cur.getDouble(cur.getColumnIndex("value"));
                 double r = cur.getDouble(cur.getColumnIndex("rate"));
 
@@ -262,7 +262,7 @@ public class EntryEditActivity extends SherlockActivity {
             }
         }
 
-        if (mRateType != 1) { // Счетчик без тарифа
+        if (mRateType == 0) { // Счетчик без тарифа
             LinearLayout l = (LinearLayout)findViewById(R.id.lRate);
             l.setVisibility(View.GONE);
         }

@@ -1,9 +1,11 @@
 
 package com.blogspot.dibargatin.housing;
 
+import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Currency;
 import java.util.GregorianCalendar;
 
 import android.app.AlertDialog;
@@ -58,7 +60,9 @@ public class EntryActivity extends SherlockActivity {
     String[] mFormulaValueAliases;
 
     String[] mFormulaDeltaAliases;
-
+    
+    String[] mFormulaTariffAliases;
+    
     LineGraph mLineGraph;
 
     GraphSeriesStyle mLineGraphStyle;
@@ -83,6 +87,7 @@ public class EntryActivity extends SherlockActivity {
 
         mFormulaValueAliases = getResources().getStringArray(R.array.formula_var_value_aliases);
         mFormulaDeltaAliases = getResources().getStringArray(R.array.formula_var_delta_aliases);
+        mFormulaTariffAliases = getResources().getStringArray(R.array.formula_var_tariff_aliases);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setIcon(R.drawable.ic_menu_home);
@@ -300,13 +305,70 @@ public class EntryActivity extends SherlockActivity {
 
             NumberFormat nf = NumberFormat.getNumberInstance(context.getResources()
                     .getConfiguration().locale);
+            
+            NumberFormat cnf = NumberFormat.getCurrencyInstance(context.getResources()
+                    .getConfiguration().locale);
+            
+            Currency cur = null;
+            
+            // Читаем вид тарифа
+            try {
+                rateType = cursor.getInt(cursor.getColumnIndex("rate_type"));
+            } catch (Exception e) {
+                // Не вышло прочитать вид тарифа
+            }
+            
+            // Читаем единицу измерения
+            try {
+                m = Html.fromHtml(cursor.getString(cursor.getColumnIndex("measure")));
+            } catch (Exception e) {
+                // Не вышло прочитать единицу измерения
+            }
+            
+            try {
+                cur = Currency.getInstance(m.toString());
+            } catch (Exception e) {
+                // Не валюта в формате ISO
+            }
+            
+            // Устанавливаем единицу измерения
+            try {
+                TextView measure = (TextView)view.findViewById(R.id.tvMeasure);
+                TextView measure2 = (TextView)view.findViewById(R.id.tvMeasure2);
+                TextView measure3 = (TextView)view.findViewById(R.id.tvMeasure3);
+                
+                if (cur == null) {
+                    measure.setText(m);
+                    measure2.setText(m);
+                } else {
+                    measure.setVisibility(View.GONE);
+                    measure2.setVisibility(View.GONE);
+                }
 
+                if (rateType == 1) { // Простой тариф
+                    if (cur == null) {
+                        measure3.setText(m);
+                    } else {
+                        measure3.setText(cur.getSymbol());
+                    }
+                } else {
+                    measure3.setVisibility(View.GONE);
+                }
+            } catch (Exception e) {
+                // Нет единицы измерения
+            }
+            
             // Читаем и устанавливаем значение
             try {
                 TextView value = (TextView)view.findViewById(R.id.tvValue);
                 v = cursor.getDouble(cursor.getColumnIndex("value"));
-
-                value.setText(nf.format(v));
+                
+                if (cur == null) {
+                    value.setText(nf.format(v));
+                } else {
+                    cnf.setCurrency(cur);
+                    value.setText(cnf.format(v));
+                } 
 
             } catch (Exception e) {
                 // Нет значения
@@ -316,7 +378,7 @@ public class EntryActivity extends SherlockActivity {
             try {
                 TextView delta = (TextView)view.findViewById(R.id.tvDelta);
                 d = cursor.getDouble(cursor.getColumnIndex("delta"));
-
+                
                 if (d < 0) {
                     delta.setText(nf.format(d));
                 } else {
@@ -325,82 +387,91 @@ public class EntryActivity extends SherlockActivity {
             } catch (Exception e) {
                 // Нет дельты
             }
-
-            // Читаем вид тарифа
-            try {
-                rateType = cursor.getInt(cursor.getColumnIndex("rate_type"));
-            } catch (Exception e) {
-                // Не вышло прочитать вид тарифа
-            }
-
-            // Читаем единицу измерения
-            try {
-                m = Html.fromHtml(cursor.getString(cursor.getColumnIndex("measure")));
-            } catch (Exception e) {
-                // Не вышло прочитать единицу измерения
-            }
-
-            // Устанавливаем единицу измерения
-            try {
-                TextView measure = (TextView)view.findViewById(R.id.tvMeasure);
-                TextView measure2 = (TextView)view.findViewById(R.id.tvMeasure2);
-                TextView measure3 = (TextView)view.findViewById(R.id.tvMeasure3);
-
-                measure.setText(m);
-                measure2.setText(m);
-
-                if (rateType == 1) { // Простой тариф
-                    measure3.setText(m);
-                } else {
-                    measure3.setText("");
-                }
-            } catch (Exception e) {
-                // Нет единицы измерения
-            }
-
+            
             // Выводим инфорацию о тарифе и о затратах
             if (rateType == 1) { // Простой тариф
                 try {
                     TextView c = (TextView)view.findViewById(R.id.tvCurrency);
                     TextView c2 = (TextView)view.findViewById(R.id.tvCurrency2);
-
+                    
+                    Currency rcur = null;
                     r = Html.fromHtml(cursor.getString(cursor.getColumnIndex("currency")));
-                    c.setText(r);
-                    c2.setText(r);
+                    
+                    try {
+                        rcur = Currency.getInstance(r.toString());
+                    } catch (Exception e) {
+                        // Не в формате ISO
+                    }
+                    
+                    if (rcur == null) {
+                        c.setText(r);
+                        c2.setText(r);
+                    } else {
+                        c.setVisibility(View.GONE);
+                        c2.setVisibility(View.GONE);
+                    }
 
                     double rv = cursor.getDouble(cursor.getColumnIndex("rate"));
-
                     TextView rate = (TextView)view.findViewById(R.id.tvRateValue);
-                    rate.setText(nf.format(rv));
-
+                    
                     double res = cursor.getDouble(cursor.getColumnIndex("cost"));
-
                     TextView cost = (TextView)view.findViewById(R.id.tvCost);
-                    cost.setText(nf.format(res));
-
+                    
+                    if (rcur == null) {
+                        rate.setText(nf.format(rv));
+                        cost.setText(nf.format(res));
+                    } else {
+                        cnf.setCurrency(rcur);
+                        rate.setText(cnf.format(rv));
+                        cost.setText(cnf.format(res));
+                    }
+                    
                 } catch (Exception e) {
                     // Не вышло прочитать тариф
                 }
 
             } else if (rateType == 2) { // Формула
                 TextView c = (TextView)view.findViewById(R.id.tvCurrency);
-                c.setText("");
+                c.setVisibility(View.GONE);
+                
+                TextView c2 = (TextView)view.findViewById(R.id.tvCurrency2);
+                
+                Currency rcur = null;
+                r = Html.fromHtml(cursor.getString(cursor.getColumnIndex("currency")));
+                
+                try {
+                    rcur = Currency.getInstance(r.toString());
+                } catch (Exception e) {
+                    // Не в формате ISO
+                }
+                
+                if (rcur == null) {                    
+                    c2.setText(r);
+                } else {                    
+                    c2.setVisibility(View.GONE);
+                }
 
                 TextView rn = (TextView)view.findViewById(R.id.tvRateName);
                 rn.setText(getResources().getString(R.string.formula));
 
                 TextView rv = (TextView)view.findViewById(R.id.tvRateValue);
-
                 TextView cost = (TextView)view.findViewById(R.id.tvCost);
+                
                 final FormulaEvaluator eval = new FormulaEvaluator(mFormulaValueAliases, v,
-                        mFormulaDeltaAliases, d);
+                        mFormulaDeltaAliases, d, mFormulaTariffAliases, cursor.getDouble(cursor.getColumnIndex("rate")));
 
                 try {
                     String expression = cursor.getString(cursor.getColumnIndex("formula"));
                     rv.setText(expression);
 
                     double res = eval.evaluate(expression);
-                    cost.setText(nf.format(res));
+                    
+                    if (rcur == null) {
+                        cost.setText(nf.format(res));
+                    } else {
+                        cnf.setCurrency(rcur);
+                        cost.setText(cnf.format(res));
+                    }                        
                 } catch (IllegalArgumentException e) {
                     cost.setText(getResources().getString(R.string.error_evaluator_expression));
                 }
@@ -428,43 +499,39 @@ public class EntryActivity extends SherlockActivity {
 
                 TextView date = (TextView)view.findViewById(R.id.tvDate);
                 TextView month = (TextView)view.findViewById(R.id.tvMonth);
-
+                 
+                final java.text.DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, getResources().getConfiguration().locale);
+                final java.text.DateFormat tf = android.text.format.DateFormat.getTimeFormat(EntryActivity.this);                
+                
                 switch (periodType) {
                     case 0: // Год
                         month.setText(Integer.toString(c.get(Calendar.YEAR)) + " "
                                 + getResources().getString(R.string.year));
-                        date.setText(new SimpleDateFormat(getResources().getString(
-                                R.string.date_time_format)).format(c.getTime()));
+                        date.setText(df.format(c.getTime()) + " " + tf.format(c.getTime()));
                         break;
 
                     case 1: // Месяц
                         String[] ml = getResources().getStringArray(R.array.month_list);
                         month.setText(ml[c.get(Calendar.MONTH)]);
-                        date.setText(new SimpleDateFormat(getResources().getString(
-                                R.string.date_time_format)).format(c.getTime()));
-
+                        date.setText(df.format(c.getTime()) + " " + tf.format(c.getTime()));
                         break;
 
                     case 2: // День
                         month.setText(new SimpleDateFormat("EEEEEEE", context.getResources()
                                 .getConfiguration().locale).format(c.getTime()));
-                        date.setText(new SimpleDateFormat(getResources().getString(
-                                R.string.date_time_format)).format(c.getTime()));
+                        date.setText(df.format(c.getTime()) + " " + tf.format(c.getTime()));
                         break;
 
                     case 3: // Час
                     case 4: // Минута
-                        month.setText(new SimpleDateFormat(getResources().getString(
-                                R.string.time_format)).format(c.getTime()));
-                        date.setText(new SimpleDateFormat(getResources().getString(
-                                R.string.date_format)).format(c.getTime()));
+                        month.setText(tf.format(c.getTime()));
+                        date.setText(df.format(c.getTime()));
                         break;
 
                     default:
                         String[] ml2 = getResources().getStringArray(R.array.month_list);
                         month.setText(ml2[c.get(Calendar.MONTH)]);
-                        date.setText(new SimpleDateFormat(getResources().getString(
-                                R.string.date_time_format)).format(c.getTime()));
+                        date.setText(df.format(c.getTime()) + " " + tf.format(c.getTime()));
                 }
             } catch (Exception e) {
                 // Нет даты

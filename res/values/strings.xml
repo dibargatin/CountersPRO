@@ -1,56 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Счетчики PRO</string>
+    <string name="app_name">Counters PRO</string>
     
-    <string name="counters_list_empty">Список пуст. Добавьте счетчик.</string>
-    <string name="entries_list_empty">Список пуст. Добавьте показание.</string>
+    <string name="counters_list_empty">List is empty. Please add new counter.</string>
+    <string name="entries_list_empty">List is empty. Please add new indication.</string>
     
-    <string name="yes">Да</string>
-    <string name="no">Нет</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     
     <string name="ok">OK</string>
-    <string name="cancel">Отмена</string>
+    <string name="cancel">Cancel</string>
         
-    <string name="color">Цвет</string>
-    <string name="pick_the_color">Выберите цвет</string>
+    <string name="color">Color</string>
+    <string name="pick_the_color">Pick a color</string>
     
-    <string name="action">Действия</string>
-    <string name="action_counter_del_confirm">Удалить счетчик?</string>    
+    <string name="action">Actions</string>
+    <string name="action_counter_del_confirm">Delete counter?</string>    
     <string-array name="counter_actions">
-        <item>Добавить показание</item>
-        <item>Изменить</item>
-        <item>Удалить</item>
+        <item>Add new indication</item>
+        <item>Edit counter</item>
+        <item>Delete counter</item>
     </string-array>
     
-    <string name="action_entry_del_confirm">Удалить показание?</string>
+    <string name="action_entry_del_confirm">Delete entry?</string>
     
-    <string name="entry_form_title">ПОКАЗАНИЯ</string>
-    <string name="action_add_counter">Добавить</string>
-    <string name="action_settings">Настройки</string>
-    <string name="action_add_entry">Добавить</string>
+    <string name="entry_form_title">INDICATIONS</string>
+    <string name="action_add_counter">Add</string>
+    <string name="action_settings">Preferences</string>
+    <string name="action_add_entry">Add</string>
     
-    <string name="counters">СЧЕТЧИКИ</string>
-    <string name="counters_edit_form_title_add">НОВЫЙ СЧЕТЧИК</string>
-    <string name="counters_edit_form_title_edit">СЧЕТЧИК</string>
-    <string name="counters_edit_form_cnt_name">Название</string>
-    <string name="counters_edit_form_cnt_note">Описание</string>
-    <string name="counters_edit_form_btn_ok">Сохранить</string>
-    <string name="counters_edit_form_btn_cancel">Отменить</string>
+    <string name="counters">COUNTERS</string>
+    <string name="counters_edit_form_title_add">NEW COUNTER</string>
+    <string name="counters_edit_form_title_edit">COUNTER</string>
+    <string name="counters_edit_form_cnt_name">Name</string>
+    <string name="counters_edit_form_cnt_note">Description</string>
+    <string name="counters_edit_form_btn_ok">Save</string>
+    <string name="counters_edit_form_btn_cancel">Cancel</string>
     
-    <string name="error_evaluator_expression">неверное выражение</string>
+    <string name="error_evaluator_expression">wrong expression</string>
     
-    <string name="measure">Единица измерения</string>
-    <string name="rate">тариф за</string>
-    <string name="currency">р.</string>
-    <string name="rate_currency">Валюта тарифа</string>
-    <string name="formula">формула</string>
-    <string name="formula_text">Текст формулы</string>
+    <string name="measure">Measure</string>
+    <string name="rate">tariff for</string>
+    <string name="currency">USD</string>
+    <string name="rate_currency">Currency of the tariff</string>
+    <string name="formula">formula</string>
+    <string name="formula_text">Formula text</string>
+    <string name="formula_example">(value-delta)*tariff</string>
     
     <string-array name="formula_var_value_aliases">
         <item>v</item>
         <item>value</item>
         <item>значение</item>
-        <item>знач</item>
+        <item>знч</item>
     </string-array>
     
     <string-array name="formula_var_delta_aliases">
@@ -60,65 +61,62 @@
         <item>длт</item>
     </string-array>
     
-    <string name="rate_type">Вид тарифа</string>
+    <string-array name="formula_var_tariff_aliases">
+        <item>t</item>
+        <item>tariff</item>
+        <item>тариф</item>
+        <item>трф</item>
+    </string-array>
+    
+    <string name="rate_type">Type of tariff</string>
     <string-array name="rate_type_list">
-        <item>Без тарифа</item>
-        <item>Простой тариф</item>
-        <item>Формула</item>
+        <item>Without</item>
+        <item>Simple tariff</item>
+        <item>Formula</item>
     </string-array>
     
-    <string name="entry_edit_form_title_add">НОВОЕ ПОКАЗАНИЕ</string>
-    <string name="entry_edit_form_title_edit">ПОКАЗАНИЕ</string>
-    <string name="entry_edit_form_label_last_value">Пердыдущее значение</string>
-    <string name="entry_edit_form_label_value">Текущее значение</string>
+    <string name="entry_edit_form_title_add">NEW INDICATION</string>
+    <string name="entry_edit_form_title_edit">INDICATION</string>
+    <string name="entry_edit_form_label_last_value">Previous value</string>
+    <string name="entry_edit_form_label_value">Current value</string>
     
-    <string name="entry_edit_form_label_value_type">Вид текущего значения</string>
+    <string name="entry_edit_form_label_value_type">Type for current value</string>
     <string-array name="value_type_list">
-        <item>Абсолютное</item>
-        <item>Относительное</item>
+        <item>Absolute</item>
+        <item>Relative</item>
     </string-array>
     
-    <string name="entry_edit_form_label_rate">Тариф</string>
-    <string name="entry_edit_form_label_time">Время</string>
-    <string name="entry_edit_form_label_date">Дата</string>
-    <string name="entry_edit_form_btn_ok">Сохранить</string>
-    <string name="entry_edit_form_btn_cancel">Отменить</string>
+    <string name="entry_edit_form_label_rate">Tariff</string>
+    <string name="entry_edit_form_btn_ok">Save</string>
     
-    <string name="error_entry_value">Укажите значение</string>
-    <string name="error_entry_rate">Укажите тариф</string>
-    <string name="error_entry_datetime">В указанное время уже зарегистрировано показание</string>
-    
-    <string name="date_format">dd.MM.yyyy</string>
-    <string name="date_time_format">dd.MM.yyyy HH:mm</string>
-    <string name="time_format">HH:mm</string>
-    
-    <!-- Формат времени для TimePicker. Возможные значения: 12, 24. -->
-    <string name="time_format_type">24</string>
-    
-    <string name="date">Дата</string>
-    <string name="time">Время</string>
+    <string name="error_entry_value">Enter value</string>
+    <string name="error_entry_rate">Enter tariff</string>
+    <string name="error_entry_datetime">At the specified time has already been registered value</string>
+        
+    <string name="date">Date</string>
+    <string name="time">Time</string>
     <string-array name="month_list">
-        <item>январь</item>
-        <item>февраль</item>
-        <item>март</item>
-        <item>апрель</item>
-        <item>май</item>
-        <item>июнь</item>
-        <item>июль</item>
-        <item>август</item>
-        <item>сентябрь</item>
-        <item>октябрь</item>
-        <item>ноябрь</item>
-        <item>декабрь</item>
+        <item>January</item>
+        <item>February</item>
+        <item>Mar</item>
+        <item>Aprel</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>August</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
     </string-array>
     
-    <string name="entry_period_type">Период показаний</string>
-    <string name="year">год</string>
+    <string name="entry_period_type">Period of values registration</string>
+    <string name="year">year</string>
     <string-array name="period_type_list">
-        <item>Год</item>
-        <item>Месяц</item>
-        <item>День</item>
-        <item>Час</item>
-        <item>Минута</item>
+        <item>Year</item>
+        <item>Month</item>
+        <item>Day</item>
+        <item>Hour</item>
+        <item>Minute</item>
     </string-array>
 </resources>

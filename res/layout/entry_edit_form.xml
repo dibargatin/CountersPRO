@@ -1,174 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView1"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:layout_height="wrap_content" >
 
-    <ScrollView
-        android:id="@+id/scrollView1"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
             android:orientation="vertical" >
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvPrevValueLable"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical" >
-
-                <TextView
-                    android:id="@+id/tvPrevValueLable"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/entry_edit_form_label_last_value" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
-
-                    <TextView
-                        android:id="@+id/tvPrevValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="100"
-                        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                    <TextView
-                        android:id="@+id/tvMeasure"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:text="м"
-                        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                </LinearLayout>
-            </LinearLayout>
+                android:text="@string/entry_edit_form_label_last_value" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="12dp"
-                android:orientation="vertical" >
+                android:layout_height="wrap_content" >
 
                 <TextView
-                    android:id="@+id/tv_entry_form_value_label"
+                    android:id="@+id/tvPrevValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/entry_edit_form_label_value" />
+                    android:text="@string/entry_edit_form_label_last_value"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
 
-                <EditText
-                    android:id="@+id/etValue"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/tvMeasure"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:inputType="numberDecimal">
+                    android:layout_marginLeft="8dp"
+                    android:text="@string/measure"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
 
-                    <requestFocus />
-                </EditText>
             </LinearLayout>
+        </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/lValueType"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/tv_entry_form_value_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/entry_edit_form_label_value" />
+
+            <EditText
+                android:id="@+id/etValue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical" >
+                android:ems="10"
+                android:hint="@string/entry_edit_form_label_value"
+                android:inputType="numberDecimal" >
 
-                <TextView
-                    android:id="@+id/tvValueType"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/entry_edit_form_label_value_type" />
+                <requestFocus />
+            </EditText>
+        </LinearLayout>
 
-                <Spinner
-                    android:id="@+id/sValueType"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:prompt="@string/entry_edit_form_label_value_type" />
-            </LinearLayout>
+        <LinearLayout
+            android:id="@+id/lValueType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical" >
 
-            <LinearLayout
-                android:id="@+id/lRate"
+            <TextView
+                android:id="@+id/tvValueType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/entry_edit_form_label_value_type" />
+
+            <Spinner
+                android:id="@+id/sValueType"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical" >
+                android:prompt="@string/entry_edit_form_label_value_type" />
+        </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tv_entry_form_rate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/entry_edit_form_label_rate" />
+        <LinearLayout
+            android:id="@+id/lRate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical" >
 
-                <EditText
-                    android:id="@+id/etRate"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:inputType="numberDecimal" />
-            </LinearLayout>
+            <TextView
+                android:id="@+id/tv_entry_form_rate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/entry_edit_form_label_rate" />
 
-            <LinearLayout
+            <EditText
+                android:id="@+id/etRate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical" >
-
-                <TextView
-                    android:id="@+id/tvDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/date" />
-
-                <EditText
-                    android:id="@+id/etDate"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:focusable="false"
-                    android:inputType="date|time" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical" >
-
-                <TextView
-                    android:id="@+id/tvTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/time" />
-
-                <EditText
-                    android:id="@+id/etTime"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:focusable="false"
-                    android:inputType="date|time" />
-            </LinearLayout>
+                android:ems="10"
+                android:hint="@string/entry_edit_form_label_rate"
+                android:inputType="numberDecimal" />
 
         </LinearLayout>
 
-    </ScrollView>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical" >
 
-</LinearLayout>
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/date" />
+
+            <EditText
+                android:id="@+id/etDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:focusable="false"
+                android:inputType="date|time" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/tvTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/time" />
+
+            <EditText
+                android:id="@+id/etTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:focusable="false"
+                android:inputType="date|time" />
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>
