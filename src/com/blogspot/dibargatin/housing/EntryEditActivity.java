@@ -8,6 +8,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Currency;
 import java.util.GregorianCalendar;
 
 import android.app.AlertDialog;
@@ -107,7 +108,7 @@ public class EntryEditActivity extends SherlockActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         mValueType.setAdapter(adapter);
-        mValueType.setSelection(0);
+        mValueType.setSelection(1);
 
         // Контрол для ввода тарифа
         mRate = (EditText)findViewById(R.id.etRate);
@@ -119,8 +120,9 @@ public class EntryEditActivity extends SherlockActivity {
         mDateTime = new Timestamp(c.getTimeInMillis());
 
         // Контрол выбора даты показания
-        final java.text.DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, getResources().getConfiguration().locale);
-        
+        final java.text.DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, getResources()
+                .getConfiguration().locale);
+
         mEditDate = (EditText)findViewById(R.id.etDate);
         mEditDate.setText(df.format(c.getTime()));
         mEditDate.setOnClickListener(new OnClickListener() {
@@ -163,14 +165,13 @@ public class EntryEditActivity extends SherlockActivity {
             }
         });
 
-        
         // Контрол выбора времени показания
         final DateFormat tf = android.text.format.DateFormat.getTimeFormat(EntryEditActivity.this);
-                //.getTimeInstance(DateFormat.SHORT, getResources().getConfiguration().locale);
-        
+       
         // Формат времени 12 или 24 часовой
-        final int timeType = android.text.format.DateFormat.is24HourFormat(EntryEditActivity.this) ? 24 : 12;
-        
+        final int timeType = android.text.format.DateFormat.is24HourFormat(EntryEditActivity.this) ? 24
+                : 12;
+
         mEditTime = (EditText)findViewById(R.id.etTime);
         mEditTime.setText(tf.format(c.getTime()));
         mEditTime.setOnClickListener(new OnClickListener() {
@@ -181,13 +182,13 @@ public class EntryEditActivity extends SherlockActivity {
                 alert.setTitle(getResources().getString(R.string.time));
 
                 final TimePicker time = new TimePicker(EntryEditActivity.this);
-                
+
                 if (timeType == 24) {
                     time.setIs24HourView(true);
                 } else { // Если 12 часовой формат
                     time.setIs24HourView(false);
                 }
-                
+
                 c.setTime(mDateTime);
                 time.setCurrentHour(c.get(Calendar.HOUR_OF_DAY));
                 time.setCurrentMinute(c.get(Calendar.MINUTE));
@@ -251,7 +252,7 @@ public class EntryEditActivity extends SherlockActivity {
                 c.setTime(mDateTime);
                 mEditDate.setText(df.format(c.getTime()));
                 mEditTime.setText(tf.format(c.getTime()));
-                
+
                 double v = cur.getDouble(cur.getColumnIndex("value"));
                 double r = cur.getDouble(cur.getColumnIndex("rate"));
 
@@ -339,9 +340,9 @@ public class EntryEditActivity extends SherlockActivity {
                     }
                 }
 
-                // Если вводили относительное значение, то расчитаем абсолютное
-                if (mValueType.getSelectedItemId() == 1) { // Относительное
-                    va += mPrevValue;
+                // Если вводили абсолютное значение, то расчитаем относительное
+                if (mValueType.getSelectedItemId() == 0) { // Абсолютное
+                    va -= mPrevValue;
                 }
 
                 // Сохраним результат
@@ -372,11 +373,31 @@ public class EntryEditActivity extends SherlockActivity {
             return;
         }
 
-        NumberFormat nf = NumberFormat.getNumberInstance(getResources().getConfiguration().locale);
+        Currency cur = null;
+        CharSequence m = Html.fromHtml(c.getString(c.getColumnIndex("measure")));
 
-        mPrevValue = c.getDouble(c.getColumnIndex("value"));
-        mPrevValueView.setText(nf.format(mPrevValue));
-        mMeasure.setText(Html.fromHtml(c.getString(c.getColumnIndex("measure"))));
+        try {
+            cur = Currency.getInstance(m.toString());
+        } catch (Exception e) {
+            // Не в формате ISO
+        }
+
+        mPrevValue = c.getDouble(c.getColumnIndex("total"));
+
+        if (cur == null) {
+            NumberFormat nf = NumberFormat
+                    .getNumberInstance(getResources().getConfiguration().locale);
+            mPrevValueView.setText(nf.format(mPrevValue));
+            mMeasure.setText(m);
+
+        } else {
+            NumberFormat cnf = NumberFormat
+                    .getCurrencyInstance(getResources().getConfiguration().locale);
+            cnf.setCurrency(cur);
+
+            mPrevValueView.setText(cnf.format(mPrevValue));
+            mMeasure.setVisibility(View.GONE);
+        }
 
         c.close();
     }

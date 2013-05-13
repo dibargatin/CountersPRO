@@ -40,12 +40,12 @@
     <string name="error_evaluator_expression">wrong expression</string>
     
     <string name="measure">Measure</string>
-    <string name="rate">tariff for</string>
+    <string name="rate">tariff</string>
     <string name="currency">USD</string>
     <string name="rate_currency">Currency of the tariff</string>
     <string name="formula">formula</string>
     <string name="formula_text">Formula text</string>
-    <string name="formula_example">(value-delta)*tariff</string>
+    <string name="formula_example">(total-value)*tariff</string>
     
     <string-array name="formula_var_value_aliases">
         <item>v</item>
@@ -54,11 +54,11 @@
         <item>знч</item>
     </string-array>
     
-    <string-array name="formula_var_delta_aliases">
-        <item>d</item>
-        <item>delta</item>
-        <item>дельта</item>
-        <item>длт</item>
+    <string-array name="formula_var_total_aliases">
+        <item>t</item>
+        <item>total</item>
+        <item>итог</item>
+        <item>итг</item>
     </string-array>
     
     <string-array name="formula_var_tariff_aliases">
@@ -77,7 +77,7 @@
     
     <string name="entry_edit_form_title_add">NEW INDICATION</string>
     <string name="entry_edit_form_title_edit">INDICATION</string>
-    <string name="entry_edit_form_label_last_value">Previous value</string>
+    <string name="entry_edit_form_label_last_value">Sum of previous values</string>
     <string name="entry_edit_form_label_value">Current value</string>
     
     <string name="entry_edit_form_label_value_type">Type for current value</string>

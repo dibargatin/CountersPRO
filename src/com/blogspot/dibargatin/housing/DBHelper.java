@@ -361,7 +361,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 + "      ,entry_date"
                 + "  FROM Counters AS c" 
                 + "  LEFT JOIN (SELECT counter_id"
-                + "                   ,value"
+                + "                   ,value" // TODO: sum
                 + "                   ,entry_date"
                 + "               FROM Entries AS e"
                 + "              WHERE _id = (SELECT _id"
@@ -451,33 +451,23 @@ public class DBHelper extends SQLiteOpenHelper {
                 + "      ,e.counter_id AS counter_id"
                 + "      ,e.entry_date AS entry_date" 
                 + "      ,e.value AS value"
-                + "      ,e.prev_value AS prev_value"
-                + "      ,e.value - e.prev_value AS delta"
-                + "      ,round(e.rate * (e.value - e.prev_value), 2) AS cost"
                 + "      ,e.rate AS rate"
                 + "      ,c.measure AS measure"
                 + "      ,c.currency AS currency"
                 + "      ,c.rate_type AS rate_type"
                 + "      ,c.period_type AS period_type"
                 + "      ,c.formula AS formula"
-                + "  FROM (SELECT _id" 
-                + "              ,counter_id"
-                + "              ,entry_date" 
-                + "              ,value"
-                + "              ,ifnull((SELECT value"
-                + "                         FROM Entries " 
-                + "                        WHERE counter_id = en.counter_id " 
-                + "                          AND entry_date < en.entry_date "
-                + "                        ORDER BY entry_date DESC, _id DESC "
-                + "                        LIMIT 1), 0)"
-                + "               AS prev_value"
-                + "              ,rate"
-                + "          FROM Entries AS en "
-                + "         WHERE counter_id = ? "
-                + "         ORDER BY entry_date DESC, _id DESC"
-                + "       ) AS e"
+                + "      ,IFNULL(("
+                + "         SELECT SUM(value)"
+                + "           FROM Entries"
+                + "          WHERE counter_id = e.counter_id"
+                + "            AND entry_date <= e.entry_date"
+                + "       ) , 0) AS total"
+                + "  FROM Entries AS e"
                 + " INNER JOIN Counters AS c"
-                + "         ON c._id = e.counter_id";
+                + "         ON c._id = e.counter_id"
+                + " WHERE e.counter_id = ? "
+                + " ORDER BY e.entry_date DESC, e._id DESC";
         
         return getReadableDatabase().rawQuery(
                         query, 
@@ -514,14 +504,20 @@ public class DBHelper extends SQLiteOpenHelper {
                 + "           AND entry_date < ? "
                 + "         ORDER BY entry_date DESC "
                 + "         LIMIT 1 "
-                + "       ), 0) AS value"
+                + "       ), 0) AS prev_value"
+                + "      ,IFNULL(("
+                + "         SELECT SUM(value)"
+                + "           FROM Entries"
+                + "          WHERE counter_id = c._id"
+                + "            AND entry_date <= ?"
+                + "       ) , 0) AS total"
                 + "  FROM Counters AS c "
                 + " WHERE c._id = ?";
         
         return getReadableDatabase().rawQuery(
                 query,
                 new String[] {
-                        date, Long.toString(counterId)
+                        date, date, Long.toString(counterId)
                 });
     }
     

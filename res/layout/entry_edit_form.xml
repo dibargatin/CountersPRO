@@ -31,7 +31,7 @@
                     android:id="@+id/tvPrevValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/entry_edit_form_label_last_value"
+                    android:text="100"
                     android:textAppearance="?android:attr/textAppearanceLarge" />
 
                 <TextView

@@ -59,10 +59,10 @@ public class EntryActivity extends SherlockActivity {
 
     String[] mFormulaValueAliases;
 
-    String[] mFormulaDeltaAliases;
-    
+    String[] mFormulaTotalAliases;
+
     String[] mFormulaTariffAliases;
-    
+
     LineGraph mLineGraph;
 
     GraphSeriesStyle mLineGraphStyle;
@@ -86,7 +86,7 @@ public class EntryActivity extends SherlockActivity {
         mDbHelper = new DBHelper(this);
 
         mFormulaValueAliases = getResources().getStringArray(R.array.formula_var_value_aliases);
-        mFormulaDeltaAliases = getResources().getStringArray(R.array.formula_var_delta_aliases);
+        mFormulaTotalAliases = getResources().getStringArray(R.array.formula_var_total_aliases);
         mFormulaTariffAliases = getResources().getStringArray(R.array.formula_var_tariff_aliases);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -106,11 +106,10 @@ public class EntryActivity extends SherlockActivity {
         color.setBackgroundColor(c.getInt(c.getColumnIndex("color")));
 
         String[] from = new String[] {
-                "entry_date", "value", "delta", "cost", "rate", "measure", "measure", "measure"
+                "entry_date", "value", "rate", "measure"
         };
         int[] to = new int[] {
-                R.id.tvDate, R.id.tvValue, R.id.tvDelta, R.id.tvCost, R.id.tvRateValue,
-                R.id.tvMeasure, R.id.tvMeasure2, R.id.tvMeasure3
+                R.id.tvDate, R.id.tvValue, R.id.tvRateValue, R.id.tvMeasure
         };
 
         final Cursor ec = mDbHelper.fetchEntriesByCounterId(mCounterId);
@@ -118,13 +117,14 @@ public class EntryActivity extends SherlockActivity {
 
         ListView list = (ListView)findViewById(R.id.listView1);
         list.setAdapter(mAdapter);
-        
-        final View ev = View.inflate(this, R.layout.entry_list_empty, null);        
-        ev.setLayoutParams(new ViewGroup.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+
+        final View ev = View.inflate(this, R.layout.entry_list_empty, null);
+        ev.setLayoutParams(new ViewGroup.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT));
         ev.setVisibility(View.GONE);
         ((ViewGroup)list.getParent()).addView(ev);
         list.setEmptyView(ev);
-                
+
         list.setOnItemClickListener(new OnItemClickListener() {
 
             @Override
@@ -189,9 +189,9 @@ public class EntryActivity extends SherlockActivity {
 
         float[] hsv = new float[3];
         Color.colorToHSV(c.getInt(c.getColumnIndex("color")), hsv);
-        
+
         mLineGraphStyle.pointsColor = Color.HSVToColor(hsv);
-        
+
         hsv[1] = 0.2f;
         mLineGraphStyle.graphColor = Color.HSVToColor(hsv);
 
@@ -260,10 +260,10 @@ public class EntryActivity extends SherlockActivity {
     // Methods
     // ===========================================================
     private synchronized void refreshLineGraphData(Cursor c) {
-        
+
         mLineGraph.clearSeries();
-        
-        final int entryCount = c.getCount();        
+
+        final int entryCount = c.getCount();
 
         if (entryCount > 1) {
             GraphData[] gd = new GraphData[entryCount];
@@ -273,10 +273,10 @@ public class EntryActivity extends SherlockActivity {
             do {
                 String entryDate = c.getString(c.getColumnIndex("entry_date"));
                 double x = java.sql.Timestamp.valueOf(entryDate).getTime();
-                double y = c.getDouble(c.getColumnIndex("value"));
+                double y = c.getDouble(c.getColumnIndex("total"));
                 gd[indx++] = new GraphData(x, y);
             } while (c.moveToNext());
-            
+
             mLineGraph.addSeries(new GraphSeries(gd, "", "", "", mLineGraphStyle));
         }
     }
@@ -292,7 +292,7 @@ public class EntryActivity extends SherlockActivity {
 
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
-            super.bindView(view, context, cursor);
+            // super.bindView(view, context, cursor);
 
             CharSequence m = "";
             CharSequence r = "";
@@ -301,108 +301,97 @@ public class EntryActivity extends SherlockActivity {
             int periodType = 1;
 
             double v = 0;
-            double d = 0;
+            double t = 0;
 
             NumberFormat nf = NumberFormat.getNumberInstance(context.getResources()
                     .getConfiguration().locale);
-            
+
             NumberFormat cnf = NumberFormat.getCurrencyInstance(context.getResources()
                     .getConfiguration().locale);
-            
+
             Currency cur = null;
-            
+
             // Читаем вид тарифа
             try {
                 rateType = cursor.getInt(cursor.getColumnIndex("rate_type"));
             } catch (Exception e) {
                 // Не вышло прочитать вид тарифа
             }
-            
+
             // Читаем единицу измерения
             try {
                 m = Html.fromHtml(cursor.getString(cursor.getColumnIndex("measure")));
             } catch (Exception e) {
                 // Не вышло прочитать единицу измерения
             }
-            
+
             try {
                 cur = Currency.getInstance(m.toString());
             } catch (Exception e) {
                 // Не валюта в формате ISO
             }
-            
+
             // Устанавливаем единицу измерения
             try {
                 TextView measure = (TextView)view.findViewById(R.id.tvMeasure);
-                TextView measure2 = (TextView)view.findViewById(R.id.tvMeasure2);
-                TextView measure3 = (TextView)view.findViewById(R.id.tvMeasure3);
-                
+
                 if (cur == null) {
                     measure.setText(m);
-                    measure2.setText(m);
                 } else {
                     measure.setVisibility(View.GONE);
-                    measure2.setVisibility(View.GONE);
                 }
 
-                if (rateType == 1) { // Простой тариф
-                    if (cur == null) {
-                        measure3.setText(m);
-                    } else {
-                        measure3.setText(cur.getSymbol());
-                    }
-                } else {
-                    measure3.setVisibility(View.GONE);
-                }
             } catch (Exception e) {
                 // Нет единицы измерения
             }
-            
+
             // Читаем и устанавливаем значение
             try {
                 TextView value = (TextView)view.findViewById(R.id.tvValue);
                 v = cursor.getDouble(cursor.getColumnIndex("value"));
-                
-                if (cur == null) {
+
+                if (v < 0) {
                     value.setText(nf.format(v));
                 } else {
-                    cnf.setCurrency(cur);
-                    value.setText(cnf.format(v));
-                } 
-
+                    value.setText("+" + nf.format(v));
+                }
             } catch (Exception e) {
                 // Нет значения
             }
 
-            // Читаем и устанавливаем дельту
+            // Читаем и устанавливаем сумму
             try {
-                TextView delta = (TextView)view.findViewById(R.id.tvDelta);
-                d = cursor.getDouble(cursor.getColumnIndex("delta"));
-                
-                if (d < 0) {
-                    delta.setText(nf.format(d));
+                TextView total = (TextView)view.findViewById(R.id.tvTotal);
+                t = cursor.getDouble(cursor.getColumnIndex("total"));
+
+                if (cur == null) {
+                    total.setText(nf.format(t));
                 } else {
-                    delta.setText("+" + nf.format(d));
+                    cnf.setCurrency(cur);
+                    total.setText(cnf.format(t));
                 }
             } catch (Exception e) {
-                // Нет дельты
+                // Нет суммы
             }
-            
+
             // Выводим инфорацию о тарифе и о затратах
             if (rateType == 1) { // Простой тариф
                 try {
+                    LinearLayout f = (LinearLayout)view.findViewById(R.id.lFormula);
+                    f.setVisibility(View.GONE);
+
                     TextView c = (TextView)view.findViewById(R.id.tvCurrency);
-                    TextView c2 = (TextView)view.findViewById(R.id.tvCurrency2);
-                    
+                    TextView c2 = (TextView)view.findViewById(R.id.tvCostCurrency);
+
                     Currency rcur = null;
                     r = Html.fromHtml(cursor.getString(cursor.getColumnIndex("currency")));
-                    
+
                     try {
                         rcur = Currency.getInstance(r.toString());
                     } catch (Exception e) {
                         // Не в формате ISO
                     }
-                    
+
                     if (rcur == null) {
                         c.setText(r);
                         c2.setText(r);
@@ -411,67 +400,64 @@ public class EntryActivity extends SherlockActivity {
                         c2.setVisibility(View.GONE);
                     }
 
-                    double rv = cursor.getDouble(cursor.getColumnIndex("rate"));
                     TextView rate = (TextView)view.findViewById(R.id.tvRateValue);
-                    
-                    double res = cursor.getDouble(cursor.getColumnIndex("cost"));
                     TextView cost = (TextView)view.findViewById(R.id.tvCost);
-                    
+
+                    double rv = cursor.getDouble(cursor.getColumnIndex("rate"));
+
                     if (rcur == null) {
                         rate.setText(nf.format(rv));
-                        cost.setText(nf.format(res));
+                        cost.setText(nf.format(rv * v));
                     } else {
                         cnf.setCurrency(rcur);
                         rate.setText(cnf.format(rv));
-                        cost.setText(cnf.format(res));
+                        cost.setText(cnf.format(rv * v));
                     }
-                    
+
                 } catch (Exception e) {
                     // Не вышло прочитать тариф
                 }
 
             } else if (rateType == 2) { // Формула
-                TextView c = (TextView)view.findViewById(R.id.tvCurrency);
-                c.setVisibility(View.GONE);
-                
-                TextView c2 = (TextView)view.findViewById(R.id.tvCurrency2);
-                
+                LinearLayout lri = (LinearLayout)view.findViewById(R.id.lRateInfo);
+                lri.setVisibility(View.GONE);
+
+                TextView cc = (TextView)view.findViewById(R.id.tvCostCurrency);
+
                 Currency rcur = null;
                 r = Html.fromHtml(cursor.getString(cursor.getColumnIndex("currency")));
-                
+
                 try {
                     rcur = Currency.getInstance(r.toString());
                 } catch (Exception e) {
                     // Не в формате ISO
                 }
-                
-                if (rcur == null) {                    
-                    c2.setText(r);
-                } else {                    
-                    c2.setVisibility(View.GONE);
+
+                if (rcur == null) {
+                    cc.setText(r);
+                } else {
+                    cc.setVisibility(View.GONE);
                 }
 
-                TextView rn = (TextView)view.findViewById(R.id.tvRateName);
-                rn.setText(getResources().getString(R.string.formula));
-
-                TextView rv = (TextView)view.findViewById(R.id.tvRateValue);
+                TextView formula = (TextView)view.findViewById(R.id.tvFormula);
                 TextView cost = (TextView)view.findViewById(R.id.tvCost);
-                
-                final FormulaEvaluator eval = new FormulaEvaluator(mFormulaValueAliases, v,
-                        mFormulaDeltaAliases, d, mFormulaTariffAliases, cursor.getDouble(cursor.getColumnIndex("rate")));
+
+                final FormulaEvaluator eval = new FormulaEvaluator(mFormulaTotalAliases, t,
+                        mFormulaValueAliases, v, mFormulaTariffAliases, cursor.getDouble(cursor
+                                .getColumnIndex("rate")));
 
                 try {
                     String expression = cursor.getString(cursor.getColumnIndex("formula"));
-                    rv.setText(expression);
+                    formula.setText(expression);
 
                     double res = eval.evaluate(expression);
-                    
+
                     if (rcur == null) {
                         cost.setText(nf.format(res));
                     } else {
                         cnf.setCurrency(rcur);
                         cost.setText(cnf.format(res));
-                    }                        
+                    }
                 } catch (IllegalArgumentException e) {
                     cost.setText(getResources().getString(R.string.error_evaluator_expression));
                 }
@@ -479,9 +465,11 @@ public class EntryActivity extends SherlockActivity {
             } else { // Без тарифа
                 LinearLayout l1 = (LinearLayout)view.findViewById(R.id.lRateInfo);
                 LinearLayout l2 = (LinearLayout)view.findViewById(R.id.lCost);
+                LinearLayout l3 = (LinearLayout)view.findViewById(R.id.lFormula);
 
                 l1.setVisibility(View.GONE);
                 l2.setVisibility(View.GONE);
+                l3.setVisibility(View.GONE);
             }
 
             // Читаем вид периода
@@ -499,10 +487,12 @@ public class EntryActivity extends SherlockActivity {
 
                 TextView date = (TextView)view.findViewById(R.id.tvDate);
                 TextView month = (TextView)view.findViewById(R.id.tvMonth);
-                 
-                final java.text.DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, getResources().getConfiguration().locale);
-                final java.text.DateFormat tf = android.text.format.DateFormat.getTimeFormat(EntryActivity.this);                
-                
+
+                final java.text.DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT,
+                        getResources().getConfiguration().locale);
+                final java.text.DateFormat tf = android.text.format.DateFormat
+                        .getTimeFormat(EntryActivity.this);
+
                 switch (periodType) {
                     case 0: // Год
                         month.setText(Integer.toString(c.get(Calendar.YEAR)) + " "

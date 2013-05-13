@@ -40,12 +40,12 @@
     <string name="error_evaluator_expression">неверное выражение</string>
     
     <string name="measure">Единица измерения</string>
-    <string name="rate">тариф за</string>
+    <string name="rate">тариф</string>
     <string name="currency">р.</string>
     <string name="rate_currency">Валюта тарифа</string>
     <string name="formula">формула</string>
     <string name="formula_text">Текст формулы</string>
-    <string name="formula_example">(значение-дельта)*тариф</string>
+    <string name="formula_example">(итог-значение)*тариф</string>
         
     <string name="rate_type">Вид тарифа</string>
     <string-array name="rate_type_list">
@@ -56,7 +56,7 @@
     
     <string name="entry_edit_form_title_add">НОВОЕ ПОКАЗАНИЕ</string>
     <string name="entry_edit_form_title_edit">ПОКАЗАНИЕ</string>
-    <string name="entry_edit_form_label_last_value">Пердыдущее значение</string>
+    <string name="entry_edit_form_label_last_value">Сумма предыдущих значений</string>
     <string name="entry_edit_form_label_value">Текущее значение</string>
     
     <string name="entry_edit_form_label_value_type">Вид текущего значения</string>
