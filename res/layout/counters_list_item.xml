@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:text="Large Text"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:id="@+id/tvCounterNote"
@@ -54,13 +54,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="100"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/tvMeasure"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
+                android:layout_marginLeft="5dp"
                 android:text="куб.м"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
         </LinearLayout>

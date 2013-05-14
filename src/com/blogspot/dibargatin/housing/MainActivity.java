@@ -26,6 +26,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.blogspot.dibargatin.housing.util.FormulaEvaluator;
 
 public class MainActivity extends SherlockListActivity {
 
@@ -46,6 +47,12 @@ public class MainActivity extends SherlockListActivity {
     DBHelper mDbHelper;
 
     SimpleCursorAdapter mAdapter;
+    
+    String[] mFormulaValueAliases;
+
+    String[] mFormulaTotalAliases;
+
+    String[] mFormulaTariffAliases;
 
     // ===========================================================
     // Constructors
@@ -69,6 +76,10 @@ public class MainActivity extends SherlockListActivity {
 
         getSupportActionBar().setIcon(R.drawable.ic_menu_home);
         getSupportActionBar().setTitle(getResources().getString(R.string.counters));
+        
+        mFormulaValueAliases = getResources().getStringArray(R.array.formula_var_value_aliases);
+        mFormulaTotalAliases = getResources().getStringArray(R.array.formula_var_total_aliases);
+        mFormulaTariffAliases = getResources().getStringArray(R.array.formula_var_tariff_aliases);
 
         String[] from = new String[] {
                 "name", "note", "value", "measure", "entry_date"
@@ -257,31 +268,112 @@ public class MainActivity extends SherlockListActivity {
             // Значение и единица измерения
             try {
                 TextView value = (TextView)view.findViewById(R.id.tvValue);
-                double v = cursor.getDouble(cursor.getColumnIndex("value"));
-
                 TextView measure = (TextView)view.findViewById(R.id.tvMeasure);
-                String m = cursor.getString(cursor.getColumnIndex("measure"));
                 
-                Currency cur = null;
+                double v = cursor.getDouble(cursor.getColumnIndex("value"));                
+                double r = cursor.getDouble(cursor.getColumnIndex("rate"));
+                int rateType = 0;
                 
+                // Читаем вид тарифа
                 try {
-                    cur = Currency.getInstance(m);
+                    rateType = cursor.getInt(cursor.getColumnIndex("rate_type"));
                 } catch (Exception e) {
-                    // Не в формате ISO
+                    // Не вышло прочитать вид тарифа
                 }
                 
-                if (cur != null) {
-                    NumberFormat cnf = NumberFormat.getCurrencyInstance(context.getResources()
-                            .getConfiguration().locale);
-                    cnf.setCurrency(cur);
-                    value.setText(cnf.format(v));
-                    measure.setVisibility(View.GONE);
-                } else {
-                    NumberFormat nf = NumberFormat
-                            .getNumberInstance(context.getResources().getConfiguration().locale);
-                    value.setText(nf.format(v));
-                    measure.setText(Html.fromHtml(m));   
-                    measure.setVisibility(View.VISIBLE);
+                if (rateType == 1) { // Простой тариф
+                    
+                    Currency rcur = null;
+                    CharSequence c = Html.fromHtml(cursor.getString(cursor.getColumnIndex("currency")));
+
+                    try {
+                        rcur = Currency.getInstance(c.toString());
+                    } catch (Exception e) {
+                        // Не в формате ISO
+                    }
+
+                    if (rcur == null) {
+                        measure.setText(c);
+                        measure.setVisibility(View.VISIBLE);
+                    } else {
+                        measure.setVisibility(View.GONE);
+                    }
+                    
+                    if (rcur == null) {
+                        final NumberFormat nf = NumberFormat
+                                .getNumberInstance(context.getResources().getConfiguration().locale);
+                        value.setText(nf.format(r * v));
+                    } else {
+                        final NumberFormat cnf = NumberFormat.getCurrencyInstance(context.getResources()
+                                .getConfiguration().locale);
+                        cnf.setCurrency(rcur);
+                        value.setText(cnf.format(r * v));
+                    }
+                    
+                } else if (rateType == 2) { // Формула
+                    
+                    Currency rcur = null;
+                    CharSequence c = Html.fromHtml(cursor.getString(cursor.getColumnIndex("currency")));
+
+                    try {
+                        rcur = Currency.getInstance(c.toString());
+                    } catch (Exception e) {
+                        // Не в формате ISO
+                    }
+
+                    if (rcur == null) {
+                        measure.setText(c);
+                        measure.setVisibility(View.VISIBLE);
+                    } else {
+                        measure.setVisibility(View.GONE);
+                    }
+                    
+                    final FormulaEvaluator eval = new FormulaEvaluator(mFormulaTotalAliases, cursor.getDouble(cursor
+                            .getColumnIndex("total")),
+                            mFormulaValueAliases, v, mFormulaTariffAliases, r);
+
+                    try {
+                        String expression = cursor.getString(cursor.getColumnIndex("formula"));
+                        double res = eval.evaluate(expression);
+
+                        if (rcur == null) {
+                            final NumberFormat nf = NumberFormat
+                                    .getNumberInstance(context.getResources().getConfiguration().locale);
+                            value.setText(nf.format(res));
+                        } else {
+                            final NumberFormat cnf = NumberFormat.getCurrencyInstance(context.getResources()
+                                    .getConfiguration().locale);
+                            cnf.setCurrency(rcur);
+                            value.setText(cnf.format(res));
+                        }
+                    } catch (IllegalArgumentException e) {
+                        value.setText(getResources().getString(R.string.error_evaluator_expression));
+                    }
+                    
+                } else { // Без тарифа
+                
+                    String m = cursor.getString(cursor.getColumnIndex("measure"));                                
+                    Currency cur = null;
+                    
+                    try {
+                        cur = Currency.getInstance(m);
+                    } catch (Exception e) {
+                        // Не в формате ISO
+                    }
+                    
+                    if (cur != null) {
+                        final NumberFormat cnf = NumberFormat.getCurrencyInstance(context.getResources()
+                                .getConfiguration().locale);
+                        cnf.setCurrency(cur);
+                        value.setText(cnf.format(v));
+                        measure.setVisibility(View.GONE);
+                    } else {
+                        final NumberFormat nf = NumberFormat
+                                .getNumberInstance(context.getResources().getConfiguration().locale);
+                        value.setText(nf.format(v));
+                        measure.setText(Html.fromHtml(m));   
+                        measure.setVisibility(View.VISIBLE);
+                    }
                 }
                 
             } catch (Exception e) {
