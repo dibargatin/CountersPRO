@@ -31,13 +31,14 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.blogspot.dibargatin.housing.database.DBHelper;
 import com.blogspot.dibargatin.housing.util.DecimalKeyListener;
 
-public class EntryEditActivity extends SherlockActivity {
+public class IndicationActivity extends SherlockActivity {
     // ===========================================================
     // Constants
     // ===========================================================
-    public static final String EXTRA_ENTRY_ID = "com.blogspot.dibargatin.housing.EntryEditActivity.ENTRY_ID";
+    public static final String EXTRA_INDICATION_ID = "com.blogspot.dibargatin.housing.IndicationActivity.INDICATION_ID";
 
     // ===========================================================
     // Fields
@@ -82,7 +83,7 @@ public class EntryEditActivity extends SherlockActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.entry_edit_form);
+        setContentView(R.layout.indication_edit_form);
 
         mDbHelper = new DBHelper(this);
 
@@ -93,7 +94,7 @@ public class EntryEditActivity extends SherlockActivity {
         Intent intent = getIntent();
 
         mCounterId = intent.getLongExtra(CounterActivity.EXTRA_COUNTER_ID, -1);
-        mEntryId = intent.getLongExtra(EntryEditActivity.EXTRA_ENTRY_ID, -1);
+        mEntryId = intent.getLongExtra(IndicationActivity.EXTRA_INDICATION_ID, -1);
 
         // Контрол для ввода значения показания
         mValue = (EditText)findViewById(R.id.etValue);
@@ -129,10 +130,10 @@ public class EntryEditActivity extends SherlockActivity {
 
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(EntryEditActivity.this);
+                AlertDialog.Builder alert = new AlertDialog.Builder(IndicationActivity.this);
                 alert.setTitle(getResources().getString(R.string.date));
 
-                final DatePicker date = new DatePicker(EntryEditActivity.this);
+                final DatePicker date = new DatePicker(IndicationActivity.this);
 
                 c.setTime(mDateTime);
                 date.updateDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH),
@@ -166,10 +167,10 @@ public class EntryEditActivity extends SherlockActivity {
         });
 
         // Контрол выбора времени показания
-        final DateFormat tf = android.text.format.DateFormat.getTimeFormat(EntryEditActivity.this);
+        final DateFormat tf = android.text.format.DateFormat.getTimeFormat(IndicationActivity.this);
        
         // Формат времени 12 или 24 часовой
-        final int timeType = android.text.format.DateFormat.is24HourFormat(EntryEditActivity.this) ? 24
+        final int timeType = android.text.format.DateFormat.is24HourFormat(IndicationActivity.this) ? 24
                 : 12;
 
         mEditTime = (EditText)findViewById(R.id.etTime);
@@ -178,10 +179,10 @@ public class EntryEditActivity extends SherlockActivity {
 
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(EntryEditActivity.this);
+                AlertDialog.Builder alert = new AlertDialog.Builder(IndicationActivity.this);
                 alert.setTitle(getResources().getString(R.string.time));
 
-                final TimePicker time = new TimePicker(EntryEditActivity.this);
+                final TimePicker time = new TimePicker(IndicationActivity.this);
 
                 if (timeType == 24) {
                     time.setIs24HourView(true);
@@ -301,7 +302,7 @@ public class EntryEditActivity extends SherlockActivity {
                         .isEntryExists(mCounterId, mDateTime.toString(), mEntryId);
 
                 if (exists) {
-                    Toast.makeText(EntryEditActivity.this,
+                    Toast.makeText(IndicationActivity.this,
                             getResources().getString(R.string.error_entry_datetime),
                             Toast.LENGTH_SHORT).show();
                     return true;
@@ -319,7 +320,7 @@ public class EntryEditActivity extends SherlockActivity {
                 try {
                     va = df.parse(mValue.getText().toString()).doubleValue();
                 } catch (ParseException e) {
-                    Toast.makeText(EntryEditActivity.this,
+                    Toast.makeText(IndicationActivity.this,
                             getResources().getString(R.string.error_entry_value),
                             Toast.LENGTH_SHORT).show();
                     mValue.requestFocus();
@@ -330,7 +331,7 @@ public class EntryEditActivity extends SherlockActivity {
                     r = df.parse(mRate.getText().toString()).doubleValue();
                 } catch (ParseException e) {
                     if (mRateType > 0) {
-                        Toast.makeText(EntryEditActivity.this,
+                        Toast.makeText(IndicationActivity.this,
                                 getResources().getString(R.string.error_entry_rate),
                                 Toast.LENGTH_SHORT).show();
                         mRate.requestFocus();

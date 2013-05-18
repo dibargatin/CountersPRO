@@ -4,7 +4,7 @@ package com.blogspot.dibargatin.housing;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,7 +19,11 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-
+import com.blogspot.dibargatin.housing.database.Counter;
+import com.blogspot.dibargatin.housing.database.Counter.PeriodType;
+import com.blogspot.dibargatin.housing.database.Counter.RateType;
+import com.blogspot.dibargatin.housing.database.CounterDAO;
+import com.blogspot.dibargatin.housing.database.DBHelper;
 import com.blogspot.dibargatin.housing.util.FormulaEvaluator;
 import com.larswerkman.colorpicker.ColorPicker;
 import com.larswerkman.colorpicker.SaturationBar;
@@ -30,12 +34,16 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
     // ===========================================================
     public final static String EXTRA_COUNTER_ID = "com.blogspot.dibargatin.housing.CounterActivity.COUNTER_ID";
 
+    private final static int DEFAULT_COLOR = -20480;
+
     // ===========================================================
     // Fields
     // ===========================================================
-    DBHelper mDbHelper;
+    SQLiteDatabase mDatabase;
 
-    long mCounterId;
+    CounterDAO mCounterDao;
+
+    Counter mCounter;
 
     View mColor;
 
@@ -53,8 +61,6 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
 
     Spinner mPeriodType;
 
-    int mPickedColor = -20480;
-
     // ===========================================================
     // Constructors
     // ===========================================================
@@ -71,11 +77,12 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.counters_edit_form);
 
-        mDbHelper = new DBHelper(this);
-        
+        mDatabase = new DBHelper(this).getWritableDatabase();
+        mCounterDao = new CounterDAO();
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setIcon(R.drawable.ic_menu_home);
-        
+
         // Определим список элементов диалога
         mName = (EditText)findViewById(R.id.etName);
         mNote = (EditText)findViewById(R.id.etNote);
@@ -97,23 +104,8 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
         mRateType.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                final LinearLayout l = (LinearLayout)CounterActivity.this
-                        .findViewById(R.id.lCurrency);
-
-                if (id == 0) { // Без тарифа
-                    l.setVisibility(View.GONE);
-                } else {
-                    l.setVisibility(View.VISIBLE);
-                }
-
-                final LinearLayout lf = (LinearLayout)CounterActivity.this
-                        .findViewById(R.id.lFormula);
-
-                if (id == 2) { // Формула
-                    lf.setVisibility(View.VISIBLE);
-                } else {
-                    lf.setVisibility(View.GONE);
-                }
+                setCurrencyVisibility(RateType.values()[(int)id]);
+                setFormulaVisibility(RateType.values()[(int)id]);
             }
 
             @Override
@@ -140,50 +132,52 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
 
         // Создание нового счетчика
         if (intent.getAction().equals(Intent.ACTION_INSERT)) {
-            getSupportActionBar().setTitle(getResources().getString(R.string.counters_edit_form_title_add));
+
+            getSupportActionBar().setTitle(
+                    getResources().getString(R.string.counters_edit_form_title_add));
+
+            mCounter = new Counter();
+
+            mCounter.setColor(DEFAULT_COLOR);
+            mCounter.setRateType(RateType.SIMPLE);
+            mCounter.setPeriodType(PeriodType.MONTH);
+
         } else { // Редактирование счетчика
-            getSupportActionBar().setTitle(getResources().getString(R.string.counters_edit_form_title_edit));
-            mCounterId = intent.getLongExtra(EXTRA_COUNTER_ID, -1);
 
-            if (mCounterId != -1) {
-                Cursor c = mDbHelper.fetchCounterById(mCounterId);
-                c.moveToFirst();
+            getSupportActionBar().setTitle(
+                    getResources().getString(R.string.counters_edit_form_title_edit));
 
-                mPickedColor = c.getInt(c.getColumnIndex("color"));
-                mName.setText(c.getString(c.getColumnIndex("name")));
-                mNote.setText(c.getString(c.getColumnIndex("note")));
-                mMeasure.setText(c.getString(c.getColumnIndex("measure")));
-                mCurrency.setText(c.getString(c.getColumnIndex("currency")));
-                mRateType.setSelection(c.getInt(c.getColumnIndex("rate_type")));
-                mPeriodType.setSelection(c.getInt(c.getColumnIndex("period_type")));
-                mFormula.setText(c.getString(c.getColumnIndex("formula")));
+            long counterId = intent.getLongExtra(EXTRA_COUNTER_ID, -1);
 
-                LinearLayout l = (LinearLayout)CounterActivity.this.findViewById(R.id.lCurrency);
+            if (counterId != -1 && mDatabase != null) {
 
-                if (mRateType.getSelectedItemId() == 0) { // Без тарифа
-                    l.setVisibility(View.GONE);
-                } else {
-                    l.setVisibility(View.VISIBLE);
+                mCounter = mCounterDao.getById(mDatabase, counterId);
+
+                if (mCounter != null) {
+                    mName.setText(mCounter.getName());
+                    mNote.setText(mCounter.getNote());
+                    mMeasure.setText(mCounter.getMeasure());
+                    mCurrency.setText(mCounter.getCurrency());
+                    mRateType.setSelection(mCounter.getRateType().ordinal());
+                    mPeriodType.setSelection(mCounter.getPeriodType().ordinal());
+                    mFormula.setText(mCounter.getFormula());
+
+                    setCurrencyVisibility(RateType.values()[(int)mRateType.getSelectedItemId()]);
+                    setFormulaVisibility(RateType.values()[(int)mRateType.getSelectedItemId()]);
                 }
-
-                final LinearLayout lf = (LinearLayout)CounterActivity.this
-                        .findViewById(R.id.lFormula);
-
-                if (mRateType.getSelectedItemId() == 2) { // Формула
-                    lf.setVisibility(View.VISIBLE);
-                } else {
-                    lf.setVisibility(View.GONE);
-                }
+            } else {
+                mCounter = new Counter();
+                mCounter.setId(-1);
             }
         }
 
-        mColor.setBackgroundColor(mPickedColor);
+        mColor.setBackgroundColor(mCounter.getColor());
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            
+
             case R.id.vColor:
                 // Сформируем диалог для выбора цвета
                 AlertDialog.Builder alert = new AlertDialog.Builder(CounterActivity.this);
@@ -194,9 +188,9 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
                 final ColorPicker cp = new ColorPicker(CounterActivity.this);
 
                 cp.addSaturationBar(sb);
-                cp.setColor(mPickedColor);
-                cp.setOldCenterColor(mPickedColor);
-                cp.setNewCenterColor(mPickedColor);
+                cp.setColor(mCounter.getColor());
+                cp.setOldCenterColor(mCounter.getColor());
+                cp.setNewCenterColor(mCounter.getColor());
 
                 layout.setOrientation(LinearLayout.VERTICAL);
                 layout.addView(sb);
@@ -207,8 +201,8 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
                 alert.setPositiveButton(getResources().getString(R.string.ok),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                mPickedColor = cp.getColor();
-                                mColor.setBackgroundColor(mPickedColor);
+                                mCounter.setColor(cp.getColor());
+                                mColor.setBackgroundColor(mCounter.getColor());
                             }
                         });
 
@@ -230,73 +224,73 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
 
     @Override
     protected void onDestroy() {
-        mDbHelper.close();
+        if (mDatabase != null) {
+            mDatabase.close();
+            mDatabase = null;
+        }
         super.onDestroy();
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getSupportMenuInflater().inflate(R.menu.counter_edit_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
-    
+
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        
+
         switch (item.getItemId()) {
-        case android.R.id.home:
-            finish();
-            break;
-        
-        case R.id.action_save_counter:
-            // Проверим корректность введенной формулы
-            if (mRateType.getSelectedItemId() == 2) { // Формула
-                String[] val = getResources().getStringArray(R.array.formula_var_value_aliases);
-                String[] ttl = getResources().getStringArray(R.array.formula_var_total_aliases);
-                String[] trf = getResources().getStringArray(R.array.formula_var_tariff_aliases);
-                
-                final FormulaEvaluator eval = new FormulaEvaluator(val, 1.0, ttl, 11.0, trf, 1.0);
-                String expression = mFormula.getText().toString();
+            case android.R.id.home:
+                finish();
+                break;
 
-                try {                        
-                    /*
-                    Toast.makeText(
-                            CounterActivity.this,
-                            expression + " = " + Double.toString(eval.evaluate(expression)),
-                            Toast.LENGTH_SHORT).show();
-                    //*/
-                    eval.evaluate(expression);
-                } catch (IllegalArgumentException e) {
-                    Toast.makeText(
-                            CounterActivity.this,
-                            (expression
-                                    + " "
-                                    + getResources().getString(
-                                            R.string.error_evaluator_expression)).trim(),
-                            Toast.LENGTH_SHORT).show();
-                    mFormula.requestFocus();
-                    
-                    return true;
+            case R.id.action_save_counter:
+                // Проверим корректность введенной формулы
+                if (mRateType.getSelectedItemId() == 2) { // Формула
+                    String[] val = getResources().getStringArray(R.array.formula_var_value_aliases);
+                    String[] ttl = getResources().getStringArray(R.array.formula_var_total_aliases);
+                    String[] trf = getResources()
+                            .getStringArray(R.array.formula_var_tariff_aliases);
+
+                    final FormulaEvaluator eval = new FormulaEvaluator(val, 1.0, ttl, 11.0, trf,
+                            1.0);
+                    String expression = mFormula.getText().toString();
+
+                    try {
+                        eval.evaluate(expression);
+                    } catch (IllegalArgumentException e) {
+                        Toast.makeText(
+                                CounterActivity.this,
+                                (expression + " " + getResources().getString(
+                                        R.string.error_evaluator_expression)).trim(),
+                                Toast.LENGTH_SHORT).show();
+                        mFormula.requestFocus();
+
+                        return true;
+                    }
                 }
-            }
 
-            // Сохраним результат
-            if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
-                mDbHelper.insertCounter(mName.getText().toString(), mNote.getText().toString(),
-                        mPickedColor, mMeasure.getText().toString(), mCurrency.getText()
-                                .toString(), mRateType.getSelectedItemPosition(), mPeriodType
-                                .getSelectedItemPosition(), mFormula.getText().toString());
-            } else {
-                mDbHelper.updateCounter(mCounterId, mName.getText().toString(), mNote.getText()
-                        .toString(), mPickedColor, mMeasure.getText().toString(), mCurrency
-                        .getText().toString(), mRateType.getSelectedItemPosition(), mPeriodType
-                        .getSelectedItemPosition(), mFormula.getText().toString());
-            }
+                // Результат в объект
+                mCounter.setName(mName.getText().toString());
+                mCounter.setNote(mNote.getText().toString());
+                mCounter.setMeasure(mMeasure.getText().toString());
+                mCounter.setCurrency(mCurrency.getText().toString());
+                mCounter.setRateType(RateType.values()[mRateType.getSelectedItemPosition()]);
+                mCounter.setPeriodType(PeriodType.values()[mPeriodType.getSelectedItemPosition()]);
+                mCounter.setFormula(mFormula.getText().toString());
 
-            // Завершим диалог
-            setResult(RESULT_OK);
-            finish();
-            break;
+                // Сохраним результат
+                if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
+                    mCounterDao.insert(mDatabase, mCounter);
+                } else {
+                    mCounterDao.update(mDatabase, mCounter);
+                }
+
+                // Завершим диалог
+                setResult(RESULT_OK);
+                finish();
+                break;
         }
 
         return true;
@@ -305,6 +299,29 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
     // ===========================================================
     // Methods
     // ===========================================================
+    private void setCurrencyVisibility(RateType type) {
+        LinearLayout l = (LinearLayout)CounterActivity.this.findViewById(R.id.lCurrency);
+
+        if (l != null) {
+            if (type == RateType.WITHOUT) { // Без тарифа
+                l.setVisibility(View.GONE);
+            } else {
+                l.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    private void setFormulaVisibility(RateType type) {
+        final LinearLayout lf = (LinearLayout)CounterActivity.this.findViewById(R.id.lFormula);
+
+        if (lf != null) {
+            if (type == RateType.FORMULA) { // Формула
+                lf.setVisibility(View.VISIBLE);
+            } else {
+                lf.setVisibility(View.GONE);
+            }
+        }
+    }
 
     // ===========================================================
     // Inner and Anonymous Classes

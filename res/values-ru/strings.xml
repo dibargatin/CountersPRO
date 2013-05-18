@@ -41,7 +41,7 @@
     
     <string name="measure">Единица измерения</string>
     <string name="rate">тариф</string>
-    <string name="currency">р.</string>
+    <string name="currency">RUR</string>
     <string name="rate_currency">Валюта тарифа</string>
     <string name="formula">формула</string>
     <string name="formula_text">Текст формулы</string>
