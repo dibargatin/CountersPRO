@@ -40,6 +40,7 @@ public class IndicationDAO {
         query.append("      ,i.entry_date AS entry_date");
         query.append("      ,i.value AS value");
         query.append("      ,i.rate AS rate");
+        query.append("      ,i.note AS note");
         query.append("      ,IFNULL((");
         query.append("         SELECT SUM(value)");
         query.append("           FROM Indications");
@@ -63,6 +64,7 @@ public class IndicationDAO {
                         .getColumnIndex(DBHelper.INDICATION_DATE))));
                 ind.setValue(c.getDouble(c.getColumnIndex(DBHelper.INDICATION_VALUE)));
                 ind.setRateValue(c.getDouble(c.getColumnIndex(DBHelper.INDICATION_RATE)));
+                ind.setNote(c.getString(c.getColumnIndex(DBHelper.INDICATION_NOTE)));
                 ind.setTotal(c.getDouble(c.getColumnIndex("total")));
 
                 result.add(ind);
@@ -91,6 +93,7 @@ public class IndicationDAO {
         query.append("      ,i.entry_date AS entry_date");
         query.append("      ,i.value AS value");
         query.append("      ,i.rate AS rate");
+        query.append("      ,i.note AS note");
         query.append("      ,IFNULL((");
         query.append("         SELECT SUM(value)");
         query.append("           FROM Indications");
@@ -113,6 +116,7 @@ public class IndicationDAO {
             result.setDate(Timestamp.valueOf(c.getString(c.getColumnIndex(DBHelper.INDICATION_DATE))));
             result.setValue(c.getDouble(c.getColumnIndex(DBHelper.INDICATION_VALUE)));
             result.setRateValue(c.getDouble(c.getColumnIndex(DBHelper.INDICATION_RATE)));
+            result.setNote(c.getString(c.getColumnIndex(DBHelper.INDICATION_NOTE)));
             result.setTotal(c.getDouble(c.getColumnIndex("total")));
 
             c.close();
@@ -204,6 +208,7 @@ public class IndicationDAO {
         cv.put(DBHelper.INDICATION_DATE, object.getDate().toString());
         cv.put(DBHelper.INDICATION_VALUE, object.getValue());
         cv.put(DBHelper.INDICATION_RATE, object.getRateValue());
+        cv.put(DBHelper.INDICATION_NOTE, object.getNote());
 
         object.setId(db.insert(DBHelper.TABLE_INDICATION, null, cv));
 
@@ -216,6 +221,7 @@ public class IndicationDAO {
         cv.put(DBHelper.INDICATION_DATE, object.getDate().toString());
         cv.put(DBHelper.INDICATION_VALUE, object.getValue());
         cv.put(DBHelper.INDICATION_RATE, object.getRateValue());
+        cv.put(DBHelper.INDICATION_NOTE, object.getNote());
 
         db.update(DBHelper.TABLE_INDICATION, cv, DBHelper.INDICATION_ID + " = ?", new String[] {
             Long.toString(object.getId())

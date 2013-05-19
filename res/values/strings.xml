@@ -89,6 +89,8 @@
     <string name="entry_edit_form_label_rate">Tariff</string>
     <string name="entry_edit_form_btn_ok">Save</string>
     
+    <string name="entry_edit_form_label_note">Note</string>
+    
     <string name="error_entry_value">Enter value</string>
     <string name="error_entry_rate">Enter tariff</string>
     <string name="error_entry_datetime">At the specified time has already been registered value</string>

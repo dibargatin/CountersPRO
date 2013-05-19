@@ -68,6 +68,8 @@
     <string name="entry_edit_form_label_rate">Тариф</string>
     <string name="entry_edit_form_btn_ok">Сохранить</string>
     
+    <string name="entry_edit_form_label_note">Примечание</string>
+    
     <string name="error_entry_value">Укажите значение</string>
     <string name="error_entry_rate">Укажите тариф</string>
     <string name="error_entry_datetime">В указанное время уже зарегистрировано показание</string>

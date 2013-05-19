@@ -159,7 +159,7 @@ public class CountersListAdapter extends BaseAdapter {
 
                 if (cur == null) {
                     value.setText(nf.format(0));
-                    measure.setText(Html.fromHtml(cnt.getMeasure()));
+                    measure.setText(Html.fromHtml(cnt.getCurrency()));
                     measure.setVisibility(View.VISIBLE);
                 } else {
                     cnf.setCurrency(cur);
@@ -200,7 +200,7 @@ public class CountersListAdapter extends BaseAdapter {
                 if (cur == null) {
                     value.setText(nf.format(ind.calcCost(mFormulaTotalAliases,
                             mFormulaValueAliases, mFormulaRateAliases)));
-                    measure.setText(Html.fromHtml(cnt.getMeasure()));
+                    measure.setText(Html.fromHtml(cnt.getCurrency()));
                     measure.setVisibility(View.VISIBLE);
                 } else {
                     cnf.setCurrency(cur);

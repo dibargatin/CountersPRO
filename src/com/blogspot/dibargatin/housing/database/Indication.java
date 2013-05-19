@@ -25,7 +25,9 @@ public class Indication {
     double mRateValue;
 
     double mTotal;
-
+    
+    String mNote;
+    
     // ===========================================================
     // Constructors
     // ===========================================================
@@ -63,7 +65,11 @@ public class Indication {
     public double getPreviousTotal() {
         return mTotal - mValue;
     }
-
+    
+    public String getNote() {
+        return mNote;
+    }
+    
     public void setId(long id) {
         this.mId = id;
     }
@@ -82,6 +88,10 @@ public class Indication {
 
     public void setTotal(double total) {
         this.mTotal = total;
+    }
+    
+    public void setNote(String note) {
+        this.mNote = note;
     }
 
     // ===========================================================

@@ -14,8 +14,9 @@ public class DBHelper extends SQLiteOpenHelper {
     // Constants
     // ===========================================================
     public static String DB_NAME = "counterspro.sqlite3";
-    public static int DB_VERSION = 1;
-    
+
+    public static int DB_VERSION = 2;
+
     // Таблица счетчиков
     public final static String TABLE_COUNTER = "Counters";
 
@@ -36,92 +37,202 @@ public class DBHelper extends SQLiteOpenHelper {
     public final static String COUNTER_PERIOD_TYPE = "period_type";
 
     public final static String COUNTER_FORMULA = "formula";
-    
+
     // Таблица показаний
     public final static String TABLE_INDICATION = "Indications";
-    
+
     public final static String INDICATION_ID = "_id";
-    
-    public final static String INDICATION_COUNTER_ID = "counter_id";    
-    
+
+    public final static String INDICATION_COUNTER_ID = "counter_id";
+
     public final static String INDICATION_DATE = "entry_date";
-    
-    public final static String INDICATION_VALUE = "value"; 
-    
+
+    public final static String INDICATION_VALUE = "value";
+
     public final static String INDICATION_RATE = "rate";
-    
-    // Миграции БД    
+
+    public final static String INDICATION_NOTE = "note";
+
+    // Миграции БД
     private static final Patch[] PATCHES = new Patch[] {
-        // №1 Таблицы для храненения счетчиков и показаний
-        new Patch() {
-           public void apply(SQLiteDatabase db) {
-               db.beginTransaction();
-               
-               try {
-                   db.execSQL("PRAGMA foreign_keys = ON;");
-                   
-                   final StringBuilder queryCounters = new StringBuilder();
-                   
-                   queryCounters.append("CREATE TABLE " + TABLE_COUNTER +" ("); 
-                   queryCounters.append(COUNTER_ID + " INTEGER PRIMARY KEY,"); 
-                   queryCounters.append(COUNTER_NAME + " TEXT,");
-                   queryCounters.append(COUNTER_NOTE + " TEXT,");
-                   queryCounters.append(COUNTER_MEASURE + " TEXT,");
-                   queryCounters.append(COUNTER_COLOR + " INTEGER,");
-                   queryCounters.append(COUNTER_CURRENCY + " TEXT,");
-                   queryCounters.append(COUNTER_RATE_TYPE + " INTEGER,");
-                   queryCounters.append(COUNTER_PERIOD_TYPE + " INTEGER,");
-                   queryCounters.append(COUNTER_FORMULA + " TEXT");
-                   queryCounters.append(");");
-                   
-                   db.execSQL(queryCounters.toString());
-                   
-                   final StringBuilder queryIndications = new StringBuilder();
-                   
-                   queryIndications.append("CREATE TABLE " + TABLE_INDICATION + " (");
-                   queryIndications.append(INDICATION_ID + " INTEGER PRIMARY KEY,");
-                   queryIndications.append(INDICATION_COUNTER_ID + " INTEGER REFERENCES " + TABLE_COUNTER + "(" + COUNTER_ID + ") ON DELETE CASCADE,"); 
-                   queryIndications.append(INDICATION_DATE + " DATE,");
-                   queryIndications.append(INDICATION_VALUE + " REAL,"); 
-                   queryIndications.append(INDICATION_RATE + " REAL");
-                   queryIndications.append(");");
-                   
-                   db.execSQL(queryIndications.toString());
-                   
-                   db.setTransactionSuccessful();
-                   
-               } catch (Exception e) {
-                   Log.d(CountersListActivity.LOG_TAG, e.getStackTrace().toString());
-               } finally {
-                   db.endTransaction();
-               }
-           }
-      
-           public void revert(SQLiteDatabase db) {
-               db.beginTransaction();
-               
-               try {
-                   db.execSQL("DROP TABLE IF EXISTS " + TABLE_COUNTER + ";");
-                   db.execSQL("DROP TABLE IF EXISTS " + TABLE_INDICATION + ";");
-                   
-                   db.setTransactionSuccessful();
-                   
-               } catch (Exception e) {
-                   Log.d(CountersListActivity.LOG_TAG, e.getStackTrace().toString());
-               } finally {
-                   db.endTransaction();
-               }
-           }
-        }
-         
-        /*
-        , new Patch() {
-           public void apply(SQLiteDatabase db) { ... }
-           public void revert(SQLiteDatabase db) { ... }
-        }
-        */
-     };
-    
+            // №1 Таблицы для храненения счетчиков и показаний
+            new Patch() {
+                public void apply(SQLiteDatabase db) {
+                    db.beginTransaction();
+
+                    try {
+                        db.execSQL("PRAGMA foreign_keys = ON;");
+
+                        final StringBuilder queryCounters = new StringBuilder();
+
+                        queryCounters.append("CREATE TABLE " + TABLE_COUNTER + " (");
+                        queryCounters.append(COUNTER_ID + " INTEGER PRIMARY KEY,");
+                        queryCounters.append(COUNTER_NAME + " TEXT,");
+                        queryCounters.append(COUNTER_NOTE + " TEXT,");
+                        queryCounters.append(COUNTER_MEASURE + " TEXT,");
+                        queryCounters.append(COUNTER_COLOR + " INTEGER,");
+                        queryCounters.append(COUNTER_CURRENCY + " TEXT,");
+                        queryCounters.append(COUNTER_RATE_TYPE + " INTEGER,");
+                        queryCounters.append(COUNTER_PERIOD_TYPE + " INTEGER,");
+                        queryCounters.append(COUNTER_FORMULA + " TEXT");
+                        queryCounters.append(");");
+
+                        db.execSQL(queryCounters.toString());
+
+                        final StringBuilder queryIndications = new StringBuilder();
+
+                        queryIndications.append("CREATE TABLE " + TABLE_INDICATION + " (");
+                        queryIndications.append(INDICATION_ID + " INTEGER PRIMARY KEY,");
+                        queryIndications.append(INDICATION_COUNTER_ID + " INTEGER REFERENCES "
+                                + TABLE_COUNTER + "(" + COUNTER_ID + ") ON DELETE CASCADE,");
+                        queryIndications.append(INDICATION_DATE + " DATE,");
+                        queryIndications.append(INDICATION_VALUE + " REAL,");
+                        queryIndications.append(INDICATION_RATE + " REAL");
+                        queryIndications.append(");");
+
+                        db.execSQL(queryIndications.toString());
+
+                        db.setTransactionSuccessful();
+
+                    } catch (Exception e) {
+                        Log.d(CountersListActivity.LOG_TAG, e.getStackTrace().toString());
+                    } finally {
+                        db.endTransaction();
+                    }
+                }
+
+                public void revert(SQLiteDatabase db) {
+                    db.beginTransaction();
+
+                    try {
+                        db.execSQL("DROP TABLE IF EXISTS " + TABLE_COUNTER + ";");
+                        db.execSQL("DROP TABLE IF EXISTS " + TABLE_INDICATION + ";");
+
+                        db.setTransactionSuccessful();
+
+                    } catch (Exception e) {
+                        Log.d(CountersListActivity.LOG_TAG, e.getStackTrace().toString());
+                    } finally {
+                        db.endTransaction();
+                    }
+                }
+            }
+
+            // №2 Примечание в показание
+            , new Patch() {
+                public void apply(SQLiteDatabase db) {
+                    db.beginTransaction();
+
+                    try {
+                        // Сохраним исходные данные
+                        db.execSQL("ALTER TABLE " + TABLE_INDICATION
+                                + " RENAME TO Indications_old;");
+
+                        // Создадим новую структуру с полем NOTE
+                        final StringBuilder queryIndications = new StringBuilder();
+
+                        queryIndications.append("CREATE TABLE " + TABLE_INDICATION + " (");
+                        queryIndications.append(INDICATION_ID + " INTEGER PRIMARY KEY,");
+                        queryIndications.append(INDICATION_COUNTER_ID + " INTEGER REFERENCES "
+                                + TABLE_COUNTER + "(" + COUNTER_ID + ") ON DELETE CASCADE,");
+                        queryIndications.append(INDICATION_DATE + " DATE,");
+                        queryIndications.append(INDICATION_VALUE + " REAL,");
+                        queryIndications.append(INDICATION_RATE + " REAL,");
+                        queryIndications.append(INDICATION_NOTE + " TEXT");
+                        queryIndications.append(");");
+
+                        db.execSQL(queryIndications.toString());
+
+                        // Скопируем исходные данные в новую структуру
+                        queryIndications.setLength(0);
+                        queryIndications.append("INSERT INTO " + TABLE_INDICATION + " (");
+                        queryIndications.append(INDICATION_ID + ", ");
+                        queryIndications.append(INDICATION_COUNTER_ID + ", ");
+                        queryIndications.append(INDICATION_DATE + ", ");
+                        queryIndications.append(INDICATION_VALUE + ", ");
+                        queryIndications.append(INDICATION_RATE + ", ");
+                        queryIndications.append(INDICATION_NOTE + " ");
+                        queryIndications.append(") SELECT ");
+                        queryIndications.append(INDICATION_ID + ", ");
+                        queryIndications.append(INDICATION_COUNTER_ID + ", ");
+                        queryIndications.append(INDICATION_DATE + ", ");
+                        queryIndications.append(INDICATION_VALUE + ", ");
+                        queryIndications.append(INDICATION_RATE + ", ");
+                        queryIndications.append("'' AS " + INDICATION_NOTE + " ");
+                        queryIndications.append("FROM Indications_old");
+
+                        db.execSQL(queryIndications.toString());
+                        
+                        // Удалим старую структуру
+                        db.execSQL("DROP TABLE IF EXISTS Indications_old;");                        
+                        
+                        db.setTransactionSuccessful();
+
+                    } catch (Exception e) {
+                        Log.d(CountersListActivity.LOG_TAG, e.getStackTrace().toString());
+                    } finally {
+                        db.endTransaction();
+                    }
+                }
+
+                public void revert(SQLiteDatabase db) {
+                    db.beginTransaction();
+
+                    try {
+                        // Сохраним исходные данные
+                        db.execSQL("ALTER TABLE " + TABLE_INDICATION
+                                + " RENAME TO Indications_old;");
+
+                        // Откатим структуру к предыдущему состоянию
+                        final StringBuilder queryIndications = new StringBuilder();
+
+                        queryIndications.append("CREATE TABLE " + TABLE_INDICATION + " (");
+                        queryIndications.append(INDICATION_ID + " INTEGER PRIMARY KEY,");
+                        queryIndications.append(INDICATION_COUNTER_ID + " INTEGER REFERENCES "
+                                + TABLE_COUNTER + "(" + COUNTER_ID + ") ON DELETE CASCADE,");
+                        queryIndications.append(INDICATION_DATE + " DATE,");
+                        queryIndications.append(INDICATION_VALUE + " REAL,");
+                        queryIndications.append(INDICATION_RATE + " REAL");
+                        queryIndications.append(");");
+
+                        db.execSQL(queryIndications.toString());
+
+                        // Скопируем исходные данные в старую структуру
+                        queryIndications.setLength(0);
+                        queryIndications.append("INSERT INTO " + TABLE_INDICATION + " (");
+                        queryIndications.append(INDICATION_ID + ", ");
+                        queryIndications.append(INDICATION_COUNTER_ID + ", ");
+                        queryIndications.append(INDICATION_DATE + ", ");
+                        queryIndications.append(INDICATION_VALUE + ", ");
+                        queryIndications.append(INDICATION_RATE + " ");
+                        queryIndications.append(") SELECT ");
+                        queryIndications.append(INDICATION_ID + ", ");
+                        queryIndications.append(INDICATION_COUNTER_ID + ", ");
+                        queryIndications.append(INDICATION_DATE + ", ");
+                        queryIndications.append(INDICATION_VALUE + ", ");
+                        queryIndications.append(INDICATION_RATE + " ");
+                        queryIndications.append("FROM Indications_old");
+
+                        db.execSQL(queryIndications.toString());
+                        
+                        // Удалим старую структуру
+                        db.execSQL("DROP TABLE IF EXISTS Indications_old;");                        
+                        
+                        db.setTransactionSuccessful();
+
+                    } catch (Exception e) {
+                        Log.d(CountersListActivity.LOG_TAG, e.getStackTrace().toString());
+                    } finally {
+                        db.endTransaction();
+                    }
+                }
+            }
+    /*
+     * , new Patch() { public void apply(SQLiteDatabase db) { ... } public void
+     * revert(SQLiteDatabase db) { ... } }
+     */
+    };
+
     // ===========================================================
     // Fields
     // ===========================================================
@@ -142,35 +253,37 @@ public class DBHelper extends SQLiteOpenHelper {
     // ===========================================================
     @Override
     public void onCreate(SQLiteDatabase db) {
-        for (int i=0; i<PATCHES.length; i++) {
+        for (int i = 0; i < PATCHES.length; i++) {
             PATCHES[i].apply(db);
-          }
+        }
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        for (int i=oldVersion; i<newVersion; i++) {
+        for (int i = oldVersion; i < newVersion; i++) {
             PATCHES[i].apply(db);
-          }                
+        }
     }
-    
+
     @Override
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        for (int i=oldVersion; i>newVersion; i++) {
-          PATCHES[i-1].revert(db);
+        for (int i = oldVersion; i > newVersion; i++) {
+            PATCHES[i - 1].revert(db);
         }
-      }
+    }
 
     // ===========================================================
     // Methods
-    // ===========================================================  
-    
+    // ===========================================================
+
     // ===========================================================
     // Inner and Anonymous Classes
     // ===========================================================
     private static class Patch {
-        public void apply(SQLiteDatabase db) {}
-       
-        public void revert(SQLiteDatabase db) {}
+        public void apply(SQLiteDatabase db) {
+        }
+
+        public void revert(SQLiteDatabase db) {
+        }
     }
 }

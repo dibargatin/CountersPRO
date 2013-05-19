@@ -287,6 +287,21 @@ public class IndicationsListAdapter extends BaseAdapter {
             // Нет даты
         }
 
+        // Примечание к показанию
+        try {
+            TextView note = (TextView)view.findViewById(R.id.tvNote);
+            final String n = ind.getNote().trim();
+
+            if (n.length() == 0) {
+                note.setVisibility(View.GONE);
+            } else {
+                note.setVisibility(View.VISIBLE);
+                note.setText(Html.fromHtml(n.replace("\n", "<br/>")));
+            }
+        } catch (Exception e) {
+            // Нет примечания
+        }
+
         return view;
     }
 
