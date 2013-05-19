@@ -1,10 +1,10 @@
 
-package com.blogspot.dibargatin.housing.database;
+package com.blogspot.dibargatin.counterspro.database;
 
 import java.sql.Timestamp;
 
-import com.blogspot.dibargatin.housing.database.Counter.RateType;
-import com.blogspot.dibargatin.housing.util.FormulaEvaluator;
+import com.blogspot.dibargatin.counterspro.database.Counter.RateType;
+import com.blogspot.dibargatin.counterspro.util.FormulaEvaluator;
 
 public class Indication {
     // ===========================================================

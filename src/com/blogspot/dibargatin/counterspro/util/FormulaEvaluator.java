@@ -1,13 +1,9 @@
+package com.blogspot.dibargatin.counterspro.util;
 
-package com.blogspot.dibargatin.housing.util;
+import net.astesana.javaluator.DoubleEvaluator;
+import net.astesana.javaluator.StaticVariableSet;
 
-import java.text.DecimalFormatSymbols;
-
-import android.content.Context;
-import android.text.InputType;
-import android.text.method.DigitsKeyListener;
-
-public class DecimalKeyListener extends DigitsKeyListener {
+public class FormulaEvaluator {
     // ===========================================================
     // Constants
     // ===========================================================
@@ -15,48 +11,43 @@ public class DecimalKeyListener extends DigitsKeyListener {
     // ===========================================================
     // Fields
     // ===========================================================
-    private final char[] acceptedCharacters;
+    final DoubleEvaluator mEvaluator = new DoubleEvaluator();
+    
+    final StaticVariableSet<Double> mVariables = new StaticVariableSet<Double>();
 
     // ===========================================================
     // Constructors
     // ===========================================================
-    public DecimalKeyListener(Context c) {
-        acceptedCharacters = new char[] {
-                '0',
-                '1',
-                '2',
-                '3',
-                '4',
-                '5',
-                '6',
-                '7',
-                '8',
-                '9',
-                '-',
-                new DecimalFormatSymbols(c.getResources().getConfiguration().locale)
-                        .getDecimalSeparator()
-        };
+    public FormulaEvaluator(String[] valueAliases, Double value, String[] deltaAliases, Double delta, String[] tariffAliases, Double tariff) {
+        
+        for (String v : valueAliases) {
+            mVariables.set(v, value);
+        }
+        
+        for (String d : deltaAliases) {
+            mVariables.set(d, delta);
+        }
+        
+        for (String t : tariffAliases) {
+            mVariables.set(t, tariff);
+        }
     }
 
     // ===========================================================
     // Getter & Setter
     // ===========================================================
-    public int getInputType() {
-        return InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_TEXT;
-    }
 
     // ===========================================================
     // Methods for/from SuperClass/Interfaces
     // ===========================================================
-    @Override
-    protected char[] getAcceptedChars() {
-        return acceptedCharacters;
-    }
 
     // ===========================================================
     // Methods
     // ===========================================================
-
+    public Double evaluate(String expression) {
+        return mEvaluator.evaluate(expression, mVariables);        
+    }
+    
     // ===========================================================
     // Inner and Anonymous Classes
     // ===========================================================

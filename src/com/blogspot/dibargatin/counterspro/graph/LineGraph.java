@@ -1,9 +1,9 @@
 
-package com.blogspot.dibargatin.housing.graph;
+package com.blogspot.dibargatin.counterspro.graph;
 
 import java.util.ArrayList;
 
-import com.blogspot.dibargatin.housing.graph.GraphSeries.GraphData;
+import com.blogspot.dibargatin.counterspro.graph.GraphSeries.GraphData;
 
 import android.content.Context;
 import android.graphics.Canvas;

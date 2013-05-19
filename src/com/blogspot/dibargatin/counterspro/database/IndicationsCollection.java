@@ -1,8 +1,8 @@
-package com.blogspot.dibargatin.housing.database;
+package com.blogspot.dibargatin.counterspro.database;
 
 import java.util.ArrayList;
 
-public class CountersCollection extends ArrayList<Counter> {
+public class IndicationsCollection extends ArrayList<Indication> {
     // ===========================================================
     // Constants
     // ===========================================================
@@ -11,7 +11,7 @@ public class CountersCollection extends ArrayList<Counter> {
     // ===========================================================
     // Fields
     // ===========================================================
-        
+
     // ===========================================================
     // Constructors
     // ===========================================================
@@ -19,15 +19,15 @@ public class CountersCollection extends ArrayList<Counter> {
     // ===========================================================
     // Getter & Setter
     // ===========================================================
-    
+
     // ===========================================================
     // Methods for/from SuperClass/Interfaces
     // ===========================================================
-
+    
     // ===========================================================
     // Methods
     // ===========================================================
-
+    
     // ===========================================================
     // Inner and Anonymous Classes
     // ===========================================================

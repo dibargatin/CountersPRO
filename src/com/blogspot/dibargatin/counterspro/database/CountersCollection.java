@@ -1,42 +1,25 @@
-package com.blogspot.dibargatin.housing.util;
+package com.blogspot.dibargatin.counterspro.database;
 
-import net.astesana.javaluator.DoubleEvaluator;
-import net.astesana.javaluator.StaticVariableSet;
+import java.util.ArrayList;
 
-public class FormulaEvaluator {
+public class CountersCollection extends ArrayList<Counter> {
     // ===========================================================
     // Constants
     // ===========================================================
+    static final long serialVersionUID = 1L;
 
     // ===========================================================
     // Fields
     // ===========================================================
-    final DoubleEvaluator mEvaluator = new DoubleEvaluator();
-    
-    final StaticVariableSet<Double> mVariables = new StaticVariableSet<Double>();
-
+        
     // ===========================================================
     // Constructors
     // ===========================================================
-    public FormulaEvaluator(String[] valueAliases, Double value, String[] deltaAliases, Double delta, String[] tariffAliases, Double tariff) {
-        
-        for (String v : valueAliases) {
-            mVariables.set(v, value);
-        }
-        
-        for (String d : deltaAliases) {
-            mVariables.set(d, delta);
-        }
-        
-        for (String t : tariffAliases) {
-            mVariables.set(t, tariff);
-        }
-    }
 
     // ===========================================================
     // Getter & Setter
     // ===========================================================
-
+    
     // ===========================================================
     // Methods for/from SuperClass/Interfaces
     // ===========================================================
@@ -44,10 +27,7 @@ public class FormulaEvaluator {
     // ===========================================================
     // Methods
     // ===========================================================
-    public Double evaluate(String expression) {
-        return mEvaluator.evaluate(expression, mVariables);        
-    }
-    
+
     // ===========================================================
     // Inner and Anonymous Classes
     // ===========================================================

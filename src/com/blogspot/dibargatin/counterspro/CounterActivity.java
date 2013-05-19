@@ -1,5 +1,5 @@
 
-package com.blogspot.dibargatin.housing;
+package com.blogspot.dibargatin.counterspro;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -19,12 +19,13 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.blogspot.dibargatin.housing.database.Counter;
-import com.blogspot.dibargatin.housing.database.Counter.PeriodType;
-import com.blogspot.dibargatin.housing.database.Counter.RateType;
-import com.blogspot.dibargatin.housing.database.CounterDAO;
-import com.blogspot.dibargatin.housing.database.DBHelper;
-import com.blogspot.dibargatin.housing.util.FormulaEvaluator;
+import com.blogspot.dibargatin.counterspro.R;
+import com.blogspot.dibargatin.counterspro.database.Counter;
+import com.blogspot.dibargatin.counterspro.database.CounterDAO;
+import com.blogspot.dibargatin.counterspro.database.DBHelper;
+import com.blogspot.dibargatin.counterspro.database.Counter.PeriodType;
+import com.blogspot.dibargatin.counterspro.database.Counter.RateType;
+import com.blogspot.dibargatin.counterspro.util.FormulaEvaluator;
 import com.larswerkman.colorpicker.ColorPicker;
 import com.larswerkman.colorpicker.SaturationBar;
 

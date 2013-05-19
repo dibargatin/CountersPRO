@@ -1,5 +1,5 @@
 
-package com.blogspot.dibargatin.housing.database;
+package com.blogspot.dibargatin.counterspro.database;
 
 import java.text.NumberFormat;
 import java.util.Currency;
@@ -14,8 +14,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.blogspot.dibargatin.housing.R;
-import com.blogspot.dibargatin.housing.database.Counter.RateType;
+import com.blogspot.dibargatin.counterspro.R;
+import com.blogspot.dibargatin.counterspro.database.Counter.RateType;
 
 public class CountersListAdapter extends BaseAdapter {
 

@@ -1,5 +1,5 @@
 
-package com.blogspot.dibargatin.housing;
+package com.blogspot.dibargatin.counterspro;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -17,9 +17,10 @@ import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
-import com.blogspot.dibargatin.housing.database.CounterDAO;
-import com.blogspot.dibargatin.housing.database.CountersListAdapter;
-import com.blogspot.dibargatin.housing.database.DBHelper;
+import com.blogspot.dibargatin.counterspro.R;
+import com.blogspot.dibargatin.counterspro.database.CounterDAO;
+import com.blogspot.dibargatin.counterspro.database.CountersListAdapter;
+import com.blogspot.dibargatin.counterspro.database.DBHelper;
 
 public class CountersListActivity extends SherlockListActivity {
 

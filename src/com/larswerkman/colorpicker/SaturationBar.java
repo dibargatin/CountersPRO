@@ -31,7 +31,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.blogspot.dibargatin.housing.R;
+import com.blogspot.dibargatin.counterspro.R;
 
 public class SaturationBar extends View {
 

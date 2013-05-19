@@ -1,5 +1,5 @@
 
-package com.blogspot.dibargatin.housing;
+package com.blogspot.dibargatin.counterspro;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -23,16 +23,17 @@ import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
-import com.blogspot.dibargatin.housing.database.Counter;
-import com.blogspot.dibargatin.housing.database.CounterDAO;
-import com.blogspot.dibargatin.housing.database.DBHelper;
-import com.blogspot.dibargatin.housing.database.Indication;
-import com.blogspot.dibargatin.housing.database.IndicationDAO;
-import com.blogspot.dibargatin.housing.database.IndicationsListAdapter;
-import com.blogspot.dibargatin.housing.graph.GraphSeries;
-import com.blogspot.dibargatin.housing.graph.GraphSeries.GraphData;
-import com.blogspot.dibargatin.housing.graph.GraphSeries.GraphSeriesStyle;
-import com.blogspot.dibargatin.housing.graph.LineGraph;
+import com.blogspot.dibargatin.counterspro.R;
+import com.blogspot.dibargatin.counterspro.database.Counter;
+import com.blogspot.dibargatin.counterspro.database.CounterDAO;
+import com.blogspot.dibargatin.counterspro.database.DBHelper;
+import com.blogspot.dibargatin.counterspro.database.Indication;
+import com.blogspot.dibargatin.counterspro.database.IndicationDAO;
+import com.blogspot.dibargatin.counterspro.database.IndicationsListAdapter;
+import com.blogspot.dibargatin.counterspro.graph.GraphSeries;
+import com.blogspot.dibargatin.counterspro.graph.LineGraph;
+import com.blogspot.dibargatin.counterspro.graph.GraphSeries.GraphData;
+import com.blogspot.dibargatin.counterspro.graph.GraphSeries.GraphSeriesStyle;
 
 public class IndicationsListActivity extends SherlockActivity {
     // ===========================================================

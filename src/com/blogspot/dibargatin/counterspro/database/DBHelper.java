@@ -1,12 +1,12 @@
 
-package com.blogspot.dibargatin.housing.database;
+package com.blogspot.dibargatin.counterspro.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.blogspot.dibargatin.housing.CountersListActivity;
+import com.blogspot.dibargatin.counterspro.CountersListActivity;
 
 public class DBHelper extends SQLiteOpenHelper {
 

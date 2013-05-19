@@ -1,5 +1,5 @@
 
-package com.blogspot.dibargatin.housing;
+package com.blogspot.dibargatin.counterspro;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -32,13 +32,14 @@ import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
-import com.blogspot.dibargatin.housing.database.Counter;
-import com.blogspot.dibargatin.housing.database.CounterDAO;
-import com.blogspot.dibargatin.housing.database.DBHelper;
-import com.blogspot.dibargatin.housing.database.Indication;
-import com.blogspot.dibargatin.housing.database.IndicationDAO;
-import com.blogspot.dibargatin.housing.database.Counter.RateType;
-import com.blogspot.dibargatin.housing.util.DecimalKeyListener;
+import com.blogspot.dibargatin.counterspro.R;
+import com.blogspot.dibargatin.counterspro.database.Counter;
+import com.blogspot.dibargatin.counterspro.database.CounterDAO;
+import com.blogspot.dibargatin.counterspro.database.DBHelper;
+import com.blogspot.dibargatin.counterspro.database.Indication;
+import com.blogspot.dibargatin.counterspro.database.IndicationDAO;
+import com.blogspot.dibargatin.counterspro.database.Counter.RateType;
+import com.blogspot.dibargatin.counterspro.util.DecimalKeyListener;
 
 public class IndicationActivity extends SherlockActivity {
     // ===========================================================

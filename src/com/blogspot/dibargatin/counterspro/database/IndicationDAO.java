@@ -1,5 +1,5 @@
 
-package com.blogspot.dibargatin.housing.database;
+package com.blogspot.dibargatin.counterspro.database;
 
 import java.sql.Timestamp;
 
