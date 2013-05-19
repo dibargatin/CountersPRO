@@ -56,10 +56,10 @@ public class CounterDAO {
 
                 cnt.setPeriodType(Counter.PeriodType.values()[c.getInt(c
                         .getColumnIndex(DBHelper.COUNTER_PERIOD_TYPE))]);
-                
+
                 // Получим показания
                 cnt.setIndications(new IndicationDAO().getAllByCounter(db, cnt));
-                
+
                 result.add(cnt);
             }
 
@@ -69,7 +69,7 @@ public class CounterDAO {
         return result;
     }
 
-    public Counter getById(SQLiteDatabase db, long id) {
+    public Counter getById(SQLiteDatabase db, long id, boolean isEagerLoad) {
         Counter cnt = null;
 
         Cursor c = db.query(DBHelper.TABLE_COUNTER, new String[] {
@@ -98,14 +98,19 @@ public class CounterDAO {
 
             cnt.setPeriodType(Counter.PeriodType.values()[c.getInt(c
                     .getColumnIndex(DBHelper.COUNTER_PERIOD_TYPE))]);
-            
+
             c.close();
-            
+
             // Получим показания
-            cnt.setIndications(new IndicationDAO().getAllByCounter(db, cnt));            
+            if (isEagerLoad)
+                cnt.setIndications(new IndicationDAO().getAllByCounter(db, cnt));
         }
 
         return cnt;
+    }
+
+    public Counter getById(SQLiteDatabase db, long id) {
+        return getById(db, id, true);
     }
 
     public long insert(SQLiteDatabase db, Counter object) {

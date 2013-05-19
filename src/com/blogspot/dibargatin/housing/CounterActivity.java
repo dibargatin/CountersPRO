@@ -151,7 +151,7 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
 
             if (counterId != -1 && mDatabase != null) {
 
-                mCounter = mCounterDao.getById(mDatabase, counterId);
+                mCounter = mCounterDao.getById(mDatabase, counterId, false);
 
                 if (mCounter != null) {
                     mName.setText(mCounter.getName());

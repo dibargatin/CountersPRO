@@ -107,7 +107,7 @@ public class IndicationsListAdapter extends BaseAdapter {
 
         Currency cur = null;
         try {
-            cur = Currency.getInstance(ind.getCounter().getCurrency());
+            cur = Currency.getInstance(ind.getCounter().getMeasure());
         } catch (Exception e) {
             // Не валюта в формате ISO
         }

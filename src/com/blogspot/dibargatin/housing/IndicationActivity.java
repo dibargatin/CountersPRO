@@ -14,7 +14,7 @@ import java.util.GregorianCalendar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
@@ -31,7 +31,13 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+
+import com.blogspot.dibargatin.housing.database.Counter;
+import com.blogspot.dibargatin.housing.database.CounterDAO;
 import com.blogspot.dibargatin.housing.database.DBHelper;
+import com.blogspot.dibargatin.housing.database.Indication;
+import com.blogspot.dibargatin.housing.database.IndicationDAO;
+import com.blogspot.dibargatin.housing.database.Counter.RateType;
 import com.blogspot.dibargatin.housing.util.DecimalKeyListener;
 
 public class IndicationActivity extends SherlockActivity {
@@ -43,11 +49,11 @@ public class IndicationActivity extends SherlockActivity {
     // ===========================================================
     // Fields
     // ===========================================================
-    DBHelper mDbHelper;
-
-    long mEntryId;
-
-    long mCounterId;
+    SQLiteDatabase mDatabase;
+    
+    IndicationDAO mIndicationDao;
+    
+    Indication mIndication;
 
     double mPrevValue;
 
@@ -60,15 +66,11 @@ public class IndicationActivity extends SherlockActivity {
     Spinner mValueType;
 
     EditText mRate;
-
-    int mRateType = 1;
-
+    
     EditText mEditDate;
 
     EditText mEditTime;
-
-    Timestamp mDateTime;
-
+    
     // ===========================================================
     // Constructors
     // ===========================================================
@@ -85,7 +87,8 @@ public class IndicationActivity extends SherlockActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.indication_edit_form);
 
-        mDbHelper = new DBHelper(this);
+        mDatabase = new DBHelper(this).getWritableDatabase();
+        mIndicationDao = new IndicationDAO();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setIcon(R.drawable.ic_menu_home);
@@ -93,8 +96,19 @@ public class IndicationActivity extends SherlockActivity {
         // Прочитаем параметры вызова
         Intent intent = getIntent();
 
-        mCounterId = intent.getLongExtra(CounterActivity.EXTRA_COUNTER_ID, -1);
-        mEntryId = intent.getLongExtra(IndicationActivity.EXTRA_INDICATION_ID, -1);
+        final long counterId = intent.getLongExtra(CounterActivity.EXTRA_COUNTER_ID, -1);
+        final long indicationId = intent.getLongExtra(IndicationActivity.EXTRA_INDICATION_ID, -1);
+        
+        // Если регистрация нового показания
+        if (intent.getAction().equals(Intent.ACTION_INSERT)) {
+            if (mDatabase != null && counterId != -1) {
+                Counter counter = new CounterDAO().getById(mDatabase, counterId, false);
+                mIndication = new Indication(counter);
+            }
+        } else { // Редактирование показания
+            Counter counter = new CounterDAO().getById(mDatabase, counterId, false);
+            mIndication = mIndicationDao.getById(mDatabase, counter, indicationId);
+        }
 
         // Контрол для ввода значения показания
         mValue = (EditText)findViewById(R.id.etValue);
@@ -118,8 +132,8 @@ public class IndicationActivity extends SherlockActivity {
         final GregorianCalendar c = (GregorianCalendar)Calendar.getInstance();
         c.set(Calendar.SECOND, 0);
         c.set(Calendar.MILLISECOND, 0);
-        mDateTime = new Timestamp(c.getTimeInMillis());
-
+        mIndication.setDate(new Timestamp(c.getTimeInMillis()));
+        
         // Контрол выбора даты показания
         final java.text.DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, getResources()
                 .getConfiguration().locale);
@@ -135,7 +149,7 @@ public class IndicationActivity extends SherlockActivity {
 
                 final DatePicker date = new DatePicker(IndicationActivity.this);
 
-                c.setTime(mDateTime);
+                c.setTime(mIndication.getDate());
                 date.updateDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH),
                         c.get(Calendar.DAY_OF_MONTH));
 
@@ -144,10 +158,10 @@ public class IndicationActivity extends SherlockActivity {
                 alert.setPositiveButton(getResources().getString(R.string.ok),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                c.setTime(mDateTime);
+                                c.setTime(mIndication.getDate());
                                 c.set(date.getYear(), date.getMonth(), date.getDayOfMonth());
 
-                                mDateTime.setTime(c.getTimeInMillis());
+                                mIndication.getDate().setTime(c.getTimeInMillis());
                                 mEditDate.setText(df.format(c.getTime()));
 
                                 refreshPrevValue();
@@ -190,7 +204,7 @@ public class IndicationActivity extends SherlockActivity {
                     time.setIs24HourView(false);
                 }
 
-                c.setTime(mDateTime);
+                c.setTime(mIndication.getDate());
                 time.setCurrentHour(c.get(Calendar.HOUR_OF_DAY));
                 time.setCurrentMinute(c.get(Calendar.MINUTE));
 
@@ -199,13 +213,13 @@ public class IndicationActivity extends SherlockActivity {
                 alert.setPositiveButton(getResources().getString(R.string.ok),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                c.setTime(mDateTime);
+                                c.setTime(mIndication.getDate());
                                 c.set(Calendar.HOUR_OF_DAY, time.getCurrentHour());
                                 c.set(Calendar.MINUTE, time.getCurrentMinute());
                                 c.set(Calendar.SECOND, 0);
                                 c.set(Calendar.MILLISECOND, 0);
 
-                                mDateTime.setTime(c.getTimeInMillis());
+                                mIndication.getDate().setTime(c.getTimeInMillis());
                                 mEditTime.setText(tf.format(c.getTime()));
 
                                 refreshPrevValue();
@@ -231,40 +245,23 @@ public class IndicationActivity extends SherlockActivity {
         if (intent.getAction().equals(Intent.ACTION_INSERT)) {
             getSupportActionBar().setTitle(
                     getResources().getString(R.string.entry_edit_form_title_add));
-            Cursor cur = mDbHelper.fetchLastRateByCounterId(mCounterId);
-
-            if (cur.getCount() > 0) {
-                cur.moveToFirst();
-                mRate.setText(nf.format(cur.getDouble(cur.getColumnIndex("rate"))));
-                mRateType = cur.getInt(cur.getColumnIndex("rate_type"));
-            }
-
+            
+            final double rateValue = mIndicationDao.getLastRateByCounterId(mDatabase, mIndication.getCounter().getId());            
+            mRate.setText(nf.format(rateValue));
+                        
         } else { // Редактирование показания
             getSupportActionBar().setTitle(
                     getResources().getString(R.string.entry_edit_form_title_edit));
-            Cursor cur = mDbHelper.fetchEntryById(mEntryId);
+            
+            c.setTime(mIndication.getDate());
+            mEditDate.setText(df.format(c.getTime()));
+            mEditTime.setText(tf.format(c.getTime()));
 
-            if (cur.getCount() > 0) {
-                cur.moveToFirst();
-
-                String d = cur.getString(cur.getColumnIndex("entry_date"));
-                mDateTime = java.sql.Timestamp.valueOf(d);
-
-                c.setTime(mDateTime);
-                mEditDate.setText(df.format(c.getTime()));
-                mEditTime.setText(tf.format(c.getTime()));
-
-                double v = cur.getDouble(cur.getColumnIndex("value"));
-                double r = cur.getDouble(cur.getColumnIndex("rate"));
-
-                mValue.setText(nf.format(v));
-                mRate.setText(nf.format(r));
-
-                mRateType = cur.getInt(cur.getColumnIndex("rate_type"));
-            }
+            mValue.setText(nf.format(mIndication.getValue()));
+            mRate.setText(nf.format(mIndication.getRateValue()));
         }
 
-        if (mRateType == 0) { // Счетчик без тарифа
+        if (mIndication.getCounter().getRateType() == RateType.WITHOUT) { // Счетчик без тарифа
             LinearLayout l = (LinearLayout)findViewById(R.id.lRate);
             l.setVisibility(View.GONE);
         }
@@ -278,7 +275,10 @@ public class IndicationActivity extends SherlockActivity {
 
     @Override
     protected void onDestroy() {
-        mDbHelper.close();
+        if (mDatabase != null) {
+            mDatabase.close();
+            mDatabase = null;
+        }
         super.onDestroy();
     }
 
@@ -298,9 +298,8 @@ public class IndicationActivity extends SherlockActivity {
 
             case R.id.action_save_entry:
                 // Проверим на наличие показания на указанные дату и время
-                boolean exists = mDbHelper
-                        .isEntryExists(mCounterId, mDateTime.toString(), mEntryId);
-
+                boolean exists = mIndicationDao.isEntryExists(mDatabase, mIndication.getCounter().getId(), mIndication.getDate(), mIndication.getId()); 
+                
                 if (exists) {
                     Toast.makeText(IndicationActivity.this,
                             getResources().getString(R.string.error_entry_datetime),
@@ -313,12 +312,14 @@ public class IndicationActivity extends SherlockActivity {
                 final DecimalFormat df = new DecimalFormat();
                 df.setDecimalFormatSymbols(dfs);
 
-                // Прочитаем значение и тариф
-                double va = 0;
-                double r = 0;
-
+                // Прочитаем значение и тариф                
                 try {
-                    va = df.parse(mValue.getText().toString()).doubleValue();
+                    // Если вводили абсолютное значение, то расчитаем относительное
+                    if (mValueType.getSelectedItemId() == 0) { // Абсолютное
+                        mIndication.setValue(df.parse(mValue.getText().toString()).doubleValue() - mPrevValue);
+                    } else {
+                        mIndication.setValue(df.parse(mValue.getText().toString()).doubleValue());
+                    }
                 } catch (ParseException e) {
                     Toast.makeText(IndicationActivity.this,
                             getResources().getString(R.string.error_entry_value),
@@ -328,29 +329,24 @@ public class IndicationActivity extends SherlockActivity {
                 }
 
                 try {
-                    r = df.parse(mRate.getText().toString()).doubleValue();
+                    mIndication.setRateValue(df.parse(mRate.getText().toString()).doubleValue());
                 } catch (ParseException e) {
-                    if (mRateType > 0) {
+                    if (mIndication.getCounter().getRateType() != RateType.WITHOUT) {
                         Toast.makeText(IndicationActivity.this,
                                 getResources().getString(R.string.error_entry_rate),
                                 Toast.LENGTH_SHORT).show();
                         mRate.requestFocus();
                         return true;
                     } else { // Счетчик без тарифа
-                        r = 0;
+                        mIndication.setRateValue(0);
                     }
                 }
-
-                // Если вводили абсолютное значение, то расчитаем относительное
-                if (mValueType.getSelectedItemId() == 0) { // Абсолютное
-                    va -= mPrevValue;
-                }
-
+                
                 // Сохраним результат
                 if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
-                    mDbHelper.insertEntry(mCounterId, mDateTime.toString(), va, r);
+                    mIndicationDao.insert(mDatabase, mIndication);
                 } else {
-                    mDbHelper.updateEntry(mEntryId, mDateTime.toString(), va, r);
+                    mIndicationDao.update(mDatabase, mIndication);
                 }
 
                 // Завершим диалог
@@ -366,25 +362,17 @@ public class IndicationActivity extends SherlockActivity {
     // Methods
     // ===========================================================
     private void refreshPrevValue() {
-        Cursor c = mDbHelper.fetchValueByCounterId(mCounterId, mDateTime.toString());
-
-        if (!c.moveToFirst()) {
-            mPrevValueView.setText("---");
-            mMeasure.setText("");
-            return;
-        }
+        mPrevValue = mIndicationDao.getPrevTotalByCounterId(mDatabase, mIndication.getCounter().getId(), mIndication.getDate());
 
         Currency cur = null;
-        CharSequence m = Html.fromHtml(c.getString(c.getColumnIndex("measure")));
+        CharSequence m = Html.fromHtml(mIndication.getCounter().getMeasure());
 
         try {
             cur = Currency.getInstance(m.toString());
         } catch (Exception e) {
             // Не в формате ISO
         }
-
-        mPrevValue = c.getDouble(c.getColumnIndex("total"));
-
+        
         if (cur == null) {
             NumberFormat nf = NumberFormat
                     .getNumberInstance(getResources().getConfiguration().locale);
@@ -399,8 +387,6 @@ public class IndicationActivity extends SherlockActivity {
             mPrevValueView.setText(cnf.format(mPrevValue));
             mMeasure.setVisibility(View.GONE);
         }
-
-        c.close();
     }
 
     // ===========================================================

@@ -60,6 +60,10 @@ public class Indication {
         return mTotal;
     }
 
+    public double getPreviousTotal() {
+        return mTotal - mValue;
+    }
+
     public void setId(long id) {
         this.mId = id;
     }
@@ -93,9 +97,9 @@ public class Indication {
         if (mCounter != null) {
             if (mCounter.getRateType() == RateType.SIMPLE) {
                 result = mRateValue * mValue;
-                
+
             } else if (mCounter.getRateType() == RateType.FORMULA) {
-                
+
                 final FormulaEvaluator eval = new FormulaEvaluator(totalAliases, mTotal,
                         valueAliases, mValue, rateAliases, mRateValue);
 
