@@ -29,7 +29,7 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:hint="@string/counters_edit_form_cnt_name"
-                android:inputType="text" >
+                android:inputType="text|textMultiLine" >
 
             </EditText>
         </LinearLayout>
@@ -54,7 +54,7 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:hint="@string/counters_edit_form_cnt_note"
-                android:inputType="text" />
+                android:inputType="text|textMultiLine" />
 
         </LinearLayout>
 

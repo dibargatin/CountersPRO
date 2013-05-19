@@ -56,20 +56,21 @@ public class IndicationDAO {
         });
 
         if (c != null) {
-            while (c.moveToNext()) {
-                Indication ind = new Indication(counter);
+            if (c.getCount() > 0) {
+                while (c.moveToNext()) {
+                    Indication ind = new Indication(counter);
 
-                ind.setId(c.getLong(c.getColumnIndex(DBHelper.INDICATION_ID)));
-                ind.setDate(Timestamp.valueOf(c.getString(c
-                        .getColumnIndex(DBHelper.INDICATION_DATE))));
-                ind.setValue(c.getDouble(c.getColumnIndex(DBHelper.INDICATION_VALUE)));
-                ind.setRateValue(c.getDouble(c.getColumnIndex(DBHelper.INDICATION_RATE)));
-                ind.setNote(c.getString(c.getColumnIndex(DBHelper.INDICATION_NOTE)));
-                ind.setTotal(c.getDouble(c.getColumnIndex("total")));
+                    ind.setId(c.getLong(c.getColumnIndex(DBHelper.INDICATION_ID)));
+                    ind.setDate(Timestamp.valueOf(c.getString(c
+                            .getColumnIndex(DBHelper.INDICATION_DATE))));
+                    ind.setValue(c.getDouble(c.getColumnIndex(DBHelper.INDICATION_VALUE)));
+                    ind.setRateValue(c.getDouble(c.getColumnIndex(DBHelper.INDICATION_RATE)));
+                    ind.setNote(c.getString(c.getColumnIndex(DBHelper.INDICATION_NOTE)));
+                    ind.setTotal(c.getDouble(c.getColumnIndex("total")));
 
-                result.add(ind);
+                    result.add(ind);
+                }
             }
-
             c.close();
         }
 
@@ -109,16 +110,18 @@ public class IndicationDAO {
         });
 
         if (c != null) {
-            c.moveToFirst();
-            result = new Indication(counter);
+            if (c.getCount() > 0) {
+                c.moveToFirst();
+                result = new Indication(counter);
 
-            result.setId(c.getLong(c.getColumnIndex(DBHelper.INDICATION_ID)));
-            result.setDate(Timestamp.valueOf(c.getString(c.getColumnIndex(DBHelper.INDICATION_DATE))));
-            result.setValue(c.getDouble(c.getColumnIndex(DBHelper.INDICATION_VALUE)));
-            result.setRateValue(c.getDouble(c.getColumnIndex(DBHelper.INDICATION_RATE)));
-            result.setNote(c.getString(c.getColumnIndex(DBHelper.INDICATION_NOTE)));
-            result.setTotal(c.getDouble(c.getColumnIndex("total")));
-
+                result.setId(c.getLong(c.getColumnIndex(DBHelper.INDICATION_ID)));
+                result.setDate(Timestamp.valueOf(c.getString(c
+                        .getColumnIndex(DBHelper.INDICATION_DATE))));
+                result.setValue(c.getDouble(c.getColumnIndex(DBHelper.INDICATION_VALUE)));
+                result.setRateValue(c.getDouble(c.getColumnIndex(DBHelper.INDICATION_RATE)));
+                result.setNote(c.getString(c.getColumnIndex(DBHelper.INDICATION_NOTE)));
+                result.setTotal(c.getDouble(c.getColumnIndex("total")));
+            }
             c.close();
         }
 
@@ -141,8 +144,10 @@ public class IndicationDAO {
         double result = 0.0;
 
         if (c != null) {
-            c.moveToFirst();
-            result = c.getDouble(c.getColumnIndex("rate"));
+            if (c.getCount() > 0) {
+                c.moveToFirst();
+                result = c.getDouble(c.getColumnIndex("rate"));
+            }
             c.close();
         }
 
@@ -168,8 +173,10 @@ public class IndicationDAO {
         double result = 0;
 
         if (c != null) {
-            c.moveToFirst();
-            result = c.getDouble(c.getColumnIndex("prev_value"));
+            if (c.getCount() > 0) {
+                c.moveToFirst();
+                result = c.getDouble(c.getColumnIndex("prev_value"));
+            }
             c.close();
         }
 
@@ -193,8 +200,10 @@ public class IndicationDAO {
         double result = 0;
 
         if (c != null) {
-            c.moveToFirst();
-            result = c.getDouble(c.getColumnIndex("prev_total"));
+            if (c.getCount() > 0) {
+                c.moveToFirst();
+                result = c.getDouble(c.getColumnIndex("prev_total"));
+            }
             c.close();
         }
 
@@ -254,8 +263,11 @@ public class IndicationDAO {
         boolean result = false;
 
         if (c != null) {
-            c.moveToFirst();
-            result = c.getInt(c.getColumnIndex("cnt")) != 0;
+            if (c.getCount() > 0) {
+                c.moveToFirst();
+                result = c.getInt(c.getColumnIndex("cnt")) != 0;
+            }
+            c.close();
         }
 
         return result;

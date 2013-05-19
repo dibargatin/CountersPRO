@@ -107,14 +107,14 @@ public class CountersListAdapter extends BaseAdapter {
 
         // Название
         try {
-            ((TextView)view.findViewById(R.id.tvCounterName)).setText(Html.fromHtml(cnt.getName()));
+            ((TextView)view.findViewById(R.id.tvCounterName)).setText(Html.fromHtml(cnt.getName().replace("\n", "<br/>")));
         } catch (Exception e) {
             // Нет названия
         }
 
         // Описание
         try {
-            ((TextView)view.findViewById(R.id.tvCounterNote)).setText(Html.fromHtml(cnt.getNote()));
+            ((TextView)view.findViewById(R.id.tvCounterNote)).setText(Html.fromHtml(cnt.getNote().replace("\n", "<br/>")));
         } catch (Exception e) {
             // Нет описания
         }

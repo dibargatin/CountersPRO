@@ -21,6 +21,8 @@
                 android:id="@+id/tvCounterName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxWidth="250dp"
                 android:text="Large Text"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -28,8 +30,11 @@
                 android:id="@+id/tvCounterNote"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxWidth="250dp"
                 android:text="Small Text"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
+
         </LinearLayout>
 
 

@@ -39,30 +39,31 @@ public class CounterDAO {
         }, null, null, null, null, DBHelper.COUNTER_NOTE + ", " + DBHelper.COUNTER_NAME);
 
         if (c != null) {
-            while (c.moveToNext()) {
-                Counter cnt = new Counter();
+            if (c.getCount() > 0) {
+                while (c.moveToNext()) {
+                    Counter cnt = new Counter();
 
-                cnt.setId(c.getLong(c.getColumnIndex(DBHelper.COUNTER_ID)));
-                cnt.setName(c.getString(c.getColumnIndex(DBHelper.COUNTER_NAME)));
-                cnt.setNote(c.getString(c.getColumnIndex(DBHelper.COUNTER_NOTE)));
-                cnt.setColor(c.getInt(c.getColumnIndex(DBHelper.COUNTER_COLOR)));
+                    cnt.setId(c.getLong(c.getColumnIndex(DBHelper.COUNTER_ID)));
+                    cnt.setName(c.getString(c.getColumnIndex(DBHelper.COUNTER_NAME)));
+                    cnt.setNote(c.getString(c.getColumnIndex(DBHelper.COUNTER_NOTE)));
+                    cnt.setColor(c.getInt(c.getColumnIndex(DBHelper.COUNTER_COLOR)));
 
-                cnt.setMeasure(c.getString(c.getColumnIndex(DBHelper.COUNTER_MEASURE)));
-                cnt.setCurrency(c.getString(c.getColumnIndex(DBHelper.COUNTER_CURRENCY)));
+                    cnt.setMeasure(c.getString(c.getColumnIndex(DBHelper.COUNTER_MEASURE)));
+                    cnt.setCurrency(c.getString(c.getColumnIndex(DBHelper.COUNTER_CURRENCY)));
 
-                cnt.setRateType(Counter.RateType.values()[c.getInt(c
-                        .getColumnIndex(DBHelper.COUNTER_RATE_TYPE))]);
-                cnt.setFormula(c.getString(c.getColumnIndex(DBHelper.COUNTER_FORMULA)));
+                    cnt.setRateType(Counter.RateType.values()[c.getInt(c
+                            .getColumnIndex(DBHelper.COUNTER_RATE_TYPE))]);
+                    cnt.setFormula(c.getString(c.getColumnIndex(DBHelper.COUNTER_FORMULA)));
 
-                cnt.setPeriodType(Counter.PeriodType.values()[c.getInt(c
-                        .getColumnIndex(DBHelper.COUNTER_PERIOD_TYPE))]);
+                    cnt.setPeriodType(Counter.PeriodType.values()[c.getInt(c
+                            .getColumnIndex(DBHelper.COUNTER_PERIOD_TYPE))]);
 
-                // Получим показания
-                cnt.setIndications(new IndicationDAO().getAllByCounter(db, cnt));
+                    // Получим показания
+                    cnt.setIndications(new IndicationDAO().getAllByCounter(db, cnt));
 
-                result.add(cnt);
+                    result.add(cnt);
+                }
             }
-
             c.close();
         }
 
@@ -81,29 +82,30 @@ public class CounterDAO {
         }, null, null, DBHelper.COUNTER_NOTE + ", " + DBHelper.COUNTER_NAME);
 
         if (c != null) {
-            c.moveToFirst();
-            cnt = new Counter();
+            if (c.getCount() > 0) {
+                c.moveToFirst();
+                cnt = new Counter();
 
-            cnt.setId(c.getLong(c.getColumnIndex(DBHelper.COUNTER_ID)));
-            cnt.setName(c.getString(c.getColumnIndex(DBHelper.COUNTER_NAME)));
-            cnt.setNote(c.getString(c.getColumnIndex(DBHelper.COUNTER_NOTE)));
-            cnt.setColor(c.getInt(c.getColumnIndex(DBHelper.COUNTER_COLOR)));
+                cnt.setId(c.getLong(c.getColumnIndex(DBHelper.COUNTER_ID)));
+                cnt.setName(c.getString(c.getColumnIndex(DBHelper.COUNTER_NAME)));
+                cnt.setNote(c.getString(c.getColumnIndex(DBHelper.COUNTER_NOTE)));
+                cnt.setColor(c.getInt(c.getColumnIndex(DBHelper.COUNTER_COLOR)));
 
-            cnt.setMeasure(c.getString(c.getColumnIndex(DBHelper.COUNTER_MEASURE)));
-            cnt.setCurrency(c.getString(c.getColumnIndex(DBHelper.COUNTER_CURRENCY)));
+                cnt.setMeasure(c.getString(c.getColumnIndex(DBHelper.COUNTER_MEASURE)));
+                cnt.setCurrency(c.getString(c.getColumnIndex(DBHelper.COUNTER_CURRENCY)));
 
-            cnt.setRateType(Counter.RateType.values()[c.getInt(c
-                    .getColumnIndex(DBHelper.COUNTER_RATE_TYPE))]);
-            cnt.setFormula(c.getString(c.getColumnIndex(DBHelper.COUNTER_FORMULA)));
+                cnt.setRateType(Counter.RateType.values()[c.getInt(c
+                        .getColumnIndex(DBHelper.COUNTER_RATE_TYPE))]);
+                cnt.setFormula(c.getString(c.getColumnIndex(DBHelper.COUNTER_FORMULA)));
 
-            cnt.setPeriodType(Counter.PeriodType.values()[c.getInt(c
-                    .getColumnIndex(DBHelper.COUNTER_PERIOD_TYPE))]);
-
-            c.close();
-
-            // Получим показания
-            if (isEagerLoad)
-                cnt.setIndications(new IndicationDAO().getAllByCounter(db, cnt));
+                cnt.setPeriodType(Counter.PeriodType.values()[c.getInt(c
+                        .getColumnIndex(DBHelper.COUNTER_PERIOD_TYPE))]);
+                
+                // Получим показания
+                if (isEagerLoad)
+                    cnt.setIndications(new IndicationDAO().getAllByCounter(db, cnt));
+            }
+            c.close();            
         }
 
         return cnt;
