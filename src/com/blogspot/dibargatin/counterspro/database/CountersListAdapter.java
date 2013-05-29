@@ -15,7 +15,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.blogspot.dibargatin.counterspro.R;
-import com.blogspot.dibargatin.counterspro.database.Counter.RateType;
+import com.blogspot.dibargatin.counterspro.database.Counter.ViewValueType;
 
 public class CountersListAdapter extends BaseAdapter {
 
@@ -131,87 +131,21 @@ public class CountersListAdapter extends BaseAdapter {
                 .getConfiguration().locale);
 
         Currency cur = null;
-
+        double val = 0;
+        
+        // Расчет значения
+        // Если показаний нет              
         if (cnt.getIndications().size() == 0) {
-            if (cnt.getRateType() == RateType.WITHOUT) {
-                try {
-                    cur = Currency.getInstance(cnt.getMeasure());
-                } catch (Exception e) {
-                    // Не валюта в формате ISO
-                }
-
-                if (cur == null) {
-                    value.setText(nf.format(0));
-                    measure.setText(Html.fromHtml(cnt.getMeasure()));
-                    measure.setVisibility(View.VISIBLE);
-                } else {
-                    cnf.setCurrency(cur);
-                    value.setText(cnf.format(0));
-                    measure.setVisibility(View.GONE);
-                }
-
-            } else {
-                try {
-                    cur = Currency.getInstance(cnt.getCurrency());
-                } catch (Exception e) {
-                    // Не валюта в формате ISO
-                }
-
-                if (cur == null) {
-                    value.setText(nf.format(0));
-                    measure.setText(Html.fromHtml(cnt.getCurrency()));
-                    measure.setVisibility(View.VISIBLE);
-                } else {
-                    cnf.setCurrency(cur);
-                    value.setText(cnf.format(0));
-                    measure.setVisibility(View.GONE);
-                }
-            }
             
             period.setVisibility(View.GONE);
+            val = 0;
             
         } else { // Показания есть
-            Indication ind = cnt.getIndications().get(0); // Последнее значение
-
-            if (cnt.getRateType() == RateType.WITHOUT) {
-                try {
-                    cur = Currency.getInstance(cnt.getMeasure());
-                } catch (Exception e) {
-                    // Не валюта в формате ISO
-                }
-
-                if (cur == null) {
-                    value.setText(nf.format(ind.getValue()));
-                    measure.setText(Html.fromHtml(cnt.getMeasure()));
-                    measure.setVisibility(View.VISIBLE);
-                } else {
-                    cnf.setCurrency(cur);
-                    value.setText(cnf.format(ind.getValue()));
-                    measure.setVisibility(View.GONE);
-                }
-
-            } else {
-                try {
-                    cur = Currency.getInstance(cnt.getCurrency());
-                } catch (Exception e) {
-                    // Не валюта в формате ISO
-                }
-
-                if (cur == null) {
-                    value.setText(nf.format(ind.calcCost(mFormulaTotalAliases,
-                            mFormulaValueAliases, mFormulaRateAliases)));
-                    measure.setText(Html.fromHtml(cnt.getCurrency()));
-                    measure.setVisibility(View.VISIBLE);
-                } else {
-                    cnf.setCurrency(cur);
-                    value.setText(cnf.format(ind.calcCost(mFormulaTotalAliases,
-                            mFormulaValueAliases, mFormulaRateAliases)));
-                    measure.setVisibility(View.GONE);
-                }
-            }
-
-            // Дата показания
+            
+            final IndicationsCollection inds = cnt.getIndications();
+            
             try {
+                final Indication ind = inds.get(0); // Последнее значение
                 Date d = new Date(ind.getDate().getTime());
                 final java.text.DateFormat df = DateFormat.getDateFormat(mContext);
 
@@ -220,6 +154,72 @@ public class CountersListAdapter extends BaseAdapter {
             } catch (Exception e) {
                 // Нет даты показаний
             }
+            
+            if (cnt.getViewValueType() == ViewValueType.DELTA) {
+                
+                // Дельта
+                val = inds.get(0).getValue();
+                
+            } else if (cnt.getViewValueType() == ViewValueType.TOTAL) {
+                
+                // Итог по значению
+                val = inds.get(0).getTotal();
+                
+            } else if (cnt.getViewValueType() == ViewValueType.COST) {
+                
+                // Затраты
+                val = inds.get(0).calcCost(mFormulaTotalAliases,
+                        mFormulaValueAliases, mFormulaRateAliases);
+                
+            } else if (cnt.getViewValueType() == ViewValueType.TOTAL_COST) {
+                
+                // Итог по затратам
+                val = 0;
+                for(Indication i : inds) {
+                    val += i.calcCost(mFormulaTotalAliases,
+                            mFormulaValueAliases, mFormulaRateAliases);
+                }
+            }
+        }
+        
+        // Вывод значения
+        if (cnt.getViewValueType() == ViewValueType.DELTA || cnt.getViewValueType() == ViewValueType.TOTAL) {
+            // Дельта (относительное значение) или Итог по значению
+            
+            try {
+                cur = Currency.getInstance(cnt.getMeasure());
+            } catch (Exception e) {
+                // Не валюта в формате ISO
+            }
+
+            if (cur == null) {
+                value.setText(nf.format(val));
+                measure.setText(Html.fromHtml(cnt.getMeasure()));
+                measure.setVisibility(View.VISIBLE);
+            } else {
+                cnf.setCurrency(cur);
+                value.setText(cnf.format(val));
+                measure.setVisibility(View.GONE);
+            }
+            
+        } else if (cnt.getViewValueType() == ViewValueType.COST || cnt.getViewValueType() == ViewValueType.TOTAL_COST) {
+            // Затраты или Итог по затратам
+            
+            try {
+                cur = Currency.getInstance(cnt.getCurrency());
+            } catch (Exception e) {
+                // Не валюта в формате ISO
+            }
+
+            if (cur == null) {
+                value.setText(nf.format(val));
+                measure.setText(Html.fromHtml(cnt.getCurrency()));
+                measure.setVisibility(View.VISIBLE);
+            } else {
+                cnf.setCurrency(cur);
+                value.setText(cnf.format(val));
+                measure.setVisibility(View.GONE);
+            }            
         }
 
         return view;

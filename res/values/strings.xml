@@ -75,6 +75,14 @@
         <item>Formula</item>
     </string-array>
     
+    <string name="view_value_type">Type of view value in list</string>
+    <string-array name="view_value_type_list">
+        <item>Delta (value)</item>
+        <item>Total value</item>
+        <item>Cost</item>
+        <item>Total cost</item>
+    </string-array>
+    
     <string name="entry_edit_form_title_add">NEW INDICATION</string>
     <string name="entry_edit_form_title_edit">INDICATION</string>
     <string name="entry_edit_form_label_last_value">Sum of previous values</string>

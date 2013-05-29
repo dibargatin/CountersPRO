@@ -4,7 +4,7 @@
     android:layout_height="match_parent" >
 
     <ImageView
-        android:id="@+id/imageView1"
+        android:id="@+id/ivCounter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
@@ -12,10 +12,10 @@
         android:src="@drawable/ic_empty_list" />
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/tvMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/imageView1"
+        android:layout_above="@+id/ivCounter"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="8dp"
         android:text="@string/entries_list_empty" />

@@ -26,6 +26,8 @@ public class Counter {
     PeriodType mPeriodType;
 
     String mFormula;
+    
+    ViewValueType mViewValueType;    
 
     IndicationsCollection mIndications;
 
@@ -115,6 +117,14 @@ public class Counter {
     public void setFormula(String formula) {
         this.mFormula = formula;
     }
+    
+    public ViewValueType getViewValueType() {
+        return mViewValueType;
+    }
+
+    public void setViewValueType(ViewValueType viewValueType) {
+        this.mViewValueType = viewValueType;
+    }
 
     // ===========================================================
     // Methods for/from SuperClass/Interfaces
@@ -133,5 +143,9 @@ public class Counter {
 
     public enum PeriodType {
         YEAR, MONTH, DAY, HOUR, MINUTE
+    }
+    
+    public enum ViewValueType {
+        DELTA, TOTAL, COST, TOTAL_COST
     }
 }

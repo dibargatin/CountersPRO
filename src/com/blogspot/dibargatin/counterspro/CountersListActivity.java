@@ -7,22 +7,22 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-
-import com.blogspot.dibargatin.counterspro.R;
 import com.blogspot.dibargatin.counterspro.database.CounterDAO;
 import com.blogspot.dibargatin.counterspro.database.CountersListAdapter;
 import com.blogspot.dibargatin.counterspro.database.DBHelper;
 
-public class CountersListActivity extends SherlockListActivity {
+public class CountersListActivity extends SherlockListActivity implements OnClickListener {
 
     // ===========================================================
     // Constants
@@ -67,6 +67,10 @@ public class CountersListActivity extends SherlockListActivity {
 
         // Фон пустого списка счетчиков
         final View ev = View.inflate(this, R.layout.counters_list_empty, null);
+        
+        final ImageView iv = (ImageView)ev.findViewById(R.id.ivCounter);
+        iv.setOnClickListener(this);
+
         ev.setLayoutParams(new ViewGroup.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT));
         ev.setVisibility(View.GONE);
@@ -113,7 +117,8 @@ public class CountersListActivity extends SherlockListActivity {
 
                         switch (which) {
                             case 0: // Добавить показания
-                                intent = new Intent(CountersListActivity.this, IndicationActivity.class);
+                                intent = new Intent(CountersListActivity.this,
+                                        IndicationActivity.class);
 
                                 intent.setAction(Intent.ACTION_INSERT);
                                 intent.putExtra(CounterActivity.EXTRA_COUNTER_ID, itemId);
@@ -123,7 +128,8 @@ public class CountersListActivity extends SherlockListActivity {
                                 break;
 
                             case 1: // Редактировать счетчик
-                                intent = new Intent(CountersListActivity.this, CounterActivity.class);
+                                intent = new Intent(CountersListActivity.this,
+                                        CounterActivity.class);
 
                                 intent.setAction(Intent.ACTION_EDIT);
                                 intent.putExtra(CounterActivity.EXTRA_COUNTER_ID, itemId);
@@ -185,10 +191,7 @@ public class CountersListActivity extends SherlockListActivity {
 
         switch (item.getItemId()) {
             case R.id.action_add_counter:
-                Intent intent = new Intent(CountersListActivity.this, CounterActivity.class);
-
-                intent.setAction(Intent.ACTION_INSERT);
-                startActivityForResult(intent, REQUEST_ADD_COUNTER);
+                showAddCounterDialog();
                 break;
 
             default:
@@ -229,9 +232,23 @@ public class CountersListActivity extends SherlockListActivity {
         super.onDestroy();
     }
 
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()) {
+            case R.id.ivCounter:
+                showAddCounterDialog();
+                break;
+        }        
+    }
+
     // ===========================================================
     // Methods
     // ===========================================================
+    private void showAddCounterDialog() {
+        Intent intent = new Intent(CountersListActivity.this, CounterActivity.class);
+        intent.setAction(Intent.ACTION_INSERT);
+        startActivityForResult(intent, REQUEST_ADD_COUNTER);
+    }
 
     // ===========================================================
     // Inner and Anonymous Classes

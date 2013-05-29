@@ -54,6 +54,14 @@
         <item>Формула</item>
     </string-array>
     
+    <string name="view_value_type">Вид значения в списке</string>
+    <string-array name="view_value_type_list">
+        <item>Значение (дельта)</item>
+        <item>Итог по значению</item>
+        <item>Сумма затрат</item>
+        <item>Итог по затратам</item>
+    </string-array>
+    
     <string name="entry_edit_form_title_add">НОВОЕ ПОКАЗАНИЕ</string>
     <string name="entry_edit_form_title_edit">ПОКАЗАНИЕ</string>
     <string name="entry_edit_form_label_last_value">Сумма предыдущих значений</string>
