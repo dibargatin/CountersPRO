@@ -35,7 +35,8 @@ public class CounterDAO {
         Cursor c = db.query(DBHelper.TABLE_COUNTER, new String[] {
                 DBHelper.COUNTER_ID, DBHelper.COUNTER_NAME, DBHelper.COUNTER_NOTE,
                 DBHelper.COUNTER_MEASURE, DBHelper.COUNTER_COLOR, DBHelper.COUNTER_CURRENCY,
-                DBHelper.COUNTER_RATE_TYPE, DBHelper.COUNTER_PERIOD_TYPE, DBHelper.COUNTER_FORMULA, DBHelper.COUNTER_VIEW_VALUE_TYPE
+                DBHelper.COUNTER_RATE_TYPE, DBHelper.COUNTER_PERIOD_TYPE, DBHelper.COUNTER_FORMULA,
+                DBHelper.COUNTER_VIEW_VALUE_TYPE, DBHelper.COUNTER_INPUT_VALUE_TYPE
         }, null, null, null, null, DBHelper.COUNTER_NOTE + ", " + DBHelper.COUNTER_NAME);
 
         if (c != null) {
@@ -57,10 +58,13 @@ public class CounterDAO {
 
                     cnt.setPeriodType(Counter.PeriodType.values()[c.getInt(c
                             .getColumnIndex(DBHelper.COUNTER_PERIOD_TYPE))]);
-                    
+
                     cnt.setViewValueType(Counter.ViewValueType.values()[c.getInt(c
                             .getColumnIndex(DBHelper.COUNTER_VIEW_VALUE_TYPE))]);
-
+                    
+                    cnt.setInputValueType(Counter.InputValueType.values()[c.getInt(c
+                            .getColumnIndex(DBHelper.COUNTER_INPUT_VALUE_TYPE))]);
+                    
                     // Получим показания
                     cnt.setIndications(new IndicationDAO().getAllByCounter(db, cnt));
 
@@ -79,7 +83,8 @@ public class CounterDAO {
         Cursor c = db.query(DBHelper.TABLE_COUNTER, new String[] {
                 DBHelper.COUNTER_ID, DBHelper.COUNTER_NAME, DBHelper.COUNTER_NOTE,
                 DBHelper.COUNTER_MEASURE, DBHelper.COUNTER_COLOR, DBHelper.COUNTER_CURRENCY,
-                DBHelper.COUNTER_RATE_TYPE, DBHelper.COUNTER_PERIOD_TYPE, DBHelper.COUNTER_FORMULA, DBHelper.COUNTER_VIEW_VALUE_TYPE
+                DBHelper.COUNTER_RATE_TYPE, DBHelper.COUNTER_PERIOD_TYPE, DBHelper.COUNTER_FORMULA,
+                DBHelper.COUNTER_VIEW_VALUE_TYPE, DBHelper.COUNTER_INPUT_VALUE_TYPE
         }, DBHelper.COUNTER_ID + " = ?", new String[] {
             Long.toString(id)
         }, null, null, DBHelper.COUNTER_NOTE + ", " + DBHelper.COUNTER_NAME);
@@ -103,15 +108,18 @@ public class CounterDAO {
 
                 cnt.setPeriodType(Counter.PeriodType.values()[c.getInt(c
                         .getColumnIndex(DBHelper.COUNTER_PERIOD_TYPE))]);
-                
+
                 cnt.setViewValueType(Counter.ViewValueType.values()[c.getInt(c
                         .getColumnIndex(DBHelper.COUNTER_VIEW_VALUE_TYPE))]);
+                
+                cnt.setInputValueType(Counter.InputValueType.values()[c.getInt(c
+                        .getColumnIndex(DBHelper.COUNTER_INPUT_VALUE_TYPE))]);
                 
                 // Получим показания
                 if (isEagerLoad)
                     cnt.setIndications(new IndicationDAO().getAllByCounter(db, cnt));
             }
-            c.close();            
+            c.close();
         }
 
         return cnt;
@@ -133,6 +141,7 @@ public class CounterDAO {
         cv.put(DBHelper.COUNTER_PERIOD_TYPE, object.getPeriodType().ordinal());
         cv.put(DBHelper.COUNTER_FORMULA, object.getFormula());
         cv.put(DBHelper.COUNTER_VIEW_VALUE_TYPE, object.getViewValueType().ordinal());
+        cv.put(DBHelper.COUNTER_INPUT_VALUE_TYPE, object.getInputValueType().ordinal());
 
         long id = db.insert(DBHelper.TABLE_COUNTER, null, cv);
         object.setId(id);
@@ -152,6 +161,7 @@ public class CounterDAO {
         cv.put(DBHelper.COUNTER_PERIOD_TYPE, object.getPeriodType().ordinal());
         cv.put(DBHelper.COUNTER_FORMULA, object.getFormula());
         cv.put(DBHelper.COUNTER_VIEW_VALUE_TYPE, object.getViewValueType().ordinal());
+        cv.put(DBHelper.COUNTER_INPUT_VALUE_TYPE, object.getInputValueType().ordinal());
 
         db.update(DBHelper.TABLE_COUNTER, cv, DBHelper.COUNTER_ID + " = ?", new String[] {
             Long.toString(object.getId())

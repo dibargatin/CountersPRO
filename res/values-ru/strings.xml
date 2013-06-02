@@ -69,8 +69,8 @@
     
     <string name="entry_edit_form_label_value_type">Вид текущего значения</string>
     <string-array name="value_type_list">
-        <item>Абсолютное</item>
         <item>Относительное</item>
+        <item>Абсолютное</item>        
     </string-array>
     
     <string name="entry_edit_form_label_rate">Тариф</string>

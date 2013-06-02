@@ -34,6 +34,7 @@ import com.actionbarsherlock.view.MenuItem;
 
 import com.blogspot.dibargatin.counterspro.R;
 import com.blogspot.dibargatin.counterspro.database.Counter;
+import com.blogspot.dibargatin.counterspro.database.Counter.InputValueType;
 import com.blogspot.dibargatin.counterspro.database.CounterDAO;
 import com.blogspot.dibargatin.counterspro.database.DBHelper;
 import com.blogspot.dibargatin.counterspro.database.Indication;
@@ -131,7 +132,7 @@ public class IndicationActivity extends SherlockActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         mValueType.setAdapter(adapter);
-        mValueType.setSelection(1);
+        mValueType.setSelection(mIndication.getCounter().getInputValueType().ordinal());
 
         // Контрол для ввода тарифа
         mRate = (EditText)findViewById(R.id.etRate);
@@ -264,7 +265,13 @@ public class IndicationActivity extends SherlockActivity {
             mEditDate.setText(df.format(c.getTime()));
             mEditTime.setText(tf.format(c.getTime()));
 
-            mValue.setText(nf.format(mIndication.getValue()));
+            // Относительное значение
+            if (mIndication.getCounter().getInputValueType() == InputValueType.DELTA) {
+                mValue.setText(nf.format(mIndication.getValue()));
+            } else { // Абсолютное значение
+                mValue.setText(nf.format(mIndication.getTotal()));
+            }
+
             mRate.setText(nf.format(mIndication.getRateValue()));
 
             mNote.setText(mIndication.getNote());
@@ -321,12 +328,24 @@ public class IndicationActivity extends SherlockActivity {
                         .getConfiguration().locale);
                 final DecimalFormat df = new DecimalFormat();
                 df.setDecimalFormatSymbols(dfs);
+                
+                // Если изменили вид вводимого значения, то сохраним выбор                
+                try {
+                    final InputValueType ivt = InputValueType.values()[(int)mValueType
+                            .getSelectedItemId()];
+                    if (mIndication.getCounter().getInputValueType() != ivt) {
+                        mIndication.getCounter().setInputValueType(ivt);
+                        new CounterDAO().update(mDatabase, mIndication.getCounter());
+                    }
+                } catch (IndexOutOfBoundsException e) {
+                    // Выбран неизвестный вид вводимого значения
+                }
 
                 // Прочитаем значение и тариф
                 try {
                     // Если вводили абсолютное значение, то расчитаем
                     // относительное
-                    if (mValueType.getSelectedItemId() == 0) { // Абсолютное
+                    if (mIndication.getCounter().getInputValueType() == InputValueType.TOTAL) { // Абсолютное
                         mIndication.setValue(df.parse(mValue.getText().toString()).doubleValue()
                                 - mPrevValue);
                     } else {
@@ -356,7 +375,7 @@ public class IndicationActivity extends SherlockActivity {
 
                 // Примечание
                 mIndication.setNote(mNote.getText().toString());
-
+                
                 // Сохраним результат
                 if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
                     mIndicationDao.insert(mDatabase, mIndication);

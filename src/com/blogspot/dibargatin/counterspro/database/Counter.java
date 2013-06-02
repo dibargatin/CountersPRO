@@ -28,12 +28,20 @@ public class Counter {
     String mFormula;
     
     ViewValueType mViewValueType;    
+    
+    InputValueType mInputValueType;
 
     IndicationsCollection mIndications;
 
     // ===========================================================
     // Constructors
     // ===========================================================
+    public Counter() {
+        mRateType = RateType.SIMPLE;
+        mPeriodType = PeriodType.MONTH;
+        mViewValueType = ViewValueType.DELTA;
+        mInputValueType = InputValueType.DELTA;
+    }
 
     // ===========================================================
     // Getter & Setter
@@ -125,6 +133,14 @@ public class Counter {
     public void setViewValueType(ViewValueType viewValueType) {
         this.mViewValueType = viewValueType;
     }
+    
+    public InputValueType getInputValueType() {
+        return mInputValueType;
+    }
+
+    public void setInputValueType(InputValueType inputValueType) {
+        this.mInputValueType = inputValueType;
+    }
 
     // ===========================================================
     // Methods for/from SuperClass/Interfaces
@@ -147,5 +163,9 @@ public class Counter {
     
     public enum ViewValueType {
         DELTA, TOTAL, COST, TOTAL_COST
+    }
+    
+    public enum InputValueType {
+        DELTA, TOTAL
     }
 }

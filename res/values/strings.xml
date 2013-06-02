@@ -62,7 +62,7 @@
     </string-array>
     
     <string-array name="formula_var_tariff_aliases">
-        <item>t</item>
+        <item>trf</item>
         <item>tariff</item>
         <item>тариф</item>
         <item>трф</item>
@@ -90,8 +90,8 @@
     
     <string name="entry_edit_form_label_value_type">Type for current value</string>
     <string-array name="value_type_list">
-        <item>Absolute</item>
         <item>Relative</item>
+        <item>Absolute</item>        
     </string-array>
     
     <string name="entry_edit_form_label_rate">Tariff</string>
