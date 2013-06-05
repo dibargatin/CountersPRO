@@ -2,6 +2,23 @@
 <resources>
     <string name="app_name">Counters PRO</string>
     
+    <string name="menu_more">More</string>
+    <string name="menu_backup">Backup</string>
+    <string name="menu_restore">Restore</string> 
+    <string name="menu_save">Save</string>
+    
+    <string name="sdcard_not_available">SD card is not available</string>
+    <string name="backup_ok">Backup completed successfully</string>
+    <string name="backup_trouble">Backup aborted. Error accessing file</string>
+    <string name="restore_ok">Restoring the database successfully completed</string>
+    <string name="restore_trouble">Restoring interrupted. Error accessing file</string>
+    
+    <string name="action_result">Result</string>
+    
+    <string name="backup_form_title">NEW BACKUP</string>
+    <string name="backup_form_description">In the process of creating a backup, the database will be copied to the SD card. To start copying, press the <b>\"Save\"</b>.</string>
+    <string name="create_backup">Create backup</string>
+                
     <string name="counters_list_empty">List is empty. Please add new counter.</string>
     <string name="entries_list_empty">List is empty. Please add new indication.</string>
     

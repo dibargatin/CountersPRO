@@ -14,6 +14,8 @@ public class DBHelper extends SQLiteOpenHelper {
     // Constants
     // ===========================================================
     public static String DB_NAME = "counterspro.sqlite3";
+    
+    public static String DB_NAME_FULL = "data/com.blogspot.dibargatin.counterspro/databases/counterspro.sqlite3";
 
     public static int DB_VERSION = 4;
 
@@ -37,9 +39,9 @@ public class DBHelper extends SQLiteOpenHelper {
     public final static String COUNTER_PERIOD_TYPE = "period_type";
 
     public final static String COUNTER_FORMULA = "formula";
-    
+
     public final static String COUNTER_VIEW_VALUE_TYPE = "view_value_type";
-    
+
     public final static String COUNTER_INPUT_VALUE_TYPE = "input_value_type";
 
     // Таблица показаний
@@ -166,10 +168,10 @@ public class DBHelper extends SQLiteOpenHelper {
                         queryIndications.append("FROM Indications_old");
 
                         db.execSQL(queryIndications.toString());
-                        
+
                         // Удалим старую структуру
-                        db.execSQL("DROP TABLE IF EXISTS Indications_old;");                        
-                        
+                        db.execSQL("DROP TABLE IF EXISTS Indications_old;");
+
                         db.setTransactionSuccessful();
 
                     } catch (Exception e) {
@@ -218,10 +220,10 @@ public class DBHelper extends SQLiteOpenHelper {
                         queryIndications.append("FROM Indications_old");
 
                         db.execSQL(queryIndications.toString());
-                        
+
                         // Удалим старую структуру
-                        db.execSQL("DROP TABLE IF EXISTS Indications_old;");                        
-                        
+                        db.execSQL("DROP TABLE IF EXISTS Indications_old;");
+
                         db.setTransactionSuccessful();
 
                     } catch (Exception e) {
@@ -231,7 +233,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     }
                 }
             }
-            
+
             // №3 Вид отображаемого значения в счетчик
             , new Patch() {
                 public void apply(SQLiteDatabase db) {
@@ -239,8 +241,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
                     try {
                         // Сохраним исходные данные
-                        db.execSQL("ALTER TABLE " + TABLE_COUNTER
-                                + " RENAME TO Counters_old;");
+                        db.execSQL("ALTER TABLE " + TABLE_COUNTER + " RENAME TO Counters_old;");
 
                         // Создадим новую структуру с полем VIEW_VALUE_TYPE
                         db.execSQL("PRAGMA foreign_keys = ON;");
@@ -289,10 +290,10 @@ public class DBHelper extends SQLiteOpenHelper {
                         queryCounters.append("FROM Counters_old");
 
                         db.execSQL(queryCounters.toString());
-                        
+
                         // Удалим старую структуру
-                        db.execSQL("DROP TABLE IF EXISTS Counters_old;");                        
-                        
+                        db.execSQL("DROP TABLE IF EXISTS Counters_old;");
+
                         db.setTransactionSuccessful();
 
                     } catch (Exception e) {
@@ -307,8 +308,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
                     try {
                         // Сохраним исходные данные
-                        db.execSQL("ALTER TABLE " + TABLE_COUNTER
-                                + " RENAME TO Counters_old;");
+                        db.execSQL("ALTER TABLE " + TABLE_COUNTER + " RENAME TO Counters_old;");
 
                         // Вернем исходную структуру
                         db.execSQL("PRAGMA foreign_keys = ON;");
@@ -324,7 +324,7 @@ public class DBHelper extends SQLiteOpenHelper {
                         queryCounters.append(COUNTER_CURRENCY + " TEXT,");
                         queryCounters.append(COUNTER_RATE_TYPE + " INTEGER,");
                         queryCounters.append(COUNTER_PERIOD_TYPE + " INTEGER,");
-                        queryCounters.append(COUNTER_FORMULA + " TEXT");                        
+                        queryCounters.append(COUNTER_FORMULA + " TEXT");
                         queryCounters.append(");");
 
                         db.execSQL(queryCounters.toString());
@@ -340,7 +340,7 @@ public class DBHelper extends SQLiteOpenHelper {
                         queryCounters.append(COUNTER_CURRENCY + ", ");
                         queryCounters.append(COUNTER_RATE_TYPE + ", ");
                         queryCounters.append(COUNTER_PERIOD_TYPE + ", ");
-                        queryCounters.append(COUNTER_FORMULA + " ");                        
+                        queryCounters.append(COUNTER_FORMULA + " ");
                         queryCounters.append(") SELECT ");
                         queryCounters.append(COUNTER_ID + ", ");
                         queryCounters.append(COUNTER_NAME + ", ");
@@ -350,14 +350,14 @@ public class DBHelper extends SQLiteOpenHelper {
                         queryCounters.append(COUNTER_CURRENCY + ", ");
                         queryCounters.append(COUNTER_RATE_TYPE + ", ");
                         queryCounters.append(COUNTER_PERIOD_TYPE + ", ");
-                        queryCounters.append(COUNTER_FORMULA + " ");                        
+                        queryCounters.append(COUNTER_FORMULA + " ");
                         queryCounters.append("FROM Counters_old");
 
                         db.execSQL(queryCounters.toString());
-                        
+
                         // Удалим старую структуру
-                        db.execSQL("DROP TABLE IF EXISTS Counters_old;");                         
-                        
+                        db.execSQL("DROP TABLE IF EXISTS Counters_old;");
+
                         db.setTransactionSuccessful();
 
                     } catch (Exception e) {
@@ -367,7 +367,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     }
                 }
             }
-            
+
             // №4 Вид вводимого значения в счетчик
             , new Patch() {
                 public void apply(SQLiteDatabase db) {
@@ -375,8 +375,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
                     try {
                         // Сохраним исходные данные
-                        db.execSQL("ALTER TABLE " + TABLE_COUNTER
-                                + " RENAME TO Counters_old;");
+                        db.execSQL("ALTER TABLE " + TABLE_COUNTER + " RENAME TO Counters_old;");
 
                         // Создадим новую структуру с полем VIEW_VALUE_TYPE
                         db.execSQL("PRAGMA foreign_keys = ON;");
@@ -428,10 +427,10 @@ public class DBHelper extends SQLiteOpenHelper {
                         queryCounters.append("FROM Counters_old");
 
                         db.execSQL(queryCounters.toString());
-                        
+
                         // Удалим старую структуру
-                        db.execSQL("DROP TABLE IF EXISTS Counters_old;");                        
-                        
+                        db.execSQL("DROP TABLE IF EXISTS Counters_old;");
+
                         db.setTransactionSuccessful();
 
                     } catch (Exception e) {
@@ -446,8 +445,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
                     try {
                         // Сохраним исходные данные
-                        db.execSQL("ALTER TABLE " + TABLE_COUNTER
-                                + " RENAME TO Counters_old;");
+                        db.execSQL("ALTER TABLE " + TABLE_COUNTER + " RENAME TO Counters_old;");
 
                         // Вернем исходную структуру
                         db.execSQL("PRAGMA foreign_keys = ON;");
@@ -480,7 +478,7 @@ public class DBHelper extends SQLiteOpenHelper {
                         queryCounters.append(COUNTER_CURRENCY + ", ");
                         queryCounters.append(COUNTER_RATE_TYPE + ", ");
                         queryCounters.append(COUNTER_PERIOD_TYPE + ", ");
-                        queryCounters.append(COUNTER_FORMULA + ", ");   
+                        queryCounters.append(COUNTER_FORMULA + ", ");
                         queryCounters.append(COUNTER_VIEW_VALUE_TYPE + " ");
                         queryCounters.append(") SELECT ");
                         queryCounters.append(COUNTER_ID + ", ");
@@ -491,15 +489,15 @@ public class DBHelper extends SQLiteOpenHelper {
                         queryCounters.append(COUNTER_CURRENCY + ", ");
                         queryCounters.append(COUNTER_RATE_TYPE + ", ");
                         queryCounters.append(COUNTER_PERIOD_TYPE + ", ");
-                        queryCounters.append(COUNTER_FORMULA + ", ");     
-                        queryCounters.append(COUNTER_VIEW_VALUE_TYPE + " "); 
+                        queryCounters.append(COUNTER_FORMULA + ", ");
+                        queryCounters.append(COUNTER_VIEW_VALUE_TYPE + " ");
                         queryCounters.append("FROM Counters_old");
 
                         db.execSQL(queryCounters.toString());
-                        
+
                         // Удалим старую структуру
-                        db.execSQL("DROP TABLE IF EXISTS Counters_old;");                         
-                        
+                        db.execSQL("DROP TABLE IF EXISTS Counters_old;");
+
                         db.setTransactionSuccessful();
 
                     } catch (Exception e) {
@@ -557,7 +555,7 @@ public class DBHelper extends SQLiteOpenHelper {
     // ===========================================================
     // Methods
     // ===========================================================
-
+    
     // ===========================================================
     // Inner and Anonymous Classes
     // ===========================================================

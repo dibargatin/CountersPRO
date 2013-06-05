@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.SubMenu;
 import com.blogspot.dibargatin.counterspro.database.CounterDAO;
 import com.blogspot.dibargatin.counterspro.database.CountersListAdapter;
 import com.blogspot.dibargatin.counterspro.database.DBHelper;
@@ -34,6 +35,10 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
     private final static int REQUEST_EDIT_COUNTER = 2;
 
     private final static int REQUEST_ADD_ENTRY = 3;
+    
+    private final static int MENU_BACKUP = 10;
+    
+    private final static int MENU_RESTORE = 15;
 
     // ===========================================================
     // Fields
@@ -58,7 +63,7 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        
         mDatabase = new DBHelper(this).getWritableDatabase();
         mCounterDao = new CounterDAO();
 
@@ -181,6 +186,15 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getSupportMenuInflater().inflate(R.menu.main, menu);
+
+        SubMenu sm = menu.addSubMenu(0, Menu.FIRST, Menu.NONE, R.string.menu_more);
+        sm.add(0, MENU_BACKUP, Menu.NONE, R.string.menu_backup).setIcon(R.drawable.backup);
+        sm.add(0, MENU_RESTORE, Menu.NONE, R.string.menu_restore).setIcon(R.drawable.reload);
+        
+        MenuItem subMenu1Item = sm.getItem();
+        subMenu1Item.setIcon(R.drawable.abs__ic_menu_moreoverflow_holo_light);
+        subMenu1Item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+
         return true;
     }
 
@@ -193,7 +207,16 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
             case R.id.action_add_counter:
                 showAddCounterDialog();
                 break;
-
+            
+            case MENU_BACKUP:
+                Intent intent = new Intent(CountersListActivity.this, BackupActivity.class);                
+                startActivity(intent);
+                break;
+            
+            case MENU_RESTORE:
+                // TODO
+                break;
+                
             default:
                 result = super.onOptionsItemSelected(item);
         }

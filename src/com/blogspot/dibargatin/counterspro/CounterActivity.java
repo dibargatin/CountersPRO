@@ -83,7 +83,7 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
 
         mDatabase = new DBHelper(this).getWritableDatabase();
         mCounterDao = new CounterDAO();
-
+        
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setIcon(R.drawable.ic_menu_home);
 

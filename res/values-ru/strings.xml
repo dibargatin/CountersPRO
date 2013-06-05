@@ -2,6 +2,23 @@
 <resources>
     <string name="app_name">Счетчики PRO</string>
     
+    <string name="menu_more">Еще</string>
+    <string name="menu_backup">Бэкап данных</string>
+    <string name="menu_restore">Восстановление</string>
+    <string name="menu_save">Сохранить</string>
+    
+    <string name="sdcard_not_available">SD карта не доступна</string>
+    <string name="backup_ok">Резервная копия создана</string>
+    <string name="backup_trouble">Создание резервной копии прервано из за ошибки доступа к файлу</string>
+    <string name="restore_ok">Восстановление данных завершено</string>
+    <string name="restore_trouble">Восстановление прервано из-за ошибки доступа к файлу</string>
+    
+    <string name="action_result">Результат</string>
+    
+    <string name="backup_form_title">НОВЫЙ БЭКАП</string>
+    <string name="backup_form_description">В процессе создания резервной копии, база данных будет скопирована на SD карту. Для запуска копирования нажмите на кнопку <b>\"Сохранить\"</b>.</string>
+    <string name="create_backup">Создать копию</string>
+    
     <string name="counters_list_empty">Список пуст. Добавьте счетчик.</string>
     <string name="entries_list_empty">Список пуст. Добавьте показание.</string>
     
