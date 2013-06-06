@@ -255,14 +255,7 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
                 break;
 
             case MENU_FEEDBACK:
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id="
-                            + APP_NAME)));
-                } catch (android.content.ActivityNotFoundException anfe) {
-
-                    startActivity(new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("http://play.google.com/store/apps/details?id=" + APP_NAME)));
-                }
+                gotoStore(APP_NAME);
                 break;
 
             default:
@@ -332,7 +325,19 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
 
         return result;
     }
+    
+    private void gotoStore(String appName) {
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri
+                    .parse("market://details?id=" + appName)));
+        } catch (android.content.ActivityNotFoundException anfe) {
 
+            startActivity(new Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("http://play.google.com/store/apps/details?id="
+                            + appName)));
+        }
+    }
     // ===========================================================
     // Inner and Anonymous Classes
     // ===========================================================
