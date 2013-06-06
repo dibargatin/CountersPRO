@@ -5,6 +5,7 @@
     <string name="menu_more">More</string>
     <string name="menu_backup">Backup</string>
     <string name="menu_restore">Restore</string> 
+    <string name="menu_feedback">Send feedback</string>
     <string name="menu_save">Save</string>
     
     <string name="sdcard_not_available">SD card is not available</string>
@@ -15,10 +16,16 @@
     
     <string name="action_result">Result</string>
     
-    <string name="backup_form_title">NEW BACKUP</string>
-    <string name="backup_form_description">In the process of creating a backup, the database will be copied to the SD card. To start copying, press the <b>\"Save\"</b>.</string>
+    <string name="backup_form_title">Backup</string>
+    <string name="backup_form_description">As a result, the database will be copied to the SD card.\n\nContinue?</string>
     <string name="create_backup">Create backup</string>
-                
+    
+    <string name="restore_form_title">LIST OF BACKUPS</string>
+    <string name="restore_form_empty">The list of backups is empty.</string>
+    
+    <string name="restore_dialog_title">Restore</string>
+    <string name="restore_dialog_description"><b>Please note</b>, the operation can not be undone!\nAs a result, the database file will be replaced with the file backup.\n\nContinue?</string>
+                    
     <string name="counters_list_empty">List is empty. Please add new counter.</string>
     <string name="entries_list_empty">List is empty. Please add new indication.</string>
     

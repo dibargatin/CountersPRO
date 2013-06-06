@@ -21,6 +21,6 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:gravity="center"
-        android:text="@string/backup_form_description" />
+        android:text="@string/restore_form_empty" />
 
 </RelativeLayout>

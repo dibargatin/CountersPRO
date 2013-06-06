@@ -5,7 +5,9 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -14,6 +16,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.Menu;
@@ -22,12 +25,15 @@ import com.actionbarsherlock.view.SubMenu;
 import com.blogspot.dibargatin.counterspro.database.CounterDAO;
 import com.blogspot.dibargatin.counterspro.database.CountersListAdapter;
 import com.blogspot.dibargatin.counterspro.database.DBHelper;
+import com.blogspot.dibargatin.counterspro.util.BackupUtils;
 
 public class CountersListActivity extends SherlockListActivity implements OnClickListener {
 
     // ===========================================================
     // Constants
     // ===========================================================
+    public final static String APP_NAME = "com.blogspot.dibargatin.counterspro";
+
     public final static String LOG_TAG = "CountersPRO";
 
     private final static int REQUEST_ADD_COUNTER = 1;
@@ -35,10 +41,14 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
     private final static int REQUEST_EDIT_COUNTER = 2;
 
     private final static int REQUEST_ADD_ENTRY = 3;
-    
+
+    private final static int REQUEST_RESTORE = 4;
+
     private final static int MENU_BACKUP = 10;
-    
+
     private final static int MENU_RESTORE = 15;
+
+    private final static int MENU_FEEDBACK = 20;
 
     // ===========================================================
     // Fields
@@ -63,7 +73,7 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         mDatabase = new DBHelper(this).getWritableDatabase();
         mCounterDao = new CounterDAO();
 
@@ -72,7 +82,7 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
 
         // Фон пустого списка счетчиков
         final View ev = View.inflate(this, R.layout.counters_list_empty, null);
-        
+
         final ImageView iv = (ImageView)ev.findViewById(R.id.ivCounter);
         iv.setOnClickListener(this);
 
@@ -190,10 +200,13 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
         SubMenu sm = menu.addSubMenu(0, Menu.FIRST, Menu.NONE, R.string.menu_more);
         sm.add(0, MENU_BACKUP, Menu.NONE, R.string.menu_backup).setIcon(R.drawable.backup);
         sm.add(0, MENU_RESTORE, Menu.NONE, R.string.menu_restore).setIcon(R.drawable.reload);
-        
+        sm.add(0, MENU_FEEDBACK, Menu.NONE, R.string.menu_feedback).setIcon(
+                android.R.drawable.star_on);
+
         MenuItem subMenu1Item = sm.getItem();
         subMenu1Item.setIcon(R.drawable.abs__ic_menu_moreoverflow_holo_light);
-        subMenu1Item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+        subMenu1Item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS
+                | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 
         return true;
     }
@@ -207,16 +220,51 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
             case R.id.action_add_counter:
                 showAddCounterDialog();
                 break;
-            
+
             case MENU_BACKUP:
-                Intent intent = new Intent(CountersListActivity.this, BackupActivity.class);                
-                startActivity(intent);
+                if (checkSdCard()) {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+                    alert.setIcon(R.drawable.backup);
+                    alert.setTitle(R.string.backup_form_title);
+                    alert.setMessage(R.string.backup_form_description);
+
+                    alert.setPositiveButton(getResources().getString(R.string.yes),
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    new BackupUtils(CountersListActivity.this).backup();
+                                }
+                            });
+
+                    alert.setNegativeButton(getResources().getString(R.string.no),
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    // На нет и суда нет
+                                }
+                            });
+
+                    alert.show();
+                }
                 break;
-            
+
             case MENU_RESTORE:
-                // TODO
+                if (checkSdCard()) {
+                    Intent intent = new Intent(CountersListActivity.this, RestoreActivity.class);
+                    startActivityForResult(intent, REQUEST_RESTORE);
+                }
                 break;
-                
+
+            case MENU_FEEDBACK:
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id="
+                            + APP_NAME)));
+                } catch (android.content.ActivityNotFoundException anfe) {
+
+                    startActivity(new Intent(Intent.ACTION_VIEW,
+                            Uri.parse("http://play.google.com/store/apps/details?id=" + APP_NAME)));
+                }
+                break;
+
             default:
                 result = super.onOptionsItemSelected(item);
         }
@@ -227,6 +275,7 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
+            case REQUEST_RESTORE:
             case REQUEST_ADD_COUNTER:
             case REQUEST_ADD_ENTRY:
                 if (resultCode == RESULT_OK) {
@@ -257,11 +306,11 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
 
     @Override
     public void onClick(View v) {
-        switch(v.getId()) {
+        switch (v.getId()) {
             case R.id.ivCounter:
                 showAddCounterDialog();
                 break;
-        }        
+        }
     }
 
     // ===========================================================
@@ -271,6 +320,17 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
         Intent intent = new Intent(CountersListActivity.this, CounterActivity.class);
         intent.setAction(Intent.ACTION_INSERT);
         startActivityForResult(intent, REQUEST_ADD_COUNTER);
+    }
+
+    private boolean checkSdCard() {
+        boolean result = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+
+        if (!result) {
+            Toast.makeText(this, this.getResources().getString(R.string.sdcard_not_available),
+                    Toast.LENGTH_LONG).show();
+        }
+
+        return result;
     }
 
     // ===========================================================

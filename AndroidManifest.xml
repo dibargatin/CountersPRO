@@ -37,8 +37,8 @@
             android:label="@string/entry_form_title" >
         </activity>
         <activity
-            android:name="com.blogspot.dibargatin.counterspro.BackupActivity"
-            android:label="@string/backup_form_title" >
+            android:name="com.blogspot.dibargatin.counterspro.RestoreActivity"
+            android:label="@string/restore_form_title" >
         </activity>
     </application>
 
