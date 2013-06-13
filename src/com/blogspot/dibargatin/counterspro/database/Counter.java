@@ -30,9 +30,11 @@ public class Counter {
     ViewValueType mViewValueType;    
     
     InputValueType mInputValueType;
-
+    
+    IndicationsGroupType mIndicationsGroupType;
+    
     IndicationsCollection mIndications;
-
+        
     // ===========================================================
     // Constructors
     // ===========================================================
@@ -41,8 +43,9 @@ public class Counter {
         mPeriodType = PeriodType.MONTH;
         mViewValueType = ViewValueType.DELTA;
         mInputValueType = InputValueType.DELTA;
+        mIndicationsGroupType = IndicationsGroupType.WITHOUT;
     }
-
+    
     // ===========================================================
     // Getter & Setter
     // ===========================================================
@@ -141,6 +144,14 @@ public class Counter {
     public void setInputValueType(InputValueType inputValueType) {
         this.mInputValueType = inputValueType;
     }
+    
+    public IndicationsGroupType getIndicationsGroupType() {
+        return mIndicationsGroupType;
+    }
+
+    public void setIndicationsGroupType(IndicationsGroupType indicationsGroupType) {
+        this.mIndicationsGroupType = indicationsGroupType;
+    }
 
     // ===========================================================
     // Methods for/from SuperClass/Interfaces
@@ -167,5 +178,9 @@ public class Counter {
     
     public enum InputValueType {
         DELTA, TOTAL
+    }
+    
+    public enum IndicationsGroupType {
+        WITHOUT, YEAR, MONTH, DAY, HOUR
     }
 }

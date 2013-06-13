@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name">Counters PRO</string>
     
+    <string name="indication_group_total">results for</string>
+    
     <string name="menu_more">More</string>
     <string name="menu_backup">Backup</string>
     <string name="menu_restore">Restore</string> 

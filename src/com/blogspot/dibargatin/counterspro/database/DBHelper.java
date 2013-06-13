@@ -17,7 +17,7 @@ public class DBHelper extends SQLiteOpenHelper {
     
     public static String DB_NAME_FULL = "data/com.blogspot.dibargatin.counterspro/databases/counterspro.sqlite3";
 
-    public static int DB_VERSION = 4;
+    public static int DB_VERSION = 5;
 
     // Таблица счетчиков
     public final static String TABLE_COUNTER = "Counters";
@@ -43,6 +43,8 @@ public class DBHelper extends SQLiteOpenHelper {
     public final static String COUNTER_VIEW_VALUE_TYPE = "view_value_type";
 
     public final static String COUNTER_INPUT_VALUE_TYPE = "input_value_type";
+    
+    public final static String COUNTER_IND_GROUP_TYPE = "indications_group_type";
 
     // Таблица показаний
     public final static String TABLE_INDICATION = "Indications";
@@ -491,6 +493,152 @@ public class DBHelper extends SQLiteOpenHelper {
                         queryCounters.append(COUNTER_PERIOD_TYPE + ", ");
                         queryCounters.append(COUNTER_FORMULA + ", ");
                         queryCounters.append(COUNTER_VIEW_VALUE_TYPE + " ");
+                        queryCounters.append("FROM Counters_old");
+
+                        db.execSQL(queryCounters.toString());
+
+                        // Удалим старую структуру
+                        db.execSQL("DROP TABLE IF EXISTS Counters_old;");
+
+                        db.setTransactionSuccessful();
+
+                    } catch (Exception e) {
+                        Log.d(CountersListActivity.LOG_TAG, e.getStackTrace().toString());
+                    } finally {
+                        db.endTransaction();
+                    }
+                }
+            }
+            
+            // №5 Вид группировки показаний в счетчик
+            , new Patch() {
+                public void apply(SQLiteDatabase db) {
+                    db.beginTransaction();
+
+                    try {
+                        // Сохраним исходные данные
+                        db.execSQL("ALTER TABLE " + TABLE_COUNTER + " RENAME TO Counters_old;");
+
+                        // Создадим новую структуру с полем VIEW_VALUE_TYPE
+                        db.execSQL("PRAGMA foreign_keys = ON;");
+
+                        final StringBuilder queryCounters = new StringBuilder();
+
+                        queryCounters.append("CREATE TABLE " + TABLE_COUNTER + " (");
+                        queryCounters.append(COUNTER_ID + " INTEGER PRIMARY KEY,");
+                        queryCounters.append(COUNTER_NAME + " TEXT,");
+                        queryCounters.append(COUNTER_NOTE + " TEXT,");
+                        queryCounters.append(COUNTER_MEASURE + " TEXT,");
+                        queryCounters.append(COUNTER_COLOR + " INTEGER,");
+                        queryCounters.append(COUNTER_CURRENCY + " TEXT,");
+                        queryCounters.append(COUNTER_RATE_TYPE + " INTEGER,");
+                        queryCounters.append(COUNTER_PERIOD_TYPE + " INTEGER,");
+                        queryCounters.append(COUNTER_FORMULA + " TEXT,");
+                        queryCounters.append(COUNTER_VIEW_VALUE_TYPE + " INTEGER,");
+                        queryCounters.append(COUNTER_INPUT_VALUE_TYPE + " INTEGER,");
+                        queryCounters.append(COUNTER_IND_GROUP_TYPE + " INTEGER");                        
+                        queryCounters.append(");");
+
+                        db.execSQL(queryCounters.toString());
+
+                        // Скопируем исходные данные в новую структуру
+                        queryCounters.setLength(0);
+                        queryCounters.append("INSERT INTO " + TABLE_COUNTER + " (");
+                        queryCounters.append(COUNTER_ID + ", ");
+                        queryCounters.append(COUNTER_NAME + ", ");
+                        queryCounters.append(COUNTER_NOTE + ", ");
+                        queryCounters.append(COUNTER_MEASURE + ", ");
+                        queryCounters.append(COUNTER_COLOR + ", ");
+                        queryCounters.append(COUNTER_CURRENCY + ", ");
+                        queryCounters.append(COUNTER_RATE_TYPE + ", ");
+                        queryCounters.append(COUNTER_PERIOD_TYPE + ", ");
+                        queryCounters.append(COUNTER_FORMULA + ", ");
+                        queryCounters.append(COUNTER_VIEW_VALUE_TYPE + ", ");
+                        queryCounters.append(COUNTER_INPUT_VALUE_TYPE + ", ");
+                        queryCounters.append(COUNTER_IND_GROUP_TYPE + " ");
+                        queryCounters.append(") SELECT ");
+                        queryCounters.append(COUNTER_ID + ", ");
+                        queryCounters.append(COUNTER_NAME + ", ");
+                        queryCounters.append(COUNTER_NOTE + ", ");
+                        queryCounters.append(COUNTER_MEASURE + ", ");
+                        queryCounters.append(COUNTER_COLOR + ", ");
+                        queryCounters.append(COUNTER_CURRENCY + ", ");
+                        queryCounters.append(COUNTER_RATE_TYPE + ", ");
+                        queryCounters.append(COUNTER_PERIOD_TYPE + ", ");
+                        queryCounters.append(COUNTER_FORMULA + ", ");
+                        queryCounters.append(COUNTER_VIEW_VALUE_TYPE + ", ");
+                        queryCounters.append(COUNTER_INPUT_VALUE_TYPE + ", ");
+                        queryCounters.append("0 AS " + COUNTER_IND_GROUP_TYPE + " ");
+                        queryCounters.append("FROM Counters_old");
+
+                        db.execSQL(queryCounters.toString());
+
+                        // Удалим старую структуру
+                        db.execSQL("DROP TABLE IF EXISTS Counters_old;");
+
+                        db.setTransactionSuccessful();
+
+                    } catch (Exception e) {
+                        Log.d(CountersListActivity.LOG_TAG, e.getStackTrace().toString());
+                    } finally {
+                        db.endTransaction();
+                    }
+                }
+
+                public void revert(SQLiteDatabase db) {
+                    db.beginTransaction();
+
+                    try {
+                        // Сохраним исходные данные
+                        db.execSQL("ALTER TABLE " + TABLE_COUNTER + " RENAME TO Counters_old;");
+
+                        // Вернем исходную структуру
+                        db.execSQL("PRAGMA foreign_keys = ON;");
+
+                        final StringBuilder queryCounters = new StringBuilder();
+
+                        queryCounters.append("CREATE TABLE " + TABLE_COUNTER + " (");
+                        queryCounters.append(COUNTER_ID + " INTEGER PRIMARY KEY,");
+                        queryCounters.append(COUNTER_NAME + " TEXT,");
+                        queryCounters.append(COUNTER_NOTE + " TEXT,");
+                        queryCounters.append(COUNTER_MEASURE + " TEXT,");
+                        queryCounters.append(COUNTER_COLOR + " INTEGER,");
+                        queryCounters.append(COUNTER_CURRENCY + " TEXT,");
+                        queryCounters.append(COUNTER_RATE_TYPE + " INTEGER,");
+                        queryCounters.append(COUNTER_PERIOD_TYPE + " INTEGER,");
+                        queryCounters.append(COUNTER_FORMULA + " TEXT,");
+                        queryCounters.append(COUNTER_VIEW_VALUE_TYPE + " INTEGER,");
+                        queryCounters.append(COUNTER_INPUT_VALUE_TYPE + " INTEGER");                        
+                        queryCounters.append(");");
+
+                        db.execSQL(queryCounters.toString());
+
+                        // Скопируем исходные данные в новую структуру
+                        queryCounters.setLength(0);
+                        queryCounters.append("INSERT INTO " + TABLE_COUNTER + " (");
+                        queryCounters.append(COUNTER_ID + ", ");
+                        queryCounters.append(COUNTER_NAME + ", ");
+                        queryCounters.append(COUNTER_NOTE + ", ");
+                        queryCounters.append(COUNTER_MEASURE + ", ");
+                        queryCounters.append(COUNTER_COLOR + ", ");
+                        queryCounters.append(COUNTER_CURRENCY + ", ");
+                        queryCounters.append(COUNTER_RATE_TYPE + ", ");
+                        queryCounters.append(COUNTER_PERIOD_TYPE + ", ");
+                        queryCounters.append(COUNTER_FORMULA + ", ");
+                        queryCounters.append(COUNTER_VIEW_VALUE_TYPE + ", ");
+                        queryCounters.append(COUNTER_INPUT_VALUE_TYPE + " ");
+                        queryCounters.append(") SELECT ");
+                        queryCounters.append(COUNTER_ID + ", ");
+                        queryCounters.append(COUNTER_NAME + ", ");
+                        queryCounters.append(COUNTER_NOTE + ", ");
+                        queryCounters.append(COUNTER_MEASURE + ", ");
+                        queryCounters.append(COUNTER_COLOR + ", ");
+                        queryCounters.append(COUNTER_CURRENCY + ", ");
+                        queryCounters.append(COUNTER_RATE_TYPE + ", ");
+                        queryCounters.append(COUNTER_PERIOD_TYPE + ", ");
+                        queryCounters.append(COUNTER_FORMULA + ", ");
+                        queryCounters.append(COUNTER_VIEW_VALUE_TYPE + ", ");
+                        queryCounters.append(COUNTER_INPUT_VALUE_TYPE + " ");
                         queryCounters.append("FROM Counters_old");
 
                         db.execSQL(queryCounters.toString());

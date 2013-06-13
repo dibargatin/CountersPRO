@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name">Счетчики PRO</string>
     
+    <string name="indication_group_total">итоги за</string>
+    
     <string name="menu_more">Еще</string>
     <string name="menu_backup">Бэкап данных</string>
     <string name="menu_restore">Восстановление</string>

@@ -101,7 +101,7 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
         mAdapter = new IndicationsListAdapter(this, mCounter.getIndications());
         ListView list = (ListView)findViewById(R.id.lvIndications);
         list.setAdapter(mAdapter);
-
+        
         // Фон пустого списка показаний
         final View ev = View.inflate(this, R.layout.indication_list_empty, null);
         
