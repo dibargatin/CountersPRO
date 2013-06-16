@@ -46,7 +46,7 @@ public class IndicationsCollection extends ArrayList<Indication> {
             min = this.get(0).getDate().getTime();
 
             for (Indication i : this) {
-                if (min < i.getDate().getTime()) {
+                if (min > i.getDate().getTime()) {
                     min = i.getDate().getTime();
                 }
             }
@@ -62,7 +62,7 @@ public class IndicationsCollection extends ArrayList<Indication> {
             max = this.get(0).getDate().getTime();
 
             for (Indication i : this) {
-                if (max > i.getDate().getTime()) {
+                if (max < i.getDate().getTime()) {
                     max = i.getDate().getTime();
                 }
             }

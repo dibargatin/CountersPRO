@@ -2,38 +2,38 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginBottom="4dp"
-    android:layout_marginLeft="8dp"
-    android:layout_marginTop="4dp"
     android:orientation="horizontal" >
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="4dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="36dp"
+        android:layout_marginTop="8dp"
         android:orientation="vertical" >
 
         <TextView
-            android:id="@+id/tvTotalPhrase"
+            android:id="@+id/tvTotalsPhrase"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/indication_group_total"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
-            android:id="@+id/tvPeriodName"
+            android:id="@+id/tvPeriod"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="tvPeriodName"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:text="period" />
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
         android:gravity="right"
         android:orientation="vertical" >
 
@@ -51,12 +51,12 @@
                 android:textColor="#009900" />
 
             <TextView
-                android:id="@+id/tvValueMeasure"
+                android:id="@+id/tvDeltaSign"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
-                android:text="куб.м"
-                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="\u0394"
+                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="#009900" />
 
         </LinearLayout>
@@ -72,15 +72,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="tvCost"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="#cc0000" />
-
-            <TextView
-                android:id="@+id/tvCostTotalCur"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:text="р."
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="#cc0000" />
         </LinearLayout>

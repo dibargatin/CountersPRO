@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Counters PRO</string>
-    
-    <string name="indication_group_total">results for</string>
-    
+        
+    <string name="indication_group_total">Totals</string>
+    <string name="indication_group_period_without">for all period</string>
+    <string name="indication_group_period_year">for %1$d year</string>
+    <string name="indication_group_period_month">for %1$s</string>
+    <string name="indication_group_period_day">for %1$s</string>
+    <string name="indication_group_period_hour">for %1$s</string>
+        
     <string name="menu_more">More</string>
     <string name="menu_backup">Backup</string>
     <string name="menu_restore">Restore</string> 

@@ -4,12 +4,14 @@ package com.blogspot.dibargatin.counterspro.database;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Currency;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,11 +37,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
 
     LayoutInflater mInflater;
 
-    IndicationsCollection mSource;
-
-    IndicationsGroupType mGroupType;
-
-    boolean mHideEmptyPeriods;
+    int mGroupItemColor = Color.WHITE;
 
     String[] mFormulaValueAliases;
 
@@ -47,15 +45,20 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
 
     String[] mFormulaRateAliases;
 
-    LinkedHashMap<Span, IndicationsCollection> mGroups;
+    IndicationsCollection mSource;
+
+    IndicationsGroupType mGroupType;
+
+    ArrayList<Span> mGroups;
+
+    LinkedHashMap<Span, IndicationsCollection> mGroupItems;
 
     // ===========================================================
     // Constructors
     // ===========================================================
     public IndicationsExpandableListAdapter(Context context, IndicationsCollection source,
-            IndicationsGroupType groupType, boolean hideEmptyPeriods) {
+            IndicationsGroupType groupType, int groupItemColor) {
         mContext = context;
-        mSource = source;
 
         mFormulaValueAliases = mContext.getResources().getStringArray(
                 R.array.formula_var_value_aliases);
@@ -66,8 +69,9 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
 
         mInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        mHideEmptyPeriods = hideEmptyPeriods;
+        mSource = source;
         mGroupType = groupType;
+        mGroupItemColor = groupItemColor;
 
         rebuildGroups();
     }
@@ -80,23 +84,33 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
     }
 
     public void setGroupType(IndicationsGroupType groupType) {
-        if (this.mGroupType != groupType) {
-            this.mGroupType = groupType;
+        if (mGroupType != groupType) {
+            mGroupType = groupType;
             rebuildGroups();
         }
     }
 
-    public boolean isHideEmptyPeriods() {
-        return mHideEmptyPeriods;
+    public int getGroupItemColor() {
+        return mGroupItemColor;
     }
 
-    public void setHideEmptyPeriods(boolean hideEmptyPeriods) {
-        this.mHideEmptyPeriods = hideEmptyPeriods;
+    public void setGroupItemColor(int groupItemColor) {
+        this.mGroupItemColor = groupItemColor;
+        notifyDataSetInvalidated();        
+    }
+        
+    public IndicationsCollection getSource() {
+        return mSource;
+    }
+
+    public void setSource(IndicationsCollection source) {
+        this.mSource = source;
+        rebuildGroups();
     }
 
     public Indication getIndication(int group, int position) {
-        return mGroups != null ? mGroups.get(group) != null ? mGroups.get(group).get(position)
-                : null : null;
+        return mGroupItems != null ? mGroupItems.get(mGroups.get(group)) != null ? mGroupItems.get(
+                mGroups.get(group)).get(position) : null : null;
     }
 
     // ===========================================================
@@ -104,7 +118,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
     // ===========================================================
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        return mGroups.get(groupPosition).get(childPosition);
+        return mGroupItems.get(mGroups.get(groupPosition)).get(childPosition);
     }
 
     @Override
@@ -114,7 +128,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return mGroups.get(groupPosition).size();
+        return mGroupItems.get(mGroups.get(groupPosition)).size();
     }
 
     @Override
@@ -149,9 +163,27 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.indication_list_item_group, null);
         }
+        
+        convertView.setBackgroundColor(mGroupItemColor);
 
-        TextView textGroup = (TextView)convertView.findViewById(R.id.tvPeriodName);
-        textGroup.setText("Group " + Integer.toString(groupPosition));
+        TextView period = (TextView)convertView.findViewById(R.id.tvPeriod);
+        period.setText(mGroups.get(groupPosition).getCaption());
+
+        IndicationsCollection ic = mGroupItems.get(mGroups.get(groupPosition));
+
+        NumberFormat nf = NumberFormat
+                .getNumberInstance(mContext.getResources().getConfiguration().locale);
+
+        TextView total = (TextView)convertView.findViewById(R.id.tvValueTotal);
+
+        if (ic.getTotal() < 0) {
+            total.setText(nf.format(ic.getTotal()));
+        } else {
+            total.setText("+" + nf.format(ic.getTotal()));
+        }
+
+        TextView totalCost = (TextView)convertView.findViewById(R.id.tvCostTotal);
+        totalCost.setText(nf.format(ic.getTotalCost()));
 
         return convertView;
     }
@@ -381,15 +413,25 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
     // Methods
     // ===========================================================
     private void rebuildGroups() {
-        final long minTime = mSource.getMinTime();
-        final long maxTime = mSource.getMaxTime();
+        final IndicationsCollection source = mSource;
+        final long minTime = source.getMinTime();
+        final long maxTime = source.getMaxTime();
 
         final Calendar c = GregorianCalendar.getInstance();
-        mGroups = new LinkedHashMap<Span, IndicationsCollection>();
+        mGroupItems = new LinkedHashMap<Span, IndicationsCollection>();
 
         // Без группировки
         if (mGroupType == IndicationsGroupType.WITHOUT) {
-            mGroups.put(new Span(minTime, maxTime), new IndicationsCollection());
+            final Span s = new Span(minTime, maxTime, mContext.getResources().getString(
+                    R.string.indication_group_period_without));
+
+            if (!source.checkCostCalculatorState()) {
+                source.initCostCalculator(mFormulaTotalAliases, mFormulaValueAliases,
+                        mFormulaRateAliases);
+            }
+
+            mGroupItems.put(s, source);
+            mGroups = new ArrayList<Span>(mGroupItems.keySet());
         }
         // Группировка по годам
         else if (mGroupType == IndicationsGroupType.YEAR) {
@@ -398,6 +440,9 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
 
             c.setTimeInMillis(maxTime);
             final int maxYear = c.get(Calendar.YEAR);
+
+            final String period = mContext.getResources().getString(
+                    R.string.indication_group_period_year);
 
             for (int i = maxYear; i >= minYear; i--) {
                 c.set(i, Calendar.JANUARY, 1);
@@ -410,8 +455,11 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
                 ic.initCostCalculator(mFormulaTotalAliases, mFormulaValueAliases,
                         mFormulaRateAliases);
 
-                mGroups.put(new Span(l, r), ic);
+                final Span s = new Span(l, r, String.format(period, i));
+                mGroupItems.put(s, ic);
             }
+
+            mGroups = new ArrayList<Span>(mGroupItems.keySet());
         }
         // TODO Группировка по месяцам
         // TODO Группировка по дням
@@ -419,16 +467,18 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
         // TODO Группировка по минутам
 
         // Заполняем группы
-        for (Indication i : mSource) {
-            for (Span s : mGroups.keySet()) {
-                if (s.contains(i.getDate().getTime())) {
-                    mGroups.get(s).add(i);
-                    break;
+        if (mGroupType != IndicationsGroupType.WITHOUT) {
+            for (Indication i : source) {
+                for (Span s : mGroupItems.keySet()) {
+                    if (s.contains(i.getDate().getTime())) {
+                        mGroupItems.get(s).add(i);
+                        break;
+                    }
                 }
             }
         }
 
-        // TimeUnit.DAYS.convert(sourceDuration, sourceUnit)
+        notifyDataSetChanged();
     }
 
     // ===========================================================

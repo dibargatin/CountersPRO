@@ -12,13 +12,16 @@ public class Span {
     private long mLeft;
 
     private long mRight;
-
+    
+    private String mCaption;
+    
     // ===========================================================
     // Constructors
     // ===========================================================
-    public Span(long left, long right) {
+    public Span(long left, long right, String caption) {
         mLeft = left;
         mRight = right;
+        mCaption = caption;
     }
 
     // ===========================================================
@@ -39,6 +42,14 @@ public class Span {
     public void setRight(long right) {
         this.mRight = right;
     }
+    
+    public String getCaption() {
+        return mCaption;
+    }
+
+    public void setCaption(String caption) {
+        this.mCaption = caption;
+    }
 
     // ===========================================================
     // Methods for/from SuperClass/Interfaces
@@ -48,7 +59,7 @@ public class Span {
     // Methods
     // ===========================================================
     public boolean contains(long value) {
-        return mLeft <= value ? value >= mRight : false;
+        return mLeft <= value ? value <= mRight : false;
     }
 
     // ===========================================================
