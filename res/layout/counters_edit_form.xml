@@ -186,6 +186,27 @@
             android:orientation="vertical" >
 
             <TextView
+                android:id="@+id/tvGroupType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/indictation_group_type" />
+
+            <Spinner
+                android:id="@+id/sGroupType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/indictation_group_type" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical" >
+
+            <TextView
                 android:id="@+id/tvViewValueType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Counters PRO</string>
+    
+    <string name="indictation_group_type">Grouping by period</string>
+    <string-array name="indication_groups">
+        <item>Without</item>
+        <item>Year</item>
+        <item>Month</item>
+        <item>Day</item>
+        <item>Hour</item>
+    </string-array>
         
     <string name="indication_group_total">Totals</string>
     <string name="indication_group_period_without">for all period</string>

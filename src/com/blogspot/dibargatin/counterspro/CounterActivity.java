@@ -24,6 +24,7 @@ import com.blogspot.dibargatin.counterspro.database.Counter;
 import com.blogspot.dibargatin.counterspro.database.Counter.ViewValueType;
 import com.blogspot.dibargatin.counterspro.database.CounterDAO;
 import com.blogspot.dibargatin.counterspro.database.DBHelper;
+import com.blogspot.dibargatin.counterspro.database.Counter.IndicationsGroupType;
 import com.blogspot.dibargatin.counterspro.database.Counter.PeriodType;
 import com.blogspot.dibargatin.counterspro.database.Counter.RateType;
 import com.blogspot.dibargatin.counterspro.util.FormulaEvaluator;
@@ -62,6 +63,8 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
     EditText mFormula;
 
     Spinner mPeriodType;
+    
+    Spinner mGroupType;
     
     Spinner mViewValueType;
 
@@ -127,6 +130,16 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
         mPeriodType.setAdapter(adapter);
         mPeriodType.setSelection(1);
         
+        // Контрол для выбора вида группировки по периоду
+        mGroupType = (Spinner)findViewById(R.id.sGroupType);
+
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,
+                getResources().getStringArray(R.array.indication_groups));
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        mGroupType.setAdapter(adapter);
+        mGroupType.setSelection(0);
+        
         // Контрол для выбора вида отображаемого значения
         mViewValueType = (Spinner)findViewById(R.id.sViewValueType);
 
@@ -177,6 +190,7 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
                     mPeriodType.setSelection(mCounter.getPeriodType().ordinal());
                     mFormula.setText(mCounter.getFormula());
                     mViewValueType.setSelection(mCounter.getViewValueType().ordinal());
+                    mGroupType.setSelection(mCounter.getIndicationsGroupType().ordinal());
 
                     setCurrencyVisibility(RateType.values()[(int)mRateType.getSelectedItemId()]);
                     setFormulaVisibility(RateType.values()[(int)mRateType.getSelectedItemId()]);
@@ -296,6 +310,7 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
                 mCounter.setPeriodType(PeriodType.values()[mPeriodType.getSelectedItemPosition()]);
                 mCounter.setFormula(mFormula.getText().toString());
                 mCounter.setViewValueType(ViewValueType.values()[mViewValueType.getSelectedItemPosition()]);
+                mCounter.setIndicationsGroupType(IndicationsGroupType.values()[mGroupType.getSelectedItemPosition()]);
 
                 // Сохраним результат
                 if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {

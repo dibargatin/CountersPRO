@@ -96,16 +96,18 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
 
     public void setGroupItemColor(int groupItemColor) {
         this.mGroupItemColor = groupItemColor;
-        notifyDataSetInvalidated();        
+        notifyDataSetInvalidated();
     }
-        
+
     public IndicationsCollection getSource() {
         return mSource;
     }
 
-    public void setSource(IndicationsCollection source) {
+    public void setSource(IndicationsCollection source, boolean isNeedRebuildGroups) {
         this.mSource = source;
-        rebuildGroups();
+
+        if (isNeedRebuildGroups)
+            rebuildGroups();
     }
 
     public Indication getIndication(int group, int position) {
@@ -118,12 +120,13 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
     // ===========================================================
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        return mGroupItems.get(mGroups.get(groupPosition)).get(childPosition);
+        return getIndication(groupPosition, childPosition);
     }
 
     @Override
     public long getChildId(int groupPosition, int childPosition) {
-        return childPosition;
+        final Indication ind = getIndication(groupPosition, childPosition);
+        return ind == null ? Indication.EMPTY_ID : ind.getId();
     }
 
     @Override
@@ -163,14 +166,15 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.indication_list_item_group, null);
         }
-        
+
         convertView.setBackgroundColor(mGroupItemColor);
 
         TextView period = (TextView)convertView.findViewById(R.id.tvPeriod);
         period.setText(mGroups.get(groupPosition).getCaption());
 
         IndicationsCollection ic = mGroupItems.get(mGroups.get(groupPosition));
-
+        
+        // TODOcurrency format
         NumberFormat nf = NumberFormat
                 .getNumberInstance(mContext.getResources().getConfiguration().locale);
 
@@ -413,13 +417,21 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
     // Methods
     // ===========================================================
     private void rebuildGroups() {
-        final IndicationsCollection source = mSource;
+        final IndicationsCollection source = mSource;        
+        mGroupItems = new LinkedHashMap<Span, IndicationsCollection>();
+        
+        if (mSource.size() == 0) {
+            mGroups = new ArrayList<Span>();
+            notifyDataSetChanged();
+            
+            return;
+        }
+        
         final long minTime = source.getMinTime();
         final long maxTime = source.getMaxTime();
 
         final Calendar c = GregorianCalendar.getInstance();
-        mGroupItems = new LinkedHashMap<Span, IndicationsCollection>();
-
+        
         // Без группировки
         if (mGroupType == IndicationsGroupType.WITHOUT) {
             final Span s = new Span(minTime, maxTime, mContext.getResources().getString(

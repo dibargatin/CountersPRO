@@ -14,13 +14,12 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -28,13 +27,11 @@ import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.blogspot.dibargatin.counterspro.database.Counter;
-import com.blogspot.dibargatin.counterspro.database.Counter.IndicationsGroupType;
 import com.blogspot.dibargatin.counterspro.database.CounterDAO;
 import com.blogspot.dibargatin.counterspro.database.DBHelper;
 import com.blogspot.dibargatin.counterspro.database.Indication;
 import com.blogspot.dibargatin.counterspro.database.IndicationDAO;
 import com.blogspot.dibargatin.counterspro.database.IndicationsExpandableListAdapter;
-import com.blogspot.dibargatin.counterspro.database.IndicationsListAdapter;
 import com.blogspot.dibargatin.counterspro.graph.GraphSeries;
 import com.blogspot.dibargatin.counterspro.graph.GraphSeries.GraphData;
 import com.blogspot.dibargatin.counterspro.graph.GraphSeries.GraphSeriesStyle;
@@ -55,8 +52,6 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
     // ===========================================================
     SQLiteDatabase mDatabase;
 
-    IndicationsListAdapter mAdapter;
-
     IndicationsExpandableListAdapter mGroupAdapter;
 
     Counter mCounter;
@@ -64,8 +59,6 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
     LineGraph mLineGraph;
 
     GraphSeriesStyle mLineGraphStyle;
-
-    ListView mList;
 
     ExpandableListView mExpandableList;
 
@@ -109,105 +102,112 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
         final LinearLayout mainLayout = (LinearLayout)findViewById(R.id.lMain);
 
         // Инициализация списка показаний
-        if (mCounter.getIndicationsGroupType() != IndicationsGroupType.WITHOUT) {
-            // Список без групп
-            mList = new ListView(this);
-            mList.setLayoutParams(new ViewGroup.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            mainLayout.addView(mList);
-            // (ListView)findViewById(R.id.lvIndications);
+        mExpandableList = new ExpandableListView(this);
+        mExpandableList.setLayoutParams(new ViewGroup.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        mExpandableList.setGroupIndicator(getResources().getDrawable(
+                R.drawable.list_view_group_indicator));
 
-            mAdapter = new IndicationsListAdapter(this, mCounter.getIndications());
-            mList.setAdapter(mAdapter);
+        mExpandableList.setDivider(getResources().getDrawable(R.drawable.list_view_item_divider));
+        mExpandableList.setDividerHeight(1);
 
-            // Фон пустого списка показаний
-            final View ev = View.inflate(this, R.layout.indication_list_empty, null);
+        mainLayout.addView(mExpandableList);
 
-            final ImageView iv = (ImageView)ev.findViewById(R.id.ivCounter);
-            iv.setOnClickListener(this);
+        // Фон пустого списка показаний
+        final View ev = View.inflate(this, R.layout.indication_list_empty, null);
 
-            ev.setLayoutParams(new ViewGroup.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.MATCH_PARENT));
-            ev.setVisibility(View.GONE);
-            ((ViewGroup)mList.getParent()).addView(ev);
-            mList.setEmptyView(ev);
+        final ImageView iv = (ImageView)ev.findViewById(R.id.ivCounter);
+        iv.setOnClickListener(this);
 
-            mList.setOnItemClickListener(new OnItemClickListener() {
+        ev.setLayoutParams(new ViewGroup.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT));
+        ev.setVisibility(View.GONE);
+        ((ViewGroup)mExpandableList.getParent()).addView(ev);
+        mExpandableList.setEmptyView(ev);
 
-                @Override
-                public void onItemClick(AdapterView<?> a, View v, int pos, long id) {
-                    Intent intent = new Intent(IndicationsListActivity.this,
-                            IndicationActivity.class);
-                    intent.setAction(Intent.ACTION_EDIT);
-                    intent.putExtra(IndicationActivity.EXTRA_INDICATION_ID, id);
-                    intent.putExtra(CounterActivity.EXTRA_COUNTER_ID, mCounter.getId());
+        // Адаптер для списка
+        mGroupAdapter = new IndicationsExpandableListAdapter(this, mCounter.getIndications(),
+                mCounter.getIndicationsGroupType(), getGroupItemColor());
+        mExpandableList.setAdapter(mGroupAdapter);
 
-                    startActivityForResult(intent, REQUEST_EDIT_INDICATION);
-                }
-            });
-
-            mList.setOnItemLongClickListener(new OnItemLongClickListener() {
-
-                @Override
-                public boolean onItemLongClick(AdapterView<?> a, View v, int pos, long id) {
-                    final long itemId = id;
-
-                    AlertDialog.Builder confirm = new AlertDialog.Builder(
-                            IndicationsListActivity.this);
-
-                    confirm.setTitle(R.string.action_entry_del_confirm);
-                    confirm.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                            IndicationDAO dao = new IndicationDAO();
-                            dao.deleteById(mDatabase, itemId);
-
-                            mCounter.setIndications(dao.getAllByCounter(mDatabase, mCounter));
-                            mAdapter.setItems(mCounter.getIndications());
-
-                            refreshLineGraphData();
-                            mLineGraph.postInvalidate();
-                        }
-
-                    });
-                    confirm.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                            // На нет и суда нет
-
-                        }
-
-                    });
-                    confirm.show();
-
-                    return true;
-                }
-            });
-        } else { // Список с группировкой
-            mExpandableList = new ExpandableListView(this);
-            mExpandableList
-                    .setLayoutParams(new ViewGroup.LayoutParams(
-                            LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT));
-            mExpandableList.setGroupIndicator(getResources().getDrawable(
-                    R.drawable.list_view_group_indicator));
-            mExpandableList.setDivider(getResources().getDrawable(R.drawable.shadow_holo));
-            mExpandableList.setDividerHeight(1);
-
-            mainLayout.addView(mExpandableList);
-
-            mGroupAdapter = new IndicationsExpandableListAdapter(this, mCounter.getIndications(),
-                    mCounter.getIndicationsGroupType(), getGroupItemColor());
-            mExpandableList.setAdapter(mGroupAdapter);
-            
-            if (mGroupAdapter.getGroupCount() > 0) {
-                mExpandableList.expandGroup(0);
-            }
+        if (mGroupAdapter.getGroupCount() > 0) {
+            mExpandableList.expandGroup(0);
         }
+        
+        // Обработчики нажатий на элементы списка
+        mExpandableList.setOnChildClickListener(new OnChildClickListener() {
+
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
+                    int childPosition, long id) {
+
+                Intent intent = new Intent(IndicationsListActivity.this, IndicationActivity.class);
+                intent.setAction(Intent.ACTION_EDIT);
+                intent.putExtra(IndicationActivity.EXTRA_INDICATION_ID, id);
+                intent.putExtra(CounterActivity.EXTRA_COUNTER_ID, mCounter.getId());
+
+                startActivityForResult(intent, REQUEST_EDIT_INDICATION);
+                return true;
+            }
+        });
+
+        mExpandableList.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+            @Override
+            public boolean onItemLongClick(AdapterView<?> a, View v, int pos, long id) {
+                if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+                    long packedPos = ((ExpandableListView)a).getExpandableListPosition(pos);
+                    int groupPosition = ExpandableListView.getPackedPositionGroup(packedPos);
+                    int childPosition = ExpandableListView.getPackedPositionChild(packedPos);
+
+                    final Indication ind = mGroupAdapter
+                            .getIndication(groupPosition, childPosition);
+
+                    if (ind != null) {
+
+                        final long itemId = ind.getId();
+
+                        AlertDialog.Builder confirm = new AlertDialog.Builder(
+                                IndicationsListActivity.this);
+
+                        confirm.setTitle(R.string.action_entry_del_confirm);
+                        confirm.setPositiveButton(R.string.yes,
+                                new DialogInterface.OnClickListener() {
+
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                        IndicationDAO dao = new IndicationDAO();
+                                        dao.deleteById(mDatabase, itemId);
+
+                                        mCounter.setIndications(dao.getAllByCounter(mDatabase,
+                                                mCounter));
+
+                                        mGroupAdapter.setSource(mCounter.getIndications(), true);
+
+                                        refreshLineGraphData();
+                                        mLineGraph.postInvalidate();
+                                    }
+
+                                });
+                        confirm.setNegativeButton(R.string.no,
+                                new DialogInterface.OnClickListener() {
+
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                        // На нет и суда нет
+
+                                    }
+
+                                });
+                        confirm.show();
+                    }
+                }
+
+                return true;
+            }
+        });
 
         // Кнопка "Настроки счетчика"
         ImageView btnSettings = (ImageView)findViewById(R.id.ivSettings);
@@ -299,9 +299,7 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
                 if (resultCode == RESULT_OK) {
                     IndicationDAO dao = new IndicationDAO();
                     mCounter.setIndications(dao.getAllByCounter(mDatabase, mCounter));
-                    // mAdapter.setItems(mCounter.getIndications()); //TODO
-                    // remove this line
-                    mGroupAdapter.setSource(mCounter.getIndications());
+                    mGroupAdapter.setSource(mCounter.getIndications(), true);
                     refreshLineGraphData();
                 }
                 break;
@@ -322,6 +320,7 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
                     color.setBackgroundColor(mCounter.getColor());
 
                     mGroupAdapter.setGroupItemColor(getGroupItemColor());
+                    mGroupAdapter.setGroupType(mCounter.getIndicationsGroupType());
 
                     refreshLineGraphStyle();
                     refreshLineGraphData();
