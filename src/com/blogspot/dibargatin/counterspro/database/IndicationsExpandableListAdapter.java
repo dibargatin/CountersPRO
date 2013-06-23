@@ -173,7 +173,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
         period.setText(mGroups.get(groupPosition).getCaption());
 
         IndicationsCollection ic = mGroupItems.get(mGroups.get(groupPosition));
-        
+
         // TODOcurrency format
         NumberFormat nf = NumberFormat
                 .getNumberInstance(mContext.getResources().getConfiguration().locale);
@@ -417,21 +417,21 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
     // Methods
     // ===========================================================
     private void rebuildGroups() {
-        final IndicationsCollection source = mSource;        
+        final IndicationsCollection source = mSource;
         mGroupItems = new LinkedHashMap<Span, IndicationsCollection>();
-        
+
         if (mSource.size() == 0) {
             mGroups = new ArrayList<Span>();
             notifyDataSetChanged();
-            
+
             return;
         }
-        
+
         final long minTime = source.getMinTime();
         final long maxTime = source.getMaxTime();
 
         final Calendar c = GregorianCalendar.getInstance();
-        
+
         // Без группировки
         if (mGroupType == IndicationsGroupType.WITHOUT) {
             final Span s = new Span(minTime, maxTime, mContext.getResources().getString(
@@ -457,6 +457,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
                     R.string.indication_group_period_year);
 
             for (int i = maxYear; i >= minYear; i--) {
+                c.clear();
                 c.set(i, Calendar.JANUARY, 1);
                 long l = c.getTimeInMillis();
 
@@ -473,10 +474,152 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
 
             mGroups = new ArrayList<Span>(mGroupItems.keySet());
         }
-        // TODO Группировка по месяцам
-        // TODO Группировка по дням
-        // TODO Группировка по часам
-        // TODO Группировка по минутам
+        // Группировка по месяцам
+        else if (mGroupType == IndicationsGroupType.MONTH) {
+            c.setTimeInMillis(minTime);
+            final int minYear = c.get(Calendar.YEAR);
+            final int minMonth = c.get(Calendar.MONTH);
+
+            c.setTimeInMillis(maxTime);
+            final int maxYear = c.get(Calendar.YEAR);
+            final int maxMonth = c.get(Calendar.MONTH);
+
+            final String period = mContext.getResources().getString(
+                    R.string.indication_group_period_month);
+
+            String[] ml = mContext.getResources().getStringArray(R.array.month_list);
+
+            for (int i = maxYear; i >= minYear; i--) {
+                for (int j = (i == maxYear ? maxMonth : Calendar.DECEMBER); j >= (i == minYear ? minMonth
+                        : Calendar.JANUARY); j--) {
+
+                    c.clear();
+                    c.set(i, j, 1);
+                    long l = c.getTimeInMillis();
+
+                    c.set(i, j, c.getActualMaximum(Calendar.DAY_OF_MONTH), 23, 59, 59);
+                    long r = c.getTimeInMillis();
+
+                    IndicationsCollection ic = new IndicationsCollection();
+                    ic.initCostCalculator(mFormulaTotalAliases, mFormulaValueAliases,
+                            mFormulaRateAliases);
+
+                    final Span s = new Span(l, r, String.format(period, ml[j], i));
+                    mGroupItems.put(s, ic);
+                }
+            }
+
+            mGroups = new ArrayList<Span>(mGroupItems.keySet());
+        }
+        // Группировка по дням
+        else if (mGroupType == IndicationsGroupType.DAY) {
+            c.setTimeInMillis(minTime);
+            final int minYear = c.get(Calendar.YEAR);
+            final int minMonth = c.get(Calendar.MONTH);
+            final int minDay = c.get(Calendar.DAY_OF_MONTH);
+
+            c.setTimeInMillis(maxTime);
+            final int maxYear = c.get(Calendar.YEAR);
+            final int maxMonth = c.get(Calendar.MONTH);
+            final int maxDay = c.get(Calendar.DAY_OF_MONTH);
+
+            final String period = mContext.getResources().getString(
+                    R.string.indication_group_period_day);
+
+            final java.text.DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, mContext
+                    .getResources().getConfiguration().locale);
+
+            for (int i = maxYear; i >= minYear; i--) {
+                for (int j = (i == maxYear ? maxMonth : Calendar.DECEMBER); j >= (i == minYear ? minMonth
+                        : Calendar.JANUARY); j--) {
+
+                    c.clear();
+                    c.set(i, j, 1);
+
+                    for (int d = (i == maxYear && j == maxMonth ? maxDay : c
+                            .getActualMaximum(Calendar.DAY_OF_MONTH)); d >= (i == minYear
+                            && j == minMonth ? minDay : 1); d--) {
+
+                        c.clear();
+                        c.set(i, j, d);
+                        long l = c.getTimeInMillis();
+
+                        c.set(i, j, d, 23, 59, 59);
+                        long r = c.getTimeInMillis();
+
+                        IndicationsCollection ic = new IndicationsCollection();
+                        ic.initCostCalculator(mFormulaTotalAliases, mFormulaValueAliases,
+                                mFormulaRateAliases);
+
+                        final Span s = new Span(l, r, String.format(period, df.format(c.getTime())));
+                        mGroupItems.put(s, ic);
+                    }
+                }
+            }
+
+            mGroups = new ArrayList<Span>(mGroupItems.keySet());
+        }
+        // Группировка по часам
+        else if (mGroupType == IndicationsGroupType.HOUR) {
+            c.setTimeInMillis(minTime);
+            final int minYear = c.get(Calendar.YEAR);
+            final int minMonth = c.get(Calendar.MONTH);
+            final int minDay = c.get(Calendar.DAY_OF_MONTH);
+            final int minHour = c.get(Calendar.HOUR_OF_DAY);
+
+            c.setTimeInMillis(maxTime);
+            final int maxYear = c.get(Calendar.YEAR);
+            final int maxMonth = c.get(Calendar.MONTH);
+            final int maxDay = c.get(Calendar.DAY_OF_MONTH);
+            final int maxHour = c.get(Calendar.HOUR_OF_DAY);
+
+            final String period = mContext.getResources().getString(
+                    R.string.indication_group_period_day);
+
+            final java.text.DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, mContext
+                    .getResources().getConfiguration().locale);
+
+            final java.text.DateFormat tf = android.text.format.DateFormat.getTimeFormat(mContext);
+
+            for (int i = maxYear; i >= minYear; i--) {
+                for (int j = (i == maxYear ? maxMonth : Calendar.DECEMBER); j >= (i == minYear ? minMonth
+                        : Calendar.JANUARY); j--) {
+
+                    c.clear();
+                    c.set(i, j, 1);
+
+                    for (int d = (i == maxYear && j == maxMonth ? maxDay : c
+                            .getActualMaximum(Calendar.DAY_OF_MONTH)); d >= (i == minYear
+                            && j == minMonth ? minDay : 1); d--) {
+
+                        for (int h = (i == maxYear && j == maxMonth && d == maxDay ? maxHour : 23); h >= (i == minYear
+                                && j == minMonth && d == minDay ? minHour : 0); h--) {
+
+                            c.clear();
+                            c.set(i, j, d, h, 0, 0);
+                            long l = c.getTimeInMillis();
+
+                            c.set(i, j, d, h, 59, 59);
+                            long r = c.getTimeInMillis();
+
+                            IndicationsCollection ic = new IndicationsCollection();
+                            ic.initCostCalculator(mFormulaTotalAliases, mFormulaValueAliases,
+                                    mFormulaRateAliases);
+                            
+                            c.clear();
+                            c.set(i, j, d, h, 0, 0);
+                            
+                            final Span s = new Span(l, r, String.format(period,
+                                    df.format(c.getTime()) + " " + tf.format(c.getTime())));
+                            
+                            mGroupItems.put(s, ic);
+                        }
+                    }
+                }
+            }
+
+            mGroups = new ArrayList<Span>(mGroupItems.keySet());
+        }
 
         // Заполняем группы
         if (mGroupType != IndicationsGroupType.WITHOUT) {

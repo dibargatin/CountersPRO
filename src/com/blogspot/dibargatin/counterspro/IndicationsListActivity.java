@@ -321,7 +321,8 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
 
                     mGroupAdapter.setGroupItemColor(getGroupItemColor());
                     mGroupAdapter.setGroupType(mCounter.getIndicationsGroupType());
-
+                    mGroupAdapter.setSource(mCounter.getIndications(), true);
+                    
                     refreshLineGraphStyle();
                     refreshLineGraphData();
 

@@ -183,18 +183,19 @@ public class IndicationDAO {
         return result;
     }
 
-    public double getPrevTotalByCounterId(SQLiteDatabase db, long counterId, Timestamp date) {
+    public double getPrevTotalByCounterId(SQLiteDatabase db, long counterId, long indicationId, Timestamp date) {
         final StringBuilder query = new StringBuilder();
 
         query.append("SELECT ");
         query.append("  IFNULL((SELECT SUM(value)");
         query.append("            FROM Indications");
-        query.append("           WHERE counter_id = ?");
+        query.append("           WHERE counter_id = ?");        
         query.append("             AND entry_date < ?");
+        query.append("             AND _id <> ?");
         query.append("        ) , 0) AS prev_total");
 
         Cursor c = db.rawQuery(query.toString(), new String[] {
-                Long.toString(counterId), date.toString()
+                Long.toString(counterId), date.toString(), Long.toString(indicationId)
         });
 
         double result = 0;

@@ -397,7 +397,7 @@ public class IndicationActivity extends SherlockActivity {
     // ===========================================================
     private void refreshPrevValue() {
         mPrevValue = mIndicationDao.getPrevTotalByCounterId(mDatabase, mIndication.getCounter()
-                .getId(), mIndication.getDate());
+                .getId(), mIndication.getId(), mIndication.getDate());
 
         Currency cur = null;
         CharSequence m = Html.fromHtml(mIndication.getCounter().getMeasure());

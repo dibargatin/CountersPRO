@@ -14,7 +14,7 @@
     <string name="indication_group_total">Totals</string>
     <string name="indication_group_period_without">for all period</string>
     <string name="indication_group_period_year">for %1$d year</string>
-    <string name="indication_group_period_month">for %1$s</string>
+    <string name="indication_group_period_month">for %1$s %2$d</string>
     <string name="indication_group_period_day">for %1$s</string>
     <string name="indication_group_period_hour">for %1$s</string>
         
