@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.blogspot.dibargatin.counterspro.R;
 import com.blogspot.dibargatin.counterspro.database.Counter.IndicationsGroupType;
+import com.blogspot.dibargatin.counterspro.database.Counter.PeriodType;
 import com.blogspot.dibargatin.counterspro.database.Counter.RateType;
 import com.blogspot.dibargatin.counterspro.util.Span;
 
@@ -49,6 +50,8 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
 
     IndicationsGroupType mGroupType;
 
+    PeriodType mPeriodType;
+
     ArrayList<Span> mGroups;
 
     LinkedHashMap<Span, IndicationsCollection> mGroupItems;
@@ -57,7 +60,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
     // Constructors
     // ===========================================================
     public IndicationsExpandableListAdapter(Context context, IndicationsCollection source,
-            IndicationsGroupType groupType, int groupItemColor) {
+            IndicationsGroupType groupType, int groupItemColor, PeriodType periodType) {
         mContext = context;
 
         mFormulaValueAliases = mContext.getResources().getStringArray(
@@ -72,6 +75,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
         mSource = source;
         mGroupType = groupType;
         mGroupItemColor = groupItemColor;
+        mPeriodType = periodType;
 
         rebuildGroups();
     }
@@ -79,15 +83,20 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
     // ===========================================================
     // Getter & Setter
     // ===========================================================
+    public PeriodType getPeriodType() {
+        return mPeriodType;
+    }
+
+    public void setPeriodType(PeriodType periodType) {
+        this.mPeriodType = periodType;
+    }
+
     public IndicationsGroupType getGroupType() {
         return mGroupType;
     }
 
     public void setGroupType(IndicationsGroupType groupType) {
-        if (mGroupType != groupType) {
-            mGroupType = groupType;
-            rebuildGroups();
-        }
+        mGroupType = groupType;
     }
 
     public int getGroupItemColor() {
@@ -96,7 +105,6 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
 
     public void setGroupItemColor(int groupItemColor) {
         this.mGroupItemColor = groupItemColor;
-        notifyDataSetInvalidated();
     }
 
     public IndicationsCollection getSource() {
@@ -360,8 +368,10 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
             final java.text.DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, mContext
                     .getResources().getConfiguration().locale);
             final java.text.DateFormat tf = android.text.format.DateFormat.getTimeFormat(mContext);
-
-            switch (ind.getCounter().getPeriodType().ordinal()) {
+            
+            final PeriodType periodType = convertGroupType2PeriodType(mGroupType, mPeriodType);
+            
+            switch (periodType.ordinal()) {
                 case 0: // Год
                     month.setText(Integer.toString(c.get(Calendar.YEAR)) + " "
                             + mContext.getResources().getString(R.string.year));
@@ -605,13 +615,13 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
                             IndicationsCollection ic = new IndicationsCollection();
                             ic.initCostCalculator(mFormulaTotalAliases, mFormulaValueAliases,
                                     mFormulaRateAliases);
-                            
+
                             c.clear();
                             c.set(i, j, d, h, 0, 0);
-                            
+
                             final Span s = new Span(l, r, String.format(period,
                                     df.format(c.getTime()) + " " + tf.format(c.getTime())));
-                            
+
                             mGroupItems.put(s, ic);
                         }
                     }
@@ -622,6 +632,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
         }
 
         // Заполняем группы
+        // TODO Оптимизация распределения показаний по группам
         if (mGroupType != IndicationsGroupType.WITHOUT) {
             for (Indication i : source) {
                 for (Span s : mGroupItems.keySet()) {
@@ -634,6 +645,24 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
         }
 
         notifyDataSetChanged();
+    }
+
+    private PeriodType convertGroupType2PeriodType(IndicationsGroupType groupType,
+            PeriodType defaultPeriodType) {
+        
+        PeriodType result = defaultPeriodType;
+
+        if (groupType == IndicationsGroupType.YEAR) {
+            result = PeriodType.MONTH;
+        } else if (groupType == IndicationsGroupType.MONTH) {
+            result = PeriodType.DAY;
+        } else if (groupType == IndicationsGroupType.DAY) {
+            result = PeriodType.HOUR;
+        } else if (groupType == IndicationsGroupType.HOUR) {
+            result = PeriodType.MINUTE;
+        }
+
+        return result;
     }
 
     // ===========================================================

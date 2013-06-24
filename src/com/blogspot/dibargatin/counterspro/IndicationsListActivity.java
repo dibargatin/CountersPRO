@@ -127,7 +127,7 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
 
         // Адаптер для списка
         mGroupAdapter = new IndicationsExpandableListAdapter(this, mCounter.getIndications(),
-                mCounter.getIndicationsGroupType(), getGroupItemColor());
+                mCounter.getIndicationsGroupType(), getGroupItemColor(), mCounter.getPeriodType());
         mExpandableList.setAdapter(mGroupAdapter);
 
         if (mGroupAdapter.getGroupCount() > 0) {
@@ -321,6 +321,7 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
 
                     mGroupAdapter.setGroupItemColor(getGroupItemColor());
                     mGroupAdapter.setGroupType(mCounter.getIndicationsGroupType());
+                    mGroupAdapter.setPeriodType(mCounter.getPeriodType());
                     mGroupAdapter.setSource(mCounter.getIndications(), true);
                     
                     refreshLineGraphStyle();
