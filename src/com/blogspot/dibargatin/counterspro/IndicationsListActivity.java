@@ -127,13 +127,13 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
 
         // Адаптер для списка
         mGroupAdapter = new IndicationsExpandableListAdapter(this, mCounter.getIndications(),
-                mCounter.getIndicationsGroupType(), getGroupItemColor(), mCounter.getPeriodType());
+                mCounter);
         mExpandableList.setAdapter(mGroupAdapter);
 
         if (mGroupAdapter.getGroupCount() > 0) {
             mExpandableList.expandGroup(0);
         }
-        
+
         // Обработчики нажатий на элементы списка
         mExpandableList.setOnChildClickListener(new OnChildClickListener() {
 
@@ -300,6 +300,11 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
                     IndicationDAO dao = new IndicationDAO();
                     mCounter.setIndications(dao.getAllByCounter(mDatabase, mCounter));
                     mGroupAdapter.setSource(mCounter.getIndications(), true);
+                    
+                    if (mGroupAdapter.getGroupCount() == 1) {
+                        mExpandableList.expandGroup(0);
+                    }
+                    
                     refreshLineGraphData();
                 }
                 break;
@@ -318,11 +323,9 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
                     name.setText(Html.fromHtml(mCounter.getName()));
                     note.setText(Html.fromHtml(mCounter.getNote()));
                     color.setBackgroundColor(mCounter.getColor());
-
-                    mGroupAdapter.setGroupItemColor(getGroupItemColor());
-                    mGroupAdapter.setGroupType(mCounter.getIndicationsGroupType());
-                    mGroupAdapter.setPeriodType(mCounter.getPeriodType());
-                    mGroupAdapter.setSource(mCounter.getIndications(), true);
+                    
+                    mGroupAdapter.setSource(mCounter.getIndications(), false);
+                    mGroupAdapter.setSettings(mCounter);
                     
                     refreshLineGraphStyle();
                     refreshLineGraphData();
@@ -373,15 +376,6 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
 
         hsv[1] = 0.2f;
         mLineGraphStyle.graphColor = Color.HSVToColor(hsv);
-    }
-
-    private int getGroupItemColor() {
-        float[] hsv = new float[3];
-
-        Color.colorToHSV(mCounter.getColor(), hsv);
-        hsv[1] = 0.1f;
-
-        return Color.HSVToColor(hsv);
     }
 
     private void showAddIndicationDialog() {

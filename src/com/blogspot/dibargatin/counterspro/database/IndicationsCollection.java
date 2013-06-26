@@ -1,6 +1,8 @@
 
 package com.blogspot.dibargatin.counterspro.database;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -9,6 +11,8 @@ public class IndicationsCollection extends ArrayList<Indication> {
     // Constants
     // ===========================================================
     static final long serialVersionUID = 1L;
+    
+    private final static int COST_PRECISION = 2;
 
     // ===========================================================
     // Fields
@@ -16,6 +20,8 @@ public class IndicationsCollection extends ArrayList<Indication> {
     private double mTotal = 0;
 
     private double mTotalCost = 0;
+
+    private int mPrecision = 2;
 
     private String[] mTotalAliases;
 
@@ -54,7 +60,7 @@ public class IndicationsCollection extends ArrayList<Indication> {
 
         return min;
     }
-    
+
     public long getMaxTime() {
         long max = 0;
 
@@ -187,11 +193,13 @@ public class IndicationsCollection extends ArrayList<Indication> {
     // ===========================================================
     // Methods
     // ===========================================================
-    public void initCostCalculator(String[] totalAliases, String[] valueAliases,
+    public void initCostCalculator(int precision, String[] totalAliases, String[] valueAliases,
             String[] rateAliases) {
         mTotalAliases = totalAliases;
         mValueAliases = valueAliases;
         mRateAliases = rateAliases;
+
+        mPrecision = precision;
         mTotalCost = 0;
 
         for (Indication i : this) {
@@ -222,7 +230,9 @@ public class IndicationsCollection extends ArrayList<Indication> {
 
     private void addToTotalCost(Indication object) {
         if (checkCostCalculatorState()) {
-            mTotalCost += object.calcCost(mTotalAliases, mValueAliases, mRateAliases);
+            mTotalCost += new BigDecimal(
+                    object.calcCost(COST_PRECISION, mTotalAliases, mValueAliases, mRateAliases)).setScale(
+                    mPrecision, RoundingMode.HALF_UP).doubleValue();
         }
     }
 
@@ -232,7 +242,7 @@ public class IndicationsCollection extends ArrayList<Indication> {
 
     private void subFromTotalCost(Indication object) {
         if (checkCostCalculatorState()) {
-            mTotalCost -= object.calcCost(mTotalAliases, mValueAliases, mRateAliases);
+            mTotalCost -= object.calcCost(COST_PRECISION, mTotalAliases, mValueAliases, mRateAliases);
         }
     }
 

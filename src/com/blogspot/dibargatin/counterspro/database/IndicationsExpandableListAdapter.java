@@ -30,6 +30,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
     // ===========================================================
     // Constants
     // ===========================================================
+    private final static int COST_PRECISION = 2;
 
     // ===========================================================
     // Fields
@@ -38,8 +39,6 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
 
     LayoutInflater mInflater;
 
-    int mGroupItemColor = Color.WHITE;
-
     String[] mFormulaValueAliases;
 
     String[] mFormulaTotalAliases;
@@ -47,6 +46,10 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
     String[] mFormulaRateAliases;
 
     IndicationsCollection mSource;
+
+    Counter mCounter;
+
+    int mGroupItemColor = Color.WHITE;
 
     IndicationsGroupType mGroupType;
 
@@ -60,7 +63,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
     // Constructors
     // ===========================================================
     public IndicationsExpandableListAdapter(Context context, IndicationsCollection source,
-            IndicationsGroupType groupType, int groupItemColor, PeriodType periodType) {
+            Counter counter) {
         mContext = context;
 
         mFormulaValueAliases = mContext.getResources().getStringArray(
@@ -71,18 +74,30 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
                 R.array.formula_var_tariff_aliases);
 
         mInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
         mSource = source;
-        mGroupType = groupType;
-        mGroupItemColor = groupItemColor;
-        mPeriodType = periodType;
-
-        rebuildGroups();
+        setSettings(counter);
     }
 
     // ===========================================================
     // Getter & Setter
     // ===========================================================
+    public Counter getSettings() {
+        return mCounter;
+    }
+
+    public void resetSettings() {
+        mGroupType = mCounter.getIndicationsGroupType();
+        mGroupItemColor = calcGroupItemColor();
+        mPeriodType = mCounter.getPeriodType();
+
+        rebuildGroups();
+    }
+
+    public void setSettings(Counter counter) {
+        this.mCounter = counter;
+        resetSettings();
+    }
+
     public PeriodType getPeriodType() {
         return mPeriodType;
     }
@@ -182,9 +197,8 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
 
         IndicationsCollection ic = mGroupItems.get(mGroups.get(groupPosition));
 
-        // TODOcurrency format
-        NumberFormat nf = NumberFormat
-                .getNumberInstance(mContext.getResources().getConfiguration().locale);
+        final NumberFormat nf = NumberFormat.getNumberInstance(mContext.getResources()
+                .getConfiguration().locale);
 
         TextView total = (TextView)convertView.findViewById(R.id.tvValueTotal);
 
@@ -195,7 +209,38 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
         }
 
         TextView totalCost = (TextView)convertView.findViewById(R.id.tvCostTotal);
-        totalCost.setText(nf.format(ic.getTotalCost()));
+        TextView costCurrency = (TextView)convertView.findViewById(R.id.tvCostCurrency);
+
+        if (mCounter.getRateType() != RateType.WITHOUT) {
+
+            Currency cur = null;
+            try {
+                cur = Currency.getInstance(mCounter.getCurrency());
+            } catch (Exception e) {
+                // Не валюта в формате ISO
+            }
+
+            totalCost.setVisibility(View.VISIBLE);
+
+            if (cur == null) {
+                totalCost.setText(nf.format(ic.getTotalCost()));
+
+                costCurrency.setVisibility(View.VISIBLE);
+                costCurrency.setText(Html.fromHtml(mCounter.getCurrency()));
+
+            } else {
+                final NumberFormat cnf = NumberFormat.getCurrencyInstance(mContext.getResources()
+                        .getConfiguration().locale);
+                cnf.setCurrency(cur);
+
+                totalCost.setText(cnf.format(ic.getTotalCost()));
+                costCurrency.setVisibility(View.GONE);
+            }
+
+        } else {
+            totalCost.setVisibility(View.GONE);
+            costCurrency.setVisibility(View.GONE);
+        }
 
         return convertView;
     }
@@ -296,14 +341,17 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
 
                 TextView rate = (TextView)view.findViewById(R.id.tvRateValue);
                 TextView cost = (TextView)view.findViewById(R.id.tvCost);
+                
+                double res = ind.calcCost(COST_PRECISION, mFormulaTotalAliases, mFormulaValueAliases,
+                        mFormulaRateAliases);
 
                 if (rcur == null) {
                     rate.setText(nf.format(ind.getRateValue()));
-                    cost.setText(nf.format(ind.getRateValue() * ind.getValue()));
+                    cost.setText(nf.format(res));
                 } else {
                     cnf.setCurrency(rcur);
                     rate.setText(cnf.format(ind.getRateValue()));
-                    cost.setText(cnf.format(ind.getRateValue() * ind.getValue()));
+                    cost.setText(cnf.format(res));
                 }
 
             } catch (Exception e) {
@@ -334,7 +382,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
 
             try {
                 formula.setText(ind.getCounter().getFormula());
-                double res = ind.calcCost(mFormulaTotalAliases, mFormulaValueAliases,
+                double res = ind.calcCost(COST_PRECISION, mFormulaTotalAliases, mFormulaValueAliases,
                         mFormulaRateAliases);
 
                 if (rcur == null) {
@@ -368,9 +416,9 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
             final java.text.DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, mContext
                     .getResources().getConfiguration().locale);
             final java.text.DateFormat tf = android.text.format.DateFormat.getTimeFormat(mContext);
-            
+
             final PeriodType periodType = convertGroupType2PeriodType(mGroupType, mPeriodType);
-            
+
             switch (periodType.ordinal()) {
                 case 0: // Год
                     month.setText(Integer.toString(c.get(Calendar.YEAR)) + " "
@@ -448,8 +496,8 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
                     R.string.indication_group_period_without));
 
             if (!source.checkCostCalculatorState()) {
-                source.initCostCalculator(mFormulaTotalAliases, mFormulaValueAliases,
-                        mFormulaRateAliases);
+                source.initCostCalculator(COST_PRECISION, mFormulaTotalAliases,
+                        mFormulaValueAliases, mFormulaRateAliases);
             }
 
             mGroupItems.put(s, source);
@@ -475,7 +523,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
                 long r = c.getTimeInMillis();
 
                 IndicationsCollection ic = new IndicationsCollection();
-                ic.initCostCalculator(mFormulaTotalAliases, mFormulaValueAliases,
+                ic.initCostCalculator(COST_PRECISION, mFormulaTotalAliases, mFormulaValueAliases,
                         mFormulaRateAliases);
 
                 final Span s = new Span(l, r, String.format(period, i));
@@ -511,8 +559,8 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
                     long r = c.getTimeInMillis();
 
                     IndicationsCollection ic = new IndicationsCollection();
-                    ic.initCostCalculator(mFormulaTotalAliases, mFormulaValueAliases,
-                            mFormulaRateAliases);
+                    ic.initCostCalculator(COST_PRECISION, mFormulaTotalAliases,
+                            mFormulaValueAliases, mFormulaRateAliases);
 
                     final Span s = new Span(l, r, String.format(period, ml[j], i));
                     mGroupItems.put(s, ic);
@@ -558,8 +606,8 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
                         long r = c.getTimeInMillis();
 
                         IndicationsCollection ic = new IndicationsCollection();
-                        ic.initCostCalculator(mFormulaTotalAliases, mFormulaValueAliases,
-                                mFormulaRateAliases);
+                        ic.initCostCalculator(COST_PRECISION, mFormulaTotalAliases,
+                                mFormulaValueAliases, mFormulaRateAliases);
 
                         final Span s = new Span(l, r, String.format(period, df.format(c.getTime())));
                         mGroupItems.put(s, ic);
@@ -613,8 +661,8 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
                             long r = c.getTimeInMillis();
 
                             IndicationsCollection ic = new IndicationsCollection();
-                            ic.initCostCalculator(mFormulaTotalAliases, mFormulaValueAliases,
-                                    mFormulaRateAliases);
+                            ic.initCostCalculator(COST_PRECISION, mFormulaTotalAliases,
+                                    mFormulaValueAliases, mFormulaRateAliases);
 
                             c.clear();
                             c.set(i, j, d, h, 0, 0);
@@ -649,7 +697,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
 
     private PeriodType convertGroupType2PeriodType(IndicationsGroupType groupType,
             PeriodType defaultPeriodType) {
-        
+
         PeriodType result = defaultPeriodType;
 
         if (groupType == IndicationsGroupType.YEAR) {
@@ -663,6 +711,15 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
         }
 
         return result;
+    }
+
+    private int calcGroupItemColor() {
+        float[] hsv = new float[3];
+
+        Color.colorToHSV(mCounter.getColor(), hsv);
+        hsv[1] = 0.1f;
+
+        return Color.HSVToColor(hsv);
     }
 
     // ===========================================================

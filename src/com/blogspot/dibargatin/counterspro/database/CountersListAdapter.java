@@ -22,6 +22,7 @@ public class CountersListAdapter extends BaseAdapter {
     // ===========================================================
     // Constants
     // ===========================================================
+    private final static int COST_PRECISION = 2;
 
     // ===========================================================
     // Fields
@@ -168,7 +169,7 @@ public class CountersListAdapter extends BaseAdapter {
             } else if (cnt.getViewValueType() == ViewValueType.COST) {
                 
                 // Затраты
-                val = inds.get(0).calcCost(mFormulaTotalAliases,
+                val = inds.get(0).calcCost(COST_PRECISION, mFormulaTotalAliases,
                         mFormulaValueAliases, mFormulaRateAliases);
                 
             } else if (cnt.getViewValueType() == ViewValueType.TOTAL_COST) {
@@ -176,7 +177,7 @@ public class CountersListAdapter extends BaseAdapter {
                 // Итог по затратам
                 val = 0;
                 for(Indication i : inds) {
-                    val += i.calcCost(mFormulaTotalAliases,
+                    val += i.calcCost(COST_PRECISION, mFormulaTotalAliases,
                             mFormulaValueAliases, mFormulaRateAliases);
                 }
             }

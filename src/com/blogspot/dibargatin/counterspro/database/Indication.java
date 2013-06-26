@@ -1,6 +1,8 @@
 
 package com.blogspot.dibargatin.counterspro.database;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 
 import com.blogspot.dibargatin.counterspro.database.Counter.RateType;
@@ -102,7 +104,7 @@ public class Indication {
     // ===========================================================
     // Methods
     // ===========================================================
-    public double calcCost(String[] totalAliases, String[] valueAliases, String[] rateAliases) {
+    public double calcCost(int precision, String[] totalAliases, String[] valueAliases, String[] rateAliases) {
         double result = 0.0;
 
         if (mCounter != null) {
@@ -118,7 +120,7 @@ public class Indication {
             }
         }
 
-        return result;
+        return new BigDecimal(result).setScale(precision, RoundingMode.HALF_UP).doubleValue();
     }
 
     // ===========================================================

@@ -31,6 +31,7 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
         android:layout_marginBottom="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
@@ -74,6 +75,16 @@
                 android:text="tvCost"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="#cc0000" />
+
+            <TextView
+                android:id="@+id/tvCostCurrency"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:text="р."
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="#cc0000" />
+
         </LinearLayout>
 
     </LinearLayout>
