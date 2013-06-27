@@ -12,7 +12,9 @@ public class Indication {
     // ===========================================================
     // Constants
     // ===========================================================
-    final static long EMPTY_ID = -1; 
+    public final static long EMPTY_ID = -1; 
+    
+    public final static int COST_PRECISION = 2;
 
     // ===========================================================
     // Fields

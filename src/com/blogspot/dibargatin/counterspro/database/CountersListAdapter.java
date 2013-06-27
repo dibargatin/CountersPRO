@@ -22,7 +22,6 @@ public class CountersListAdapter extends BaseAdapter {
     // ===========================================================
     // Constants
     // ===========================================================
-    private final static int COST_PRECISION = 2;
 
     // ===========================================================
     // Fields
@@ -108,14 +107,16 @@ public class CountersListAdapter extends BaseAdapter {
 
         // Название
         try {
-            ((TextView)view.findViewById(R.id.tvCounterName)).setText(Html.fromHtml(cnt.getName().replace("\n", "<br/>")));
+            ((TextView)view.findViewById(R.id.tvCounterName)).setText(Html.fromHtml(cnt.getName()
+                    .replace("\n", "<br/>")));
         } catch (Exception e) {
             // Нет названия
         }
 
         // Описание
         try {
-            ((TextView)view.findViewById(R.id.tvCounterNote)).setText(Html.fromHtml(cnt.getNote().replace("\n", "<br/>")));
+            ((TextView)view.findViewById(R.id.tvCounterNote)).setText(Html.fromHtml(cnt.getNote()
+                    .replace("\n", "<br/>")));
         } catch (Exception e) {
             // Нет описания
         }
@@ -133,18 +134,18 @@ public class CountersListAdapter extends BaseAdapter {
 
         Currency cur = null;
         double val = 0;
-        
+
         // Расчет значения
-        // Если показаний нет              
+        // Если показаний нет
         if (cnt.getIndications().size() == 0) {
-            
+
             period.setVisibility(View.GONE);
             val = 0;
-            
+
         } else { // Показания есть
-            
+
             final IndicationsCollection inds = cnt.getIndications();
-            
+
             try {
                 final Indication ind = inds.get(0); // Последнее значение
                 Date d = new Date(ind.getDate().getTime());
@@ -155,38 +156,39 @@ public class CountersListAdapter extends BaseAdapter {
             } catch (Exception e) {
                 // Нет даты показаний
             }
-            
+
             if (cnt.getViewValueType() == ViewValueType.DELTA) {
-                
+
                 // Дельта
                 val = inds.get(0).getValue();
-                
+
             } else if (cnt.getViewValueType() == ViewValueType.TOTAL) {
-                
+
                 // Итог по значению
                 val = inds.get(0).getTotal();
-                
+
             } else if (cnt.getViewValueType() == ViewValueType.COST) {
-                
+
                 // Затраты
-                val = inds.get(0).calcCost(COST_PRECISION, mFormulaTotalAliases,
+                val = inds.get(0).calcCost(Indication.COST_PRECISION, mFormulaTotalAliases,
                         mFormulaValueAliases, mFormulaRateAliases);
-                
+
             } else if (cnt.getViewValueType() == ViewValueType.TOTAL_COST) {
-                
+
                 // Итог по затратам
                 val = 0;
-                for(Indication i : inds) {
-                    val += i.calcCost(COST_PRECISION, mFormulaTotalAliases,
+                for (Indication i : inds) {
+                    val += i.calcCost(Indication.COST_PRECISION, mFormulaTotalAliases,
                             mFormulaValueAliases, mFormulaRateAliases);
                 }
             }
         }
-        
+
         // Вывод значения
-        if (cnt.getViewValueType() == ViewValueType.DELTA || cnt.getViewValueType() == ViewValueType.TOTAL) {
+        if (cnt.getViewValueType() == ViewValueType.DELTA
+                || cnt.getViewValueType() == ViewValueType.TOTAL) {
             // Дельта (относительное значение) или Итог по значению
-            
+
             try {
                 cur = Currency.getInstance(cnt.getMeasure());
             } catch (Exception e) {
@@ -202,10 +204,11 @@ public class CountersListAdapter extends BaseAdapter {
                 value.setText(cnf.format(val));
                 measure.setVisibility(View.GONE);
             }
-            
-        } else if (cnt.getViewValueType() == ViewValueType.COST || cnt.getViewValueType() == ViewValueType.TOTAL_COST) {
+
+        } else if (cnt.getViewValueType() == ViewValueType.COST
+                || cnt.getViewValueType() == ViewValueType.TOTAL_COST) {
             // Затраты или Итог по затратам
-            
+
             try {
                 cur = Currency.getInstance(cnt.getCurrency());
             } catch (Exception e) {
@@ -220,7 +223,7 @@ public class CountersListAdapter extends BaseAdapter {
                 cnf.setCurrency(cur);
                 value.setText(cnf.format(val));
                 measure.setVisibility(View.GONE);
-            }            
+            }
         }
 
         return view;

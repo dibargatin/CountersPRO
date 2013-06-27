@@ -30,7 +30,6 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
     // ===========================================================
     // Constants
     // ===========================================================
-    private final static int COST_PRECISION = 2;
 
     // ===========================================================
     // Fields
@@ -181,7 +180,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
     public boolean isChildSelectable(int groupPosition, int childPosition) {
         return true;
     }
-
+    
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView,
             ViewGroup parent) {
@@ -278,6 +277,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
             final TextView measure = (TextView)view.findViewById(R.id.tvMeasure);
 
             if (cur == null) {
+                measure.setVisibility(View.VISIBLE);
                 measure.setText(Html.fromHtml(ind.getCounter().getMeasure()));
             } else {
                 measure.setVisibility(View.GONE);
@@ -318,8 +318,14 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
         if (ind.getCounter().getRateType() == RateType.SIMPLE) { // Простой
                                                                  // тариф
             try {
+                LinearLayout lri = (LinearLayout)view.findViewById(R.id.lRateInfo);
+                lri.setVisibility(View.VISIBLE);
+                
                 LinearLayout f = (LinearLayout)view.findViewById(R.id.lFormula);
                 f.setVisibility(View.GONE);
+                
+                LinearLayout l2 = (LinearLayout)view.findViewById(R.id.lCost);
+                l2.setVisibility(View.VISIBLE);
 
                 TextView c = (TextView)view.findViewById(R.id.tvCurrency);
                 TextView c2 = (TextView)view.findViewById(R.id.tvCostCurrency);
@@ -332,6 +338,9 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
                 }
 
                 if (rcur == null) {
+                    c.setVisibility(View.VISIBLE);
+                    c2.setVisibility(View.VISIBLE);
+                    
                     c.setText(Html.fromHtml(ind.getCounter().getCurrency()));
                     c2.setText(Html.fromHtml(ind.getCounter().getCurrency()));
                 } else {
@@ -341,9 +350,9 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
 
                 TextView rate = (TextView)view.findViewById(R.id.tvRateValue);
                 TextView cost = (TextView)view.findViewById(R.id.tvCost);
-                
-                double res = ind.calcCost(COST_PRECISION, mFormulaTotalAliases, mFormulaValueAliases,
-                        mFormulaRateAliases);
+
+                double res = ind.calcCost(Indication.COST_PRECISION, mFormulaTotalAliases,
+                        mFormulaValueAliases, mFormulaRateAliases);
 
                 if (rcur == null) {
                     rate.setText(nf.format(ind.getRateValue()));
@@ -361,6 +370,12 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
         } else if (ind.getCounter().getRateType() == RateType.FORMULA) { // Формула
             LinearLayout lri = (LinearLayout)view.findViewById(R.id.lRateInfo);
             lri.setVisibility(View.GONE);
+            
+            LinearLayout f = (LinearLayout)view.findViewById(R.id.lFormula);
+            f.setVisibility(View.VISIBLE);
+            
+            LinearLayout l2 = (LinearLayout)view.findViewById(R.id.lCost);
+            l2.setVisibility(View.VISIBLE);
 
             TextView cc = (TextView)view.findViewById(R.id.tvCostCurrency);
 
@@ -372,6 +387,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
             }
 
             if (rcur == null) {
+                cc.setVisibility(View.VISIBLE);
                 cc.setText(Html.fromHtml(ind.getCounter().getCurrency()));
             } else {
                 cc.setVisibility(View.GONE);
@@ -382,8 +398,8 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
 
             try {
                 formula.setText(ind.getCounter().getFormula());
-                double res = ind.calcCost(COST_PRECISION, mFormulaTotalAliases, mFormulaValueAliases,
-                        mFormulaRateAliases);
+                double res = ind.calcCost(Indication.COST_PRECISION, mFormulaTotalAliases,
+                        mFormulaValueAliases, mFormulaRateAliases);
 
                 if (rcur == null) {
                     cost.setText(nf.format(res));
@@ -496,7 +512,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
                     R.string.indication_group_period_without));
 
             if (!source.checkCostCalculatorState()) {
-                source.initCostCalculator(COST_PRECISION, mFormulaTotalAliases,
+                source.initCostCalculator(Indication.COST_PRECISION, mFormulaTotalAliases,
                         mFormulaValueAliases, mFormulaRateAliases);
             }
 
@@ -523,8 +539,8 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
                 long r = c.getTimeInMillis();
 
                 IndicationsCollection ic = new IndicationsCollection();
-                ic.initCostCalculator(COST_PRECISION, mFormulaTotalAliases, mFormulaValueAliases,
-                        mFormulaRateAliases);
+                ic.initCostCalculator(Indication.COST_PRECISION, mFormulaTotalAliases,
+                        mFormulaValueAliases, mFormulaRateAliases);
 
                 final Span s = new Span(l, r, String.format(period, i));
                 mGroupItems.put(s, ic);
@@ -559,7 +575,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
                     long r = c.getTimeInMillis();
 
                     IndicationsCollection ic = new IndicationsCollection();
-                    ic.initCostCalculator(COST_PRECISION, mFormulaTotalAliases,
+                    ic.initCostCalculator(Indication.COST_PRECISION, mFormulaTotalAliases,
                             mFormulaValueAliases, mFormulaRateAliases);
 
                     final Span s = new Span(l, r, String.format(period, ml[j], i));
@@ -606,7 +622,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
                         long r = c.getTimeInMillis();
 
                         IndicationsCollection ic = new IndicationsCollection();
-                        ic.initCostCalculator(COST_PRECISION, mFormulaTotalAliases,
+                        ic.initCostCalculator(Indication.COST_PRECISION, mFormulaTotalAliases,
                                 mFormulaValueAliases, mFormulaRateAliases);
 
                         final Span s = new Span(l, r, String.format(period, df.format(c.getTime())));
@@ -661,7 +677,7 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
                             long r = c.getTimeInMillis();
 
                             IndicationsCollection ic = new IndicationsCollection();
-                            ic.initCostCalculator(COST_PRECISION, mFormulaTotalAliases,
+                            ic.initCostCalculator(Indication.COST_PRECISION, mFormulaTotalAliases,
                                     mFormulaValueAliases, mFormulaRateAliases);
 
                             c.clear();

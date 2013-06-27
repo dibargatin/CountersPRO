@@ -269,6 +269,22 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_RESTORE:
+                if (resultCode == RESULT_OK) {
+                    if (mDatabase != null) {
+                        mDatabase.close();
+                        mDatabase = null;
+                    }
+                    
+                    mDatabase = new DBHelper(this).getWritableDatabase();
+                    
+                    if (mDatabase != null) {
+                        mAdapter.setItems(mCounterDao.getAll(mDatabase));
+                    } else {
+                        mAdapter.setItems(null);
+                    }
+                }                
+                break;
+                
             case REQUEST_ADD_COUNTER:
             case REQUEST_ADD_ENTRY:
                 if (resultCode == RESULT_OK) {

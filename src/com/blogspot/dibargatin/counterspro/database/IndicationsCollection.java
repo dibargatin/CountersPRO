@@ -11,8 +11,6 @@ public class IndicationsCollection extends ArrayList<Indication> {
     // Constants
     // ===========================================================
     static final long serialVersionUID = 1L;
-    
-    private final static int COST_PRECISION = 2;
 
     // ===========================================================
     // Fields
@@ -230,9 +228,9 @@ public class IndicationsCollection extends ArrayList<Indication> {
 
     private void addToTotalCost(Indication object) {
         if (checkCostCalculatorState()) {
-            mTotalCost += new BigDecimal(
-                    object.calcCost(COST_PRECISION, mTotalAliases, mValueAliases, mRateAliases)).setScale(
-                    mPrecision, RoundingMode.HALF_UP).doubleValue();
+            mTotalCost += new BigDecimal(object.calcCost(Indication.COST_PRECISION, mTotalAliases,
+                    mValueAliases, mRateAliases)).setScale(mPrecision, RoundingMode.HALF_UP)
+                    .doubleValue();
         }
     }
 
@@ -242,7 +240,8 @@ public class IndicationsCollection extends ArrayList<Indication> {
 
     private void subFromTotalCost(Indication object) {
         if (checkCostCalculatorState()) {
-            mTotalCost -= object.calcCost(COST_PRECISION, mTotalAliases, mValueAliases, mRateAliases);
+            mTotalCost -= object.calcCost(Indication.COST_PRECISION, mTotalAliases, mValueAliases,
+                    mRateAliases);
         }
     }
 

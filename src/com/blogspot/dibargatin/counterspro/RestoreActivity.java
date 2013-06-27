@@ -4,6 +4,8 @@ package com.blogspot.dibargatin.counterspro;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,9 +17,9 @@ import android.os.Environment;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
 import android.widget.SimpleAdapter;
-import android.widget.AdapterView.OnItemClickListener;
 
 import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.MenuItem;
@@ -28,6 +30,8 @@ public class RestoreActivity extends SherlockListActivity {
     // ===========================================================
     // Constants
     // ===========================================================
+    private final static String ATTRIBUTE_DATE = "date";
+
     private final static String ATTRIBUTE_TIMESTAMP = "timestamp";
 
     private final static String ATTRIBUTE_FILENAME = "filename";
@@ -85,12 +89,23 @@ public class RestoreActivity extends SherlockListActivity {
                 Date d = new Date(fl[i].lastModified());
                 String t = df.format(d) + " " + tf.format(d);
 
+                item.put(ATTRIBUTE_DATE, d);
                 item.put(ATTRIBUTE_TIMESTAMP, t);
                 item.put(ATTRIBUTE_FILENAME, fl[i].getName());
 
                 data.add(item);
             }
         }
+
+        Collections.sort(data, new Comparator<Map<String, Object>>() {
+
+            @Override
+            public int compare(Map<String, Object> lhs, Map<String, Object> rhs) {
+                return (((Date)lhs.get(ATTRIBUTE_DATE)).getTime() > ((Date)rhs.get(ATTRIBUTE_DATE))
+                        .getTime() ? -1 : 1);
+            }
+
+        });
 
         String[] from = new String[] {
                 ATTRIBUTE_TIMESTAMP, ATTRIBUTE_FILENAME
@@ -107,7 +122,7 @@ public class RestoreActivity extends SherlockListActivity {
         getListView().setOnItemClickListener(new OnItemClickListener() {
 
             @Override
-            public void onItemClick(AdapterView<?> a, View v, int pos, long id) {                
+            public void onItemClick(AdapterView<?> a, View v, int pos, long id) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(RestoreActivity.this);
                 final int p = pos;
 
@@ -120,11 +135,11 @@ public class RestoreActivity extends SherlockListActivity {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 @SuppressWarnings("unchecked")
                                 Map<String, Object> obj = (Map<String, Object>)mAdapter.getItem(p);
-                                
+
                                 new BackupUtils(RestoreActivity.this)
                                         .restore(FileUtils.DIRECTORY_BACKUP + "//"
                                                 + obj.get(ATTRIBUTE_FILENAME).toString());
-                                
+
                                 setResult(RESULT_OK);
                                 finish();
                             }
