@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.Html;
 import android.view.MotionEvent;
 import android.view.View;
@@ -46,6 +47,12 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
     private final static int REQUEST_ADD_INDICATION = 2;
 
     private final static int REQUEST_EDIT_INDICATION = 3;
+    
+    private static final String LIST_STATE_KEY = "listState";
+    
+    private static final String LIST_POSITION_KEY = "listPosition";
+    
+    private static final String ITEM_POSITION_KEY = "itemPosition";
 
     // ===========================================================
     // Fields
@@ -61,6 +68,12 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
     GraphSeriesStyle mLineGraphStyle;
 
     ExpandableListView mExpandableList;
+    
+    private Parcelable mListState = null;
+    
+    private int mListPosition = 0;
+    
+    private int mItemPosition = 0;
 
     // ===========================================================
     // Constructors
@@ -344,6 +357,41 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
                 break;
         }
     }
+    
+    protected void onRestoreInstanceState(Bundle state) {
+        super.onRestoreInstanceState(state);
+        
+        mListState = state.getParcelable(LIST_STATE_KEY);
+        mListPosition = state.getInt(LIST_POSITION_KEY);
+        mItemPosition = state.getInt(ITEM_POSITION_KEY);
+    }
+
+    protected void onResume() {
+        super.onResume();
+        
+        IndicationDAO dao = new IndicationDAO();
+        mCounter.setIndications(dao.getAllByCounter(mDatabase, mCounter));
+        mGroupAdapter.setSource(mCounter.getIndications(), true);
+        
+        if (mListState != null)
+            mExpandableList.onRestoreInstanceState(mListState);
+        
+        mExpandableList.setSelectionFromTop(mListPosition, mItemPosition);
+    }
+
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        
+        mListState = mExpandableList.onSaveInstanceState();
+        state.putParcelable(LIST_STATE_KEY, mListState);
+
+        mListPosition = mExpandableList.getFirstVisiblePosition();
+        state.putInt(LIST_POSITION_KEY, mListPosition);
+
+        View itemView = mExpandableList.getChildAt(0);
+        mItemPosition = itemView == null ? 0 : itemView.getTop();
+        state.putInt(ITEM_POSITION_KEY, mItemPosition);
+    }
 
     // ===========================================================
     // Methods
@@ -366,6 +414,8 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
 
             mLineGraph.addSeries(new GraphSeries(gd, "", "", "", mLineGraphStyle));
         }
+        
+        mLineGraph.invalidate();
     }
 
     private synchronized void refreshLineGraphStyle() {
