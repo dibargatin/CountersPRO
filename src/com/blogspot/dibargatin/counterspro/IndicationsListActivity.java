@@ -47,11 +47,11 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
     private final static int REQUEST_ADD_INDICATION = 2;
 
     private final static int REQUEST_EDIT_INDICATION = 3;
-    
+
     private static final String LIST_STATE_KEY = "listState";
-    
+
     private static final String LIST_POSITION_KEY = "listPosition";
-    
+
     private static final String ITEM_POSITION_KEY = "itemPosition";
 
     // ===========================================================
@@ -68,11 +68,11 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
     GraphSeriesStyle mLineGraphStyle;
 
     ExpandableListView mExpandableList;
-    
+
     private Parcelable mListState = null;
-    
+
     private int mListPosition = 0;
-    
+
     private int mItemPosition = 0;
 
     // ===========================================================
@@ -313,11 +313,11 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
                     IndicationDAO dao = new IndicationDAO();
                     mCounter.setIndications(dao.getAllByCounter(mDatabase, mCounter));
                     mGroupAdapter.setSource(mCounter.getIndications(), true);
-                    
+
                     if (mGroupAdapter.getGroupCount() == 1) {
                         mExpandableList.expandGroup(0);
                     }
-                    
+
                     refreshLineGraphData();
                 }
                 break;
@@ -336,10 +336,10 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
                     name.setText(Html.fromHtml(mCounter.getName()));
                     note.setText(Html.fromHtml(mCounter.getNote()));
                     color.setBackgroundColor(mCounter.getColor());
-                    
+
                     mGroupAdapter.setSource(mCounter.getIndications(), false);
                     mGroupAdapter.setSettings(mCounter);
-                    
+
                     refreshLineGraphStyle();
                     refreshLineGraphData();
 
@@ -357,10 +357,10 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
                 break;
         }
     }
-    
+
     protected void onRestoreInstanceState(Bundle state) {
         super.onRestoreInstanceState(state);
-        
+
         mListState = state.getParcelable(LIST_STATE_KEY);
         mListPosition = state.getInt(LIST_POSITION_KEY);
         mItemPosition = state.getInt(ITEM_POSITION_KEY);
@@ -368,20 +368,20 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
 
     protected void onResume() {
         super.onResume();
-        
+
         IndicationDAO dao = new IndicationDAO();
         mCounter.setIndications(dao.getAllByCounter(mDatabase, mCounter));
         mGroupAdapter.setSource(mCounter.getIndications(), true);
-        
+
         if (mListState != null)
             mExpandableList.onRestoreInstanceState(mListState);
-        
+
         mExpandableList.setSelectionFromTop(mListPosition, mItemPosition);
     }
 
     protected void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
-        
+
         mListState = mExpandableList.onSaveInstanceState();
         state.putParcelable(LIST_STATE_KEY, mListState);
 
@@ -414,7 +414,7 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
 
             mLineGraph.addSeries(new GraphSeries(gd, "", "", "", mLineGraphStyle));
         }
-        
+
         mLineGraph.invalidate();
     }
 

@@ -105,12 +105,7 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
 
             @Override
             public void onItemClick(AdapterView<?> a, View v, int pos, long id) {
-                Intent intent = new Intent(CountersListActivity.this, IndicationsListActivity.class);
-
-                intent.setAction(Intent.ACTION_EDIT);
-                intent.putExtra(CounterActivity.EXTRA_COUNTER_ID, id);
-
-                startActivityForResult(intent, REQUEST_EDIT_COUNTER);
+                showDialog(ActionType.INDICATION_LIST, id);
             }
         });
 
@@ -132,14 +127,7 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
 
                         switch (which) {
                             case 0: // Добавить показания
-                                intent = new Intent(CountersListActivity.this,
-                                        IndicationActivity.class);
-
-                                intent.setAction(Intent.ACTION_INSERT);
-                                intent.putExtra(CounterActivity.EXTRA_COUNTER_ID, itemId);
-
-                                startActivityForResult(intent, REQUEST_ADD_ENTRY);
-
+                                showDialog(ActionType.INDICATION_ADD, itemId);
                                 break;
 
                             case 1: // Редактировать счетчик
@@ -218,7 +206,7 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
 
         switch (item.getItemId()) {
             case R.id.action_add_counter:
-                showAddCounterDialog();
+                showDialog(ActionType.COUNTER_ADD, -1);
                 break;
 
             case MENU_BACKUP:
@@ -274,17 +262,17 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
                         mDatabase.close();
                         mDatabase = null;
                     }
-                    
+
                     mDatabase = new DBHelper(this).getWritableDatabase();
-                    
+
                     if (mDatabase != null) {
                         mAdapter.setItems(mCounterDao.getAll(mDatabase));
                     } else {
                         mAdapter.setItems(null);
                     }
-                }                
+                }
                 break;
-                
+
             case REQUEST_ADD_COUNTER:
             case REQUEST_ADD_ENTRY:
                 if (resultCode == RESULT_OK) {
@@ -317,7 +305,7 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ivCounter:
-                showAddCounterDialog();
+                showDialog(ActionType.COUNTER_ADD, -1);
                 break;
         }
     }
@@ -325,10 +313,34 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
     // ===========================================================
     // Methods
     // ===========================================================
-    private void showAddCounterDialog() {
-        Intent intent = new Intent(CountersListActivity.this, CounterActivity.class);
-        intent.setAction(Intent.ACTION_INSERT);
-        startActivityForResult(intent, REQUEST_ADD_COUNTER);
+    private void showDialog(ActionType action, long id) {
+        // Откроем диалог создания нового счетчика
+        if (action == ActionType.COUNTER_ADD) {
+            Intent intent = new Intent(CountersListActivity.this, CounterActivity.class);
+
+            intent.setAction(Intent.ACTION_INSERT);
+            startActivityForResult(intent, REQUEST_ADD_COUNTER);
+
+        }
+        // Откроем диалог ввода нового показания
+        else if (action == ActionType.INDICATION_ADD) {
+            Intent intent = new Intent(CountersListActivity.this, IndicationActivity.class);
+
+            intent.setAction(Intent.ACTION_INSERT);
+            intent.putExtra(CounterActivity.EXTRA_COUNTER_ID, id);
+
+            startActivityForResult(intent, REQUEST_ADD_ENTRY);
+
+        }
+        // Откроем список показаний
+        else if (action == ActionType.INDICATION_LIST) {
+            Intent intent = new Intent(CountersListActivity.this, IndicationsListActivity.class);
+
+            intent.setAction(Intent.ACTION_EDIT);
+            intent.putExtra(CounterActivity.EXTRA_COUNTER_ID, id);
+
+            startActivityForResult(intent, REQUEST_EDIT_COUNTER);
+        }
     }
 
     private boolean checkSdCard() {
@@ -341,20 +353,22 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
 
         return result;
     }
-    
+
     private void gotoStore(String appName) {
         try {
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri
-                    .parse("market://details?id=" + appName)));
+            startActivity(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("market://details?id=" + appName)));
         } catch (android.content.ActivityNotFoundException anfe) {
 
-            startActivity(new Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("http://play.google.com/store/apps/details?id="
-                            + appName)));
+            startActivity(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("http://play.google.com/store/apps/details?id=" + appName)));
         }
     }
+
     // ===========================================================
     // Inner and Anonymous Classes
     // ===========================================================
+    private enum ActionType {
+        COUNTER_ADD, INDICATION_ADD, INDICATION_LIST
+    }
 }
