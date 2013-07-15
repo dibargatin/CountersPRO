@@ -30,7 +30,6 @@ public class BackupUtils {
         mContext = context;
 
         FileUtils.mkdir(FileUtils.DIRECTORY_BACKUP);
-        FileUtils.mkdir(FileUtils.DIRECTORY_EXPORT);
     }
 
     // ===========================================================

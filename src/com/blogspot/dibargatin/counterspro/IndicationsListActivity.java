@@ -27,6 +27,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.SubMenu;
 import com.blogspot.dibargatin.counterspro.database.Counter;
 import com.blogspot.dibargatin.counterspro.database.CounterDAO;
 import com.blogspot.dibargatin.counterspro.database.DBHelper;
@@ -37,6 +38,7 @@ import com.blogspot.dibargatin.counterspro.graph.GraphSeries;
 import com.blogspot.dibargatin.counterspro.graph.GraphSeries.GraphData;
 import com.blogspot.dibargatin.counterspro.graph.GraphSeries.GraphSeriesStyle;
 import com.blogspot.dibargatin.counterspro.graph.LineGraph;
+import com.blogspot.dibargatin.counterspro.util.CsvUtils;
 
 public class IndicationsListActivity extends SherlockActivity implements OnClickListener {
     // ===========================================================
@@ -53,6 +55,12 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
     private static final String LIST_POSITION_KEY = "listPosition";
 
     private static final String ITEM_POSITION_KEY = "itemPosition";
+    
+    private final static int MENU_EXPORT = 10;
+
+    private final static int MENU_IMPORT = 15;
+    
+    private final static int MENU_COPY = 20;
 
     // ===========================================================
     // Fields
@@ -276,11 +284,24 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getSupportMenuInflater().inflate(R.menu.entry_form, menu);
-        return super.onCreateOptionsMenu(menu);
+        
+        SubMenu sm = menu.addSubMenu(0, Menu.FIRST, Menu.NONE, R.string.menu_more);
+        sm.add(0, MENU_EXPORT, Menu.NONE, R.string.menu_export).setIcon(R.drawable.ic_export);
+        sm.add(0, MENU_IMPORT, Menu.NONE, R.string.menu_import).setIcon(R.drawable.ic_import);
+        sm.add(0, MENU_COPY, Menu.NONE, R.string.menu_copy_to).setIcon(R.drawable.ic_copy);
+        
+        MenuItem subMenu1Item = sm.getItem();
+        subMenu1Item.setIcon(R.drawable.abs__ic_menu_moreoverflow_holo_light);
+        subMenu1Item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS
+                | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+        
+        return true;
     }
-
+    
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        boolean result = true;
 
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -290,9 +311,21 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
             case R.id.action_add_entry:
                 showAddIndicationDialog();
                 break;
+            
+            case MENU_EXPORT:
+                final CsvUtils csv = new CsvUtils(this);
+                csv.export(mCounter, mCounter.getIndications());
+                break;
+                
+            case MENU_IMPORT:
+                // TODO
+                break;
+                
+            default:
+                result = super.onOptionsItemSelected(item);
         }
 
-        return true;
+        return result;
     }
 
     @Override

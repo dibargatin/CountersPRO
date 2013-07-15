@@ -2,6 +2,19 @@
 <resources>
     <string name="app_name">Counters PRO</string>
     
+    <string name="export_ok">Export completed successfully</string>
+    <string name="export_trouble">Export aborted. Error accessing file</string>
+    <string-array name="csv_export_fields">
+        <item>Counter</item>
+        <item>Date</item>
+        <item>Total</item>
+        <item>Value</item>
+        <item>Tariff</item>        
+        <item>Formula</item>
+        <item>Cost</item>
+        <item>Note</item>
+    </string-array>
+    
     <string name="indictation_group_type">Grouping by period</string>
     <string-array name="indication_groups">
         <item>Without</item>
@@ -23,6 +36,10 @@
     <string name="menu_restore">Restore</string> 
     <string name="menu_feedback">Send feedback</string>
     <string name="menu_save">Save</string>
+    <string name="menu_export">Export</string>
+    <string name="menu_import">Import</string>
+    <string name="menu_copy">Copy</string>
+    <string name="menu_copy_to">Copy to &#8230;</string>
     
     <string name="sdcard_not_available">SD card is not available</string>
     <string name="backup_ok">Backup completed successfully</string>
@@ -86,6 +103,7 @@
     <string name="formula">formula</string>
     <string name="formula_text">Formula text</string>
     <string name="formula_example">(total-value)*tariff</string>
+    <string name="formula_simple">value*tariff</string>
     
     <string-array name="formula_var_value_aliases">
         <item>v</item>

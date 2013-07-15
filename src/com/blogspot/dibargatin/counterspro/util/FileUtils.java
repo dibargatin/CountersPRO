@@ -46,6 +46,11 @@ public class FileUtils {
         return new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(Calendar.getInstance().getTime())
                 + BACKUP_FILE_EXT;
     }
+    
+    public static String getNewCSVExportFileName() {
+        return new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(Calendar.getInstance().getTime())
+                + ".csv";
+    }
 
     public static boolean mkdir(String dirName) {
         boolean result = false;

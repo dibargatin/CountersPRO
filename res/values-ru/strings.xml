@@ -2,6 +2,19 @@
 <resources>
     <string name="app_name">Счетчики PRO</string>
     
+    <string name="export_ok">Экспорт показаний завершен</string>
+    <string name="export_trouble">Экспорт прерван из за ошибки доступа к файлу</string>    
+    <string-array name="csv_export_fields">
+        <item>Счетчик</item>
+        <item>Дата</item>
+        <item>Итог</item>
+        <item>Значение</item>
+        <item>Тариф</item>        
+        <item>Формула</item>
+        <item>Затраты</item>
+        <item>Примечание</item>
+    </string-array>
+    
     <string name="indictation_group_type">Группировка по периоду</string>
     <string-array name="indication_groups">
         <item>Без группировки</item>
@@ -23,6 +36,10 @@
     <string name="menu_restore">Восстановление</string>
     <string name="menu_feedback">Отправить отзыв</string>
     <string name="menu_save">Сохранить</string>
+    <string name="menu_export">Экспортировать</string>
+    <string name="menu_import">Импортировать</string>
+    <string name="menu_copy">Копировать</string>
+    <string name="menu_copy_to">Копировать в &#8230;</string>
     
     <string name="sdcard_not_available">SD карта не доступна</string>
     <string name="backup_ok">Резервная копия создана</string>
@@ -86,6 +103,7 @@
     <string name="formula">формула</string>
     <string name="formula_text">Текст формулы</string>
     <string name="formula_example">(итог-значение)*тариф</string>
+    <string name="formula_simple">значение*тариф</string>
         
     <string name="rate_type">Вид тарифа</string>
     <string-array name="rate_type_list">
