@@ -39,6 +39,15 @@ public class Indication {
     public Indication(Counter counter) {
         mCounter = counter;
     }
+    
+    public Indication(Indication indication, Counter counter) {
+        mCounter = counter;
+        mDate = indication.getDate();
+        mValue = indication.getValue();
+        mRateValue = indication.getRateValue();
+        mTotal = indication.getTotal();
+        mNote = indication.getNote();
+    }
 
     // ===========================================================
     // Getter & Setter

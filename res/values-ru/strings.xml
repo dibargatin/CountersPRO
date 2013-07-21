@@ -2,6 +2,11 @@
 <resources>
     <string name="app_name">Счетчики PRO</string>
     
+    <string name="copy_to_choice_counter">Выберите счетчики</string>
+    <string name="copy_to_empty_destination">Перед копированием необходимо создать еще один счетчик</string>
+    <string name="copy_to_trouble">Счетчик "%1$s" содержит показание на указанную дату и время</string>
+    <string name="copy_to_ok">Копирование завершено</string>
+    
     <string name="export_ok">Экспорт показаний завершен</string>
     <string name="export_trouble">Экспорт прерван из за ошибки доступа к файлу</string>    
     <string-array name="csv_export_fields">

@@ -2,6 +2,11 @@
 <resources>
     <string name="app_name">Counters PRO</string>
     
+    <string name="copy_to_choice_counter">Choose counters</string>
+    <string name="copy_to_empty_destination">Before copying you must create another counter</string>
+    <string name="copy_to_trouble">Counter "%1$s" contains indication on the specified date and time</string>
+    <string name="copy_to_ok">Copying completed successfully</string>
+    
     <string name="export_ok">Export completed successfully</string>
     <string name="export_trouble">Export aborted. Error accessing file</string>
     <string-array name="csv_export_fields">

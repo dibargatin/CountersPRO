@@ -16,13 +16,16 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.CheckBox;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
@@ -30,14 +33,18 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.SubMenu;
 import com.blogspot.dibargatin.counterspro.database.Counter;
 import com.blogspot.dibargatin.counterspro.database.CounterDAO;
+import com.blogspot.dibargatin.counterspro.database.CountersCollection;
+import com.blogspot.dibargatin.counterspro.database.CountersListAdapter;
 import com.blogspot.dibargatin.counterspro.database.DBHelper;
 import com.blogspot.dibargatin.counterspro.database.Indication;
 import com.blogspot.dibargatin.counterspro.database.IndicationDAO;
+import com.blogspot.dibargatin.counterspro.database.IndicationsCollection;
 import com.blogspot.dibargatin.counterspro.database.IndicationsExpandableListAdapter;
 import com.blogspot.dibargatin.counterspro.graph.GraphSeries;
 import com.blogspot.dibargatin.counterspro.graph.GraphSeries.GraphData;
 import com.blogspot.dibargatin.counterspro.graph.GraphSeries.GraphSeriesStyle;
 import com.blogspot.dibargatin.counterspro.graph.LineGraph;
+import com.blogspot.dibargatin.counterspro.util.CopyIndicationUtils;
 import com.blogspot.dibargatin.counterspro.util.CsvUtils;
 
 public class IndicationsListActivity extends SherlockActivity implements OnClickListener {
@@ -55,11 +62,11 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
     private static final String LIST_POSITION_KEY = "listPosition";
 
     private static final String ITEM_POSITION_KEY = "itemPosition";
-    
+
     private final static int MENU_EXPORT = 10;
 
     private final static int MENU_IMPORT = 15;
-    
+
     private final static int MENU_COPY = 20;
 
     // ===========================================================
@@ -284,20 +291,22 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getSupportMenuInflater().inflate(R.menu.entry_form, menu);
-        
+
         SubMenu sm = menu.addSubMenu(0, Menu.FIRST, Menu.NONE, R.string.menu_more);
         sm.add(0, MENU_EXPORT, Menu.NONE, R.string.menu_export).setIcon(R.drawable.ic_export);
-        sm.add(0, MENU_IMPORT, Menu.NONE, R.string.menu_import).setIcon(R.drawable.ic_import);
+        // sm.add(0, MENU_IMPORT, Menu.NONE,
+        // R.string.menu_import).setIcon(R.drawable.ic_import); // TODO import
+        // function
         sm.add(0, MENU_COPY, Menu.NONE, R.string.menu_copy_to).setIcon(R.drawable.ic_copy);
-        
+
         MenuItem subMenu1Item = sm.getItem();
         subMenu1Item.setIcon(R.drawable.abs__ic_menu_moreoverflow_holo_light);
         subMenu1Item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS
                 | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-        
+
         return true;
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -311,16 +320,20 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
             case R.id.action_add_entry:
                 showAddIndicationDialog();
                 break;
-            
+
             case MENU_EXPORT:
                 final CsvUtils csv = new CsvUtils(this);
                 csv.export(mCounter, mCounter.getIndications());
                 break;
-                
+
             case MENU_IMPORT:
-                // TODO
+                // TODO import function
                 break;
-                
+
+            case MENU_COPY:
+                showCopyToDialog();
+                break;
+
             default:
                 result = super.onOptionsItemSelected(item);
         }
@@ -466,6 +479,102 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
         intent.setAction(Intent.ACTION_INSERT);
         intent.putExtra(CounterActivity.EXTRA_COUNTER_ID, mCounter.getId());
         startActivityForResult(intent, REQUEST_ADD_INDICATION);
+    }
+
+    private void showCopyToDialog() {
+        // Готовим данные для диалога
+        final CounterDAO dao = new CounterDAO();
+        final CountersCollection counters = dao.getAll(mDatabase);
+
+        if (counters.size() < 2) {
+            Toast.makeText(IndicationsListActivity.this,
+                    getResources().getString(R.string.copy_to_empty_destination), Toast.LENGTH_LONG)
+                    .show();
+            return;
+        }
+
+        for (Counter cnt : counters) {
+            if (cnt.getId() == mCounter.getId()) {
+                counters.remove(cnt);
+                break;
+            }
+        }
+
+        final CountersListAdapter adapter = new CountersListAdapter(this, counters, true);
+
+        // Формируем диалог
+        AlertDialog.Builder dialog = new AlertDialog.Builder(IndicationsListActivity.this);
+
+        final ListView lv = new ListView(IndicationsListActivity.this);
+        lv.setAdapter(adapter);
+
+        dialog.setTitle(R.string.copy_to_choice_counter);
+        dialog.setView(lv).setInverseBackgroundForced(true);
+
+        dialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                CountersCollection choice = new CountersCollection();
+
+                // Формируем список выбранных счетчиков
+                for (int i = 0; i < lv.getChildCount(); i++) {
+                    CheckBox cb = (CheckBox)lv.getChildAt(i).findViewById(R.id.checkBox);
+
+                    if (cb != null) {
+                        if (cb.isChecked()) {
+                            choice.add((Counter)lv.getItemAtPosition(i));
+                        }
+                    }
+                }
+
+                if (choice.size() > 0) {
+                    for (Counter destination : choice) {
+                        IndicationsCollection withEqualDate = CopyIndicationUtils
+                                .checkForEqualDate(mCounter.getIndications(),
+                                        destination.getIndications());
+
+                        // Если есть показания с одинаковыми периодами, то
+                        // пропускаем счетчик
+                        if (withEqualDate.size() > 0) {
+                            String msg = String.format(
+                                    getResources().getString(R.string.copy_to_trouble),
+                                    destination.getName()
+                                            + (destination.getNote().length() > 0 ? " ("
+                                                    + destination.getNote() + ")" : ""));
+
+                            Toast.makeText(IndicationsListActivity.this, msg, Toast.LENGTH_LONG)
+                                    .show();
+                            continue; // TODO Выбор реакции (пропустить,
+                                      // изменить дату, отменить все)
+                        }
+
+                        IndicationDAO idao = new IndicationDAO();
+
+                        // Копируем показания
+                        for (Indication ind : mCounter.getIndications()) {
+                            idao.insert(mDatabase, new Indication(ind, destination)); // TODO:
+                                                                                      // транзакция
+                        }
+                    }
+                }
+
+                Toast.makeText(IndicationsListActivity.this,
+                        getResources().getString(R.string.copy_to_ok), Toast.LENGTH_LONG).show();
+            }
+
+        });
+        dialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                // На нет и суда нет
+
+            }
+
+        });
+        dialog.show();
     }
 
     // ===========================================================
