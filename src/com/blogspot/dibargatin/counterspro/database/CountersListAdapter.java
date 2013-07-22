@@ -40,11 +40,13 @@ public class CountersListAdapter extends BaseAdapter {
     String[] mFormulaRateAliases;
 
     boolean mShowCheckBoxes;
+    
+    boolean mShowTotals;
 
     // ===========================================================
     // Constructors
     // ===========================================================
-    public CountersListAdapter(Context context, CountersCollection items, boolean showCheckBoxes) {
+    public CountersListAdapter(Context context, CountersCollection items, boolean showCheckBoxes, boolean showTotals) {
         mContext = context;
         mItems = items;
         mInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -57,10 +59,11 @@ public class CountersListAdapter extends BaseAdapter {
                 R.array.formula_var_tariff_aliases);
 
         mShowCheckBoxes = showCheckBoxes;
+        mShowTotals = showTotals;
     }
 
     public CountersListAdapter(Context context, CountersCollection items) {
-        this(context, items, false);
+        this(context, items, false, true);
     }
 
     // ===========================================================
@@ -141,17 +144,27 @@ public class CountersListAdapter extends BaseAdapter {
         TextView period = (TextView)view.findViewById(R.id.tvPeriod);
         CheckBox cb = (CheckBox)view.findViewById(R.id.checkBox);
 
-        if (mShowCheckBoxes) {
+        if (!mShowTotals) {
             value.setVisibility(View.GONE);
             measure.setVisibility(View.GONE);
             period.setVisibility(View.GONE);
-            cb.setVisibility(View.VISIBLE);            
+            
+            if (mShowCheckBoxes) {
+                cb.setVisibility(View.VISIBLE);
+            } else {
+                cb.setVisibility(View.GONE);
+            }
 
         } else {
             value.setVisibility(View.VISIBLE);
             measure.setVisibility(View.VISIBLE);
             period.setVisibility(View.VISIBLE);
-            cb.setVisibility(View.GONE);
+            
+            if (mShowCheckBoxes) {
+                cb.setVisibility(View.VISIBLE);
+            } else {
+                cb.setVisibility(View.GONE);
+            }            
 
             NumberFormat nf = NumberFormat.getNumberInstance(mContext.getResources()
                     .getConfiguration().locale);

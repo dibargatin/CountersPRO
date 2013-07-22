@@ -2,9 +2,14 @@
 <resources>
     <string name="app_name">Счетчики PRO</string>
     
+    <string name="continue_action">Продолжить</string>
+    <string name="cancel_action">Отменить</string>
+    
     <string name="copy_to_choice_counter">Выберите счетчики</string>
     <string name="copy_to_empty_destination">Перед копированием необходимо создать еще один счетчик</string>
-    <string name="copy_to_trouble">Счетчик "%1$s" содержит показание на указанную дату и время</string>
+    <string name="copy_to_cant_be_completed">Копирование не может быть завершено для &#8230;</string>
+    <string name="copy_to_trouble">Копирование прервано из за ошибки доступа к базе данных</string>
+    <string name="copy_to_canceled">Копирование отменено</string>
     <string name="copy_to_ok">Копирование завершено</string>
     
     <string name="export_ok">Экспорт показаний завершен</string>

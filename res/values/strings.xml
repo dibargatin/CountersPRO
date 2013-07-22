@@ -2,9 +2,14 @@
 <resources>
     <string name="app_name">Counters PRO</string>
     
+    <string name="continue_action">Continue</string>
+    <string name="cancel_action">Cancel</string>
+        
     <string name="copy_to_choice_counter">Choose counters</string>
     <string name="copy_to_empty_destination">Before copying you must create another counter</string>
-    <string name="copy_to_trouble">Counter "%1$s" contains indication on the specified date and time</string>
+    <string name="copy_to_cant_be_completed">Copying can not be completed for &#8230;</string>
+    <string name="copy_to_trouble">Copying aborted. Error accessing database</string>
+    <string name="copy_to_canceled">Copying canceled</string>
     <string name="copy_to_ok">Copying completed successfully</string>
     
     <string name="export_ok">Export completed successfully</string>

@@ -482,6 +482,7 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
     }
 
     private void showCopyToDialog() {
+
         // Готовим данные для диалога
         final CounterDAO dao = new CounterDAO();
         final CountersCollection counters = dao.getAll(mDatabase);
@@ -500,7 +501,7 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
             }
         }
 
-        final CountersListAdapter adapter = new CountersListAdapter(this, counters, true);
+        final CountersListAdapter adapter = new CountersListAdapter(this, counters, true, false);
 
         // Формируем диалог
         AlertDialog.Builder dialog = new AlertDialog.Builder(IndicationsListActivity.this);
@@ -529,6 +530,9 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
                 }
 
                 if (choice.size() > 0) {
+                    final IndicationsCollection result = new IndicationsCollection();
+                    final CountersCollection trouble = new CountersCollection();
+
                     for (Counter destination : choice) {
                         IndicationsCollection withEqualDate = CopyIndicationUtils
                                 .checkForEqualDate(mCounter.getIndications(),
@@ -537,33 +541,93 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
                         // Если есть показания с одинаковыми периодами, то
                         // пропускаем счетчик
                         if (withEqualDate.size() > 0) {
-                            String msg = String.format(
-                                    getResources().getString(R.string.copy_to_trouble),
-                                    destination.getName()
-                                            + (destination.getNote().length() > 0 ? " ("
-                                                    + destination.getNote() + ")" : ""));
-
-                            Toast.makeText(IndicationsListActivity.this, msg, Toast.LENGTH_LONG)
-                                    .show();
-                            continue; // TODO Выбор реакции (пропустить,
-                                      // изменить дату, отменить все)
+                            trouble.add(destination);
+                            continue;
                         }
 
-                        IndicationDAO idao = new IndicationDAO();
+                        // Копируем показания в буфер результата
+                        for (Indication ind : mCounter.getIndications()) {
+                            result.add(new Indication(ind, destination));
+                        }
+                    }
+
+                    // Если есть счетчики в которые не выйдет скопировать
+                    // показания, спросим пользователя как нам быть
+                    if (trouble.size() > 0) {
+                        AlertDialog.Builder confirm = new AlertDialog.Builder(
+                                IndicationsListActivity.this);
+
+                        final CountersListAdapter adapterTrouble = new CountersListAdapter(
+                                IndicationsListActivity.this, trouble, false, false);
+                        final ListView lvTrouble = new ListView(IndicationsListActivity.this);
+                        lvTrouble.setAdapter(adapterTrouble);
+
+                        confirm.setTitle(R.string.copy_to_cant_be_completed);
+                        confirm.setView(lvTrouble).setInverseBackgroundForced(true);
+
+                        if (counters.size() > trouble.size()) {
+                            confirm.setPositiveButton(R.string.continue_action,
+                                    new DialogInterface.OnClickListener() {
+
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            // Копируем показания
+                                            IndicationDAO idao = new IndicationDAO();
+
+                                            if (idao.massInsert(mDatabase, result)) {
+                                                Toast.makeText(
+                                                        IndicationsListActivity.this,
+                                                        getResources().getString(
+                                                                R.string.copy_to_ok),
+                                                        Toast.LENGTH_LONG).show();
+                                            } else {
+                                                Toast.makeText(
+                                                        IndicationsListActivity.this,
+                                                        getResources().getString(
+                                                                R.string.copy_to_trouble),
+                                                        Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+                                    });
+                        }
+
+                        final int labelId = counters.size() > trouble.size() ? R.string.cancel_action
+                                : R.string.ok;
+
+                        confirm.setNegativeButton(labelId, new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                Toast.makeText(IndicationsListActivity.this,
+                                        getResources().getString(R.string.copy_to_canceled),
+                                        Toast.LENGTH_LONG).show();
+
+                            }
+                        });
+
+                        confirm.show();
+
+                    } else {
 
                         // Копируем показания
-                        for (Indication ind : mCounter.getIndications()) {
-                            idao.insert(mDatabase, new Indication(ind, destination)); // TODO:
-                                                                                      // транзакция
+                        IndicationDAO idao = new IndicationDAO();
+
+                        if (idao.massInsert(mDatabase, result)) {
+                            Toast.makeText(IndicationsListActivity.this,
+                                    getResources().getString(R.string.copy_to_ok),
+                                    Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(IndicationsListActivity.this,
+                                    getResources().getString(R.string.copy_to_trouble),
+                                    Toast.LENGTH_LONG).show();
                         }
                     }
                 }
-
-                Toast.makeText(IndicationsListActivity.this,
-                        getResources().getString(R.string.copy_to_ok), Toast.LENGTH_LONG).show();
             }
 
         });
+
         dialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 
             @Override
@@ -574,6 +638,7 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
             }
 
         });
+
         dialog.show();
     }
 

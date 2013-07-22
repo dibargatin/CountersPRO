@@ -3,9 +3,12 @@ package com.blogspot.dibargatin.counterspro.database;
 
 import java.sql.Timestamp;
 
+import com.blogspot.dibargatin.counterspro.CountersListActivity;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class IndicationDAO {
     // ===========================================================
@@ -183,13 +186,14 @@ public class IndicationDAO {
         return result;
     }
 
-    public double getPrevTotalByCounterId(SQLiteDatabase db, long counterId, long indicationId, Timestamp date) {
+    public double getPrevTotalByCounterId(SQLiteDatabase db, long counterId, long indicationId,
+            Timestamp date) {
         final StringBuilder query = new StringBuilder();
 
         query.append("SELECT ");
         query.append("  IFNULL((SELECT SUM(value)");
         query.append("            FROM Indications");
-        query.append("           WHERE counter_id = ?");        
+        query.append("           WHERE counter_id = ?");
         query.append("             AND entry_date < ?");
         query.append("             AND _id <> ?");
         query.append("        ) , 0) AS prev_total");
@@ -223,6 +227,30 @@ public class IndicationDAO {
         object.setId(db.insert(DBHelper.TABLE_INDICATION, null, cv));
 
         return object.getId();
+    }
+
+    public boolean massInsert(SQLiteDatabase db, IndicationsCollection objects) {
+
+        boolean result = true;
+
+        db.beginTransaction();
+
+        try {
+            for (Indication obj : objects) {
+                insert(db, obj);
+            }
+
+            db.setTransactionSuccessful();
+
+        } catch (Exception e) {
+
+            result = false;
+
+        } finally {
+            db.endTransaction();
+        }
+
+        return result;
     }
 
     public void update(SQLiteDatabase db, Indication object) {
