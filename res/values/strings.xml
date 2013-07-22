@@ -2,6 +2,11 @@
 <resources>
     <string name="app_name">Counters PRO</string>
     
+    <string name="user_guide_link">http://counterspro.blogspot.ru/2013/05/tutorial.html</string>
+    
+    <string name="delete_all_confirm">Delete all indications?</string>
+    <string name="list_of_indications_is_empty">List of indications is empty</string>
+    
     <string name="continue_action">Continue</string>
     <string name="cancel_action">Cancel</string>
         
@@ -50,6 +55,8 @@
     <string name="menu_import">Import</string>
     <string name="menu_copy">Copy</string>
     <string name="menu_copy_to">Copy to &#8230;</string>
+    <string name="menu_delete_all">Delete all</string>
+    <string name="menu_user_guide">User guide</string>
     
     <string name="sdcard_not_available">SD card is not available</string>
     <string name="backup_ok">Backup completed successfully</string>
@@ -89,7 +96,7 @@
         <item>Delete counter</item>
     </string-array>
     
-    <string name="action_entry_del_confirm">Delete entry?</string>
+    <string name="action_entry_del_confirm">Delete indication?</string>
     
     <string name="entry_form_title">INDICATIONS</string>
     <string name="action_add_counter">Add</string>

@@ -3,12 +3,9 @@ package com.blogspot.dibargatin.counterspro.database;
 
 import java.sql.Timestamp;
 
-import com.blogspot.dibargatin.counterspro.CountersListActivity;
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 public class IndicationDAO {
     // ===========================================================
@@ -269,6 +266,12 @@ public class IndicationDAO {
     public void deleteById(SQLiteDatabase db, long id) {
         db.delete(DBHelper.TABLE_INDICATION, DBHelper.INDICATION_ID + " = ?", new String[] {
             Long.toString(id)
+        });
+    }
+    
+    public void deleteByCounterId(SQLiteDatabase db, long counterId) {
+        db.delete(DBHelper.TABLE_INDICATION, DBHelper.INDICATION_COUNTER_ID + " = ?", new String[] {
+            Long.toString(counterId)
         });
     }
 

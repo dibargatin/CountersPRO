@@ -20,6 +20,7 @@ import android.content.Context;
 import android.os.Environment;
 import android.widget.Toast;
 
+import com.blogspot.dibargatin.counterspro.IndicationsListActivity;
 import com.blogspot.dibargatin.counterspro.R;
 import com.blogspot.dibargatin.counterspro.database.Counter;
 import com.blogspot.dibargatin.counterspro.database.Counter.RateType;
@@ -97,6 +98,14 @@ public class CsvUtils {
     }
 
     public void export(Counter counter, IndicationsCollection indications) {
+        // Если нечего экспортировать
+        if (indications.size() < 1) {
+            Toast.makeText(mContext,
+                    mContext.getResources().getString(R.string.list_of_indications_is_empty),
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
         final String[] header = mContext.getResources().getStringArray(R.array.csv_export_fields);
         String fileName = FileUtils.DIRECTORY_EXPORT + "//" + FileUtils.getNewCSVExportFileName();
         ICsvMapWriter mapWriter = null;

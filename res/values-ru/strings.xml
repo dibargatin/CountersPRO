@@ -2,6 +2,11 @@
 <resources>
     <string name="app_name">Счетчики PRO</string>
     
+    <string name="user_guide_link">http://counterspro.blogspot.ru/2013/05/tutorial.html</string>
+    
+    <string name="delete_all_confirm">Удалить все показания?</string>
+    <string name="list_of_indications_is_empty">Список показаний пуст</string>
+    
     <string name="continue_action">Продолжить</string>
     <string name="cancel_action">Отменить</string>
     
@@ -50,6 +55,8 @@
     <string name="menu_import">Импортировать</string>
     <string name="menu_copy">Копировать</string>
     <string name="menu_copy_to">Копировать в &#8230;</string>
+    <string name="menu_delete_all">Удалить все</string>
+    <string name="menu_user_guide">Руководство</string>
     
     <string name="sdcard_not_available">SD карта не доступна</string>
     <string name="backup_ok">Резервная копия создана</string>

@@ -69,6 +69,8 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
 
     private final static int MENU_COPY = 20;
 
+    private final static int MENU_DELETE = 25;
+
     // ===========================================================
     // Fields
     // ===========================================================
@@ -298,6 +300,7 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
         // R.string.menu_import).setIcon(R.drawable.ic_import); // TODO import
         // function
         sm.add(0, MENU_COPY, Menu.NONE, R.string.menu_copy_to).setIcon(R.drawable.ic_copy);
+        sm.add(0, MENU_DELETE, Menu.NONE, R.string.menu_delete_all).setIcon(R.drawable.ic_delete);
 
         MenuItem subMenu1Item = sm.getItem();
         subMenu1Item.setIcon(R.drawable.abs__ic_menu_moreoverflow_holo_light);
@@ -332,6 +335,10 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
 
             case MENU_COPY:
                 showCopyToDialog();
+                break;
+
+            case MENU_DELETE:
+                showDeleteAllDialog();
                 break;
 
             default:
@@ -482,7 +489,14 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
     }
 
     private void showCopyToDialog() {
-
+        // Если нечего копировать
+        if (mCounter.getIndications().size() < 1) {
+            Toast.makeText(IndicationsListActivity.this,
+                    getResources().getString(R.string.list_of_indications_is_empty),
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+        
         // Готовим данные для диалога
         final CounterDAO dao = new CounterDAO();
         final CountersCollection counters = dao.getAll(mDatabase);
@@ -639,6 +653,52 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
 
         });
 
+        dialog.show();
+    }
+
+    private void showDeleteAllDialog() {
+        // Если нечего удалять
+        if (mCounter.getIndications().size() < 1) {
+            Toast.makeText(IndicationsListActivity.this,
+                    getResources().getString(R.string.list_of_indications_is_empty),
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+        
+        // Готовим диалог
+        AlertDialog.Builder dialog = new AlertDialog.Builder(IndicationsListActivity.this);
+        
+        dialog.setTitle(R.string.delete_all_confirm);
+        
+        dialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                
+                IndicationDAO dao = new IndicationDAO();
+                dao.deleteByCounterId(mDatabase, mCounter.getId());
+
+                mCounter.setIndications(new IndicationsCollection());
+
+                mGroupAdapter.setSource(mCounter.getIndications(), true);
+
+                refreshLineGraphData();
+                mLineGraph.postInvalidate();                
+            }
+            
+        });
+        
+        dialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                
+                // На нет и суда нет
+                
+            }
+            
+        });
+        
         dialog.show();
     }
 
