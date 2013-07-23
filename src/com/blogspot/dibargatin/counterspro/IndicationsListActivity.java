@@ -579,7 +579,7 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
                         confirm.setTitle(R.string.copy_to_cant_be_completed);
                         confirm.setView(lvTrouble).setInverseBackgroundForced(true);
 
-                        if (counters.size() > trouble.size()) {
+                        if (choice.size() > trouble.size()) {
                             confirm.setPositiveButton(R.string.continue_action,
                                     new DialogInterface.OnClickListener() {
 
@@ -605,7 +605,7 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
                                     });
                         }
 
-                        final int labelId = counters.size() > trouble.size() ? R.string.cancel_action
+                        final int labelId = choice.size() > trouble.size() ? R.string.cancel_action
                                 : R.string.ok;
 
                         confirm.setNegativeButton(labelId, new DialogInterface.OnClickListener() {

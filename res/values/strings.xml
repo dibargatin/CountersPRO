@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name">Counters PRO</string>
     
+    <string name="save_before_copying">Save indication before copying</string>
+    
     <string name="user_guide_link">http://counterspro.blogspot.ru/2013/05/tutorial.html</string>
     
     <string name="delete_all_confirm">Delete all indications?</string>
@@ -57,6 +59,7 @@
     <string name="menu_copy_to">Copy to &#8230;</string>
     <string name="menu_delete_all">Delete all</string>
     <string name="menu_user_guide">User guide</string>
+    <string name="menu_delete">Delete</string>
     
     <string name="sdcard_not_available">SD card is not available</string>
     <string name="backup_ok">Backup completed successfully</string>
