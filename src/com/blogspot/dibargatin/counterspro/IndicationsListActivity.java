@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Parcelable;
 import android.text.Html;
 import android.view.MotionEvent;
@@ -325,8 +326,36 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
                 break;
 
             case MENU_EXPORT:
-                final CsvUtils csv = new CsvUtils(this);
-                csv.export(mCounter, mCounter.getIndications());
+                if (checkSdCard()) {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+                    alert.setIcon(R.drawable.ic_export);
+                    alert.setTitle(R.string.export_form_title);
+                    alert.setMessage(R.string.export_form_description);
+
+                    alert.setPositiveButton(getResources().getString(R.string.yes),
+                            new DialogInterface.OnClickListener() {
+
+                                public void onClick(DialogInterface dialog, int whichButton) {
+
+                                    final CsvUtils csv = new CsvUtils(IndicationsListActivity.this);
+                                    csv.export(mCounter, mCounter.getIndications());
+
+                                }
+                            });
+
+                    alert.setNegativeButton(getResources().getString(R.string.no),
+                            new DialogInterface.OnClickListener() {
+
+                                public void onClick(DialogInterface dialog, int whichButton) {
+
+                                    // На нет и суда нет
+
+                                }
+                            });
+
+                    alert.show();
+                }
                 break;
 
             case MENU_IMPORT:
@@ -379,6 +408,14 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
                 if (resultCode == RESULT_OK) {
                     if (mDatabase != null) {
                         mCounter = new CounterDAO().getById(mDatabase, mCounter.getId());
+                    }
+
+                    // Счетчик был удален. Завершаем работу активности.
+                    if (mCounter == null) {
+                        setResult(RESULT_OK);
+                        finish();
+
+                        return;
                     }
 
                     // Заполним заголовок
@@ -488,6 +525,17 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
         startActivityForResult(intent, REQUEST_ADD_INDICATION);
     }
 
+    private boolean checkSdCard() {
+        boolean result = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+
+        if (!result) {
+            Toast.makeText(this, this.getResources().getString(R.string.sdcard_not_available),
+                    Toast.LENGTH_LONG).show();
+        }
+
+        return result;
+    }
+
     private void showCopyToDialog() {
         // Если нечего копировать
         if (mCounter.getIndications().size() < 1) {
@@ -496,7 +544,7 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
                     Toast.LENGTH_LONG).show();
             return;
         }
-        
+
         // Готовим данные для диалога
         final CounterDAO dao = new CounterDAO();
         final CountersCollection counters = dao.getAll(mDatabase);
@@ -664,17 +712,17 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
                     Toast.LENGTH_LONG).show();
             return;
         }
-        
+
         // Готовим диалог
         AlertDialog.Builder dialog = new AlertDialog.Builder(IndicationsListActivity.this);
-        
+
         dialog.setTitle(R.string.delete_all_confirm);
-        
+
         dialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                
+
                 IndicationDAO dao = new IndicationDAO();
                 dao.deleteByCounterId(mDatabase, mCounter.getId());
 
@@ -683,22 +731,22 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
                 mGroupAdapter.setSource(mCounter.getIndications(), true);
 
                 refreshLineGraphData();
-                mLineGraph.postInvalidate();                
+                mLineGraph.postInvalidate();
             }
-            
+
         });
-        
+
         dialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                
+
                 // На нет и суда нет
-                
+
             }
-            
+
         });
-        
+
         dialog.show();
     }
 

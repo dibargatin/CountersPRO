@@ -40,6 +40,7 @@ public class Counter {
     // Constructors
     // ===========================================================
     public Counter() {
+        mId = EMPTY_ID;
         mRateType = RateType.SIMPLE;
         mPeriodType = PeriodType.MONTH;
         mViewValueType = ViewValueType.DELTA;

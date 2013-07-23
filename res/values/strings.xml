@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Counters PRO</string>
     
-    <string name="save_before_copying">Save indication before copying</string>
+    <string name="save_before_copying">Save before copying</string>
     
     <string name="user_guide_link">http://counterspro.blogspot.ru/2013/05/tutorial.html</string>
     
@@ -19,6 +19,8 @@
     <string name="copy_to_canceled">Copying canceled</string>
     <string name="copy_to_ok">Copying completed successfully</string>
     
+    <string name="export_form_title">Export</string>
+    <string name="export_form_description">As a result, the indications list will be copied to the SD card in CSV file.\n\nContinue?</string>
     <string name="export_ok">Export completed successfully</string>
     <string name="export_trouble">Export aborted. Error accessing file</string>
     <string-array name="csv_export_fields">

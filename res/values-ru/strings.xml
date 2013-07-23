@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Счетчики PRO</string>
     
-    <string name="save_before_copying">Сохраните показание перед копированием</string>
+    <string name="save_before_copying">Сохраните перед копированием</string>
     
     <string name="user_guide_link">http://counterspro.blogspot.ru/2013/05/tutorial.html</string>
     
@@ -19,6 +19,8 @@
     <string name="copy_to_canceled">Копирование отменено</string>
     <string name="copy_to_ok">Копирование завершено</string>
     
+    <string name="export_form_title">Экспорт показаний</string>
+    <string name="export_form_description">В результате операции, список показаний будет скопирован на SD карту в файл CSV.\n\nПродолжить?</string>
     <string name="export_ok">Экспорт показаний завершен</string>
     <string name="export_trouble">Экспорт прерван из за ошибки доступа к файлу</string>    
     <string-array name="csv_export_fields">

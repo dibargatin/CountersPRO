@@ -37,10 +37,12 @@ public class Indication {
     // Constructors
     // ===========================================================
     public Indication(Counter counter) {
+        mId = EMPTY_ID;
         mCounter = counter;
     }
     
     public Indication(Indication indication, Counter counter) {
+        mId = EMPTY_ID;
         mCounter = counter;
         mDate = indication.getDate();
         mValue = indication.getValue();

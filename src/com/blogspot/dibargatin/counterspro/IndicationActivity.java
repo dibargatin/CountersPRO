@@ -120,7 +120,7 @@ public class IndicationActivity extends SherlockActivity {
 
         // Если регистрация нового показания
         if (intent.getAction().equals(Intent.ACTION_INSERT)) {
-            if (mDatabase != null && counterId != -1) {
+            if (mDatabase != null && counterId != Counter.EMPTY_ID) {
                 Counter counter = new CounterDAO().getById(mDatabase, counterId, false);
                 mIndication = new Indication(counter);
                 mIndication.setDate(new Timestamp(c.getTimeInMillis()));
@@ -621,7 +621,12 @@ public class IndicationActivity extends SherlockActivity {
         dialog.show();
     }
     
-    private void showDeleteDialog() {        
+    private void showDeleteDialog() {    
+        // Если нечего удалять
+        if (mIndication.getId() == Indication.EMPTY_ID) {
+            finish();
+            return;
+        }
         
         // Готовим диалог
         AlertDialog.Builder dialog = new AlertDialog.Builder(IndicationActivity.this);

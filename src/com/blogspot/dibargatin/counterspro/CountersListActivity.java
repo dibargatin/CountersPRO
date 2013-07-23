@@ -190,10 +190,10 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
         SubMenu sm = menu.addSubMenu(0, Menu.FIRST, Menu.NONE, R.string.menu_more);
         sm.add(0, MENU_BACKUP, Menu.NONE, R.string.menu_backup).setIcon(R.drawable.backup);
         sm.add(0, MENU_RESTORE, Menu.NONE, R.string.menu_restore).setIcon(R.drawable.reload);
-        sm.add(0, MENU_FEEDBACK, Menu.NONE, R.string.menu_feedback).setIcon(
-                android.R.drawable.star_on);
         sm.add(0, MENU_USER_GUIDE, Menu.NONE, R.string.menu_user_guide)
                 .setIcon(R.drawable.ic_guide);
+        sm.add(0, MENU_FEEDBACK, Menu.NONE, R.string.menu_feedback).setIcon(
+                android.R.drawable.star_on);
 
         MenuItem subMenu1Item = sm.getItem();
         subMenu1Item.setIcon(R.drawable.abs__ic_menu_moreoverflow_holo_light);
@@ -249,10 +249,10 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
             case MENU_FEEDBACK:
                 gotoStore(APP_NAME);
                 break;
-                
-            case MENU_USER_GUIDE:                
-                startActivity(new Intent(Intent.ACTION_VIEW,
-                        Uri.parse(getResources().getString(R.string.user_guide_link))));
+
+            case MENU_USER_GUIDE:
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(
+                        R.string.user_guide_link))));
                 break;
 
             default:

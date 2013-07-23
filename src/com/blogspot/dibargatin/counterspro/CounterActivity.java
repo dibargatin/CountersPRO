@@ -1,6 +1,7 @@
 
 package com.blogspot.dibargatin.counterspro;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,11 +20,14 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.SubMenu;
 import com.blogspot.dibargatin.counterspro.R;
 import com.blogspot.dibargatin.counterspro.database.Counter;
 import com.blogspot.dibargatin.counterspro.database.Counter.ViewValueType;
 import com.blogspot.dibargatin.counterspro.database.CounterDAO;
 import com.blogspot.dibargatin.counterspro.database.DBHelper;
+import com.blogspot.dibargatin.counterspro.database.Indication;
+import com.blogspot.dibargatin.counterspro.database.IndicationDAO;
 import com.blogspot.dibargatin.counterspro.database.Counter.IndicationsGroupType;
 import com.blogspot.dibargatin.counterspro.database.Counter.PeriodType;
 import com.blogspot.dibargatin.counterspro.database.Counter.RateType;
@@ -38,6 +42,10 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
     public final static String EXTRA_COUNTER_ID = "com.blogspot.dibargatin.housing.CounterActivity.COUNTER_ID";
 
     private final static int DEFAULT_COLOR = -20480;
+    
+    private final static int MENU_COPY = 10;
+
+    private final static int MENU_DELETE = 15;
 
     // ===========================================================
     // Fields
@@ -264,11 +272,23 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getSupportMenuInflater().inflate(R.menu.counter_edit_menu, menu);
-        return super.onCreateOptionsMenu(menu);
+        
+        SubMenu sm = menu.addSubMenu(0, Menu.FIRST, Menu.NONE, R.string.menu_more);        
+        sm.add(0, MENU_COPY, Menu.NONE, R.string.menu_copy).setIcon(R.drawable.ic_copy);
+        sm.add(0, MENU_DELETE, Menu.NONE, R.string.menu_delete).setIcon(R.drawable.ic_delete);
+
+        MenuItem subMenu1Item = sm.getItem();
+        subMenu1Item.setIcon(R.drawable.abs__ic_menu_moreoverflow_holo_light);
+        subMenu1Item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS
+                | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+
+        return true;
     }
 
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        boolean result = true;
 
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -323,9 +343,20 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
                 setResult(RESULT_OK);
                 finish();
                 break;
+            
+            case MENU_COPY:
+                showCopyDialog();
+                break;
+            
+            case MENU_DELETE:
+                showDeleteDialog();
+                break;
+                
+            default:
+                result = super.onOptionsItemSelected(item);
         }
 
-        return true;
+        return result;
     }
 
     // ===========================================================
@@ -353,6 +384,57 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
                 lf.setVisibility(View.GONE);
             }
         }
+    }
+    
+    private void showCopyDialog() {
+        // Если нечего копировать
+        if (mCounter.getId() == Indication.EMPTY_ID) {
+            Toast.makeText(CounterActivity.this,
+                    getResources().getString(R.string.save_before_copying),
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+        
+        // TODO
+    }
+    
+    private void showDeleteDialog() {
+        // Если нечего удалять
+        if (mCounter.getId() == Counter.EMPTY_ID) {
+            finish();
+            return;
+        }
+        
+        // Готовим диалог
+        AlertDialog.Builder dialog = new AlertDialog.Builder(CounterActivity.this);
+        
+        dialog.setTitle(R.string.action_counter_del_confirm);
+        
+        dialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                
+                mCounterDao.deleteById(mDatabase, mCounter.getId());
+                
+                setResult(RESULT_OK);
+                finish();
+            }
+            
+        });
+        
+        dialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                
+                // На нет и суда нет
+                
+            }
+            
+        });
+        
+        dialog.show();        
     }
 
     // ===========================================================
