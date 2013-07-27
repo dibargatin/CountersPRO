@@ -11,11 +11,9 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockActivity;
@@ -27,12 +25,10 @@ import com.blogspot.dibargatin.counterspro.database.Counter;
 import com.blogspot.dibargatin.counterspro.database.Counter.ViewValueType;
 import com.blogspot.dibargatin.counterspro.database.CounterDAO;
 import com.blogspot.dibargatin.counterspro.database.DBHelper;
-import com.blogspot.dibargatin.counterspro.database.Indication;
-import com.blogspot.dibargatin.counterspro.database.IndicationDAO;
 import com.blogspot.dibargatin.counterspro.database.Counter.IndicationsGroupType;
 import com.blogspot.dibargatin.counterspro.database.Counter.PeriodType;
 import com.blogspot.dibargatin.counterspro.database.Counter.RateType;
-import com.blogspot.dibargatin.counterspro.database.IndicationsCollection;
+import com.blogspot.dibargatin.counterspro.util.CopyCounterUtils;
 import com.blogspot.dibargatin.counterspro.util.FormulaEvaluator;
 import com.larswerkman.colorpicker.ColorPicker;
 import com.larswerkman.colorpicker.SaturationBar;
@@ -298,43 +294,10 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
                 break;
 
             case R.id.action_save_counter:
-                // Проверим корректность введенной формулы
-                if (mRateType.getSelectedItemId() == 2) { // Формула
-                    String[] val = getResources().getStringArray(R.array.formula_var_value_aliases);
-                    String[] ttl = getResources().getStringArray(R.array.formula_var_total_aliases);
-                    String[] trf = getResources()
-                            .getStringArray(R.array.formula_var_tariff_aliases);
-
-                    final FormulaEvaluator eval = new FormulaEvaluator(val, 1.0, ttl, 11.0, trf,
-                            1.0);
-                    String expression = mFormula.getText().toString();
-
-                    try {
-                        eval.evaluate(expression);
-                    } catch (IllegalArgumentException e) {
-                        Toast.makeText(
-                                CounterActivity.this,
-                                (expression + " " + getResources().getString(
-                                        R.string.error_evaluator_expression)).trim(),
-                                Toast.LENGTH_SHORT).show();
-                        mFormula.requestFocus();
-
-                        return true;
-                    }
+                // Введеные значения в объект
+                if (!copyValuesInCounterObject()) {
+                    return true;
                 }
-
-                // Результат в объект
-                mCounter.setName(mName.getText().toString());
-                mCounter.setNote(mNote.getText().toString());
-                mCounter.setMeasure(mMeasure.getText().toString());
-                mCounter.setCurrency(mCurrency.getText().toString());
-                mCounter.setRateType(RateType.values()[mRateType.getSelectedItemPosition()]);
-                mCounter.setPeriodType(PeriodType.values()[mPeriodType.getSelectedItemPosition()]);
-                mCounter.setFormula(mFormula.getText().toString());
-                mCounter.setViewValueType(ViewValueType.values()[mViewValueType
-                        .getSelectedItemPosition()]);
-                mCounter.setIndicationsGroupType(IndicationsGroupType.values()[mGroupType
-                        .getSelectedItemPosition()]);
 
                 // Сохраним результат
                 if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
@@ -349,7 +312,12 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
                 break;
 
             case MENU_COPY:
-                showCopyDialog();
+                // Введеные значения в объект
+                if (!copyValuesInCounterObject()) {
+                    return true;
+                }
+
+                CopyCounterUtils.showCopyDialog(this, mDatabase, mCounter, null);
                 break;
 
             case MENU_DELETE:
@@ -366,6 +334,46 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
     // ===========================================================
     // Methods
     // ===========================================================
+    private boolean copyValuesInCounterObject() {
+
+        // Проверим корректность введенной формулы
+        if (mRateType.getSelectedItemId() == 2) { // Формула
+            String[] val = getResources().getStringArray(R.array.formula_var_value_aliases);
+            String[] ttl = getResources().getStringArray(R.array.formula_var_total_aliases);
+            String[] trf = getResources().getStringArray(R.array.formula_var_tariff_aliases);
+
+            final FormulaEvaluator eval = new FormulaEvaluator(val, 1.0, ttl, 11.0, trf, 1.0);
+            String expression = mFormula.getText().toString();
+
+            try {
+                eval.evaluate(expression);
+            } catch (IllegalArgumentException e) {
+                Toast.makeText(
+                        CounterActivity.this,
+                        (expression + " " + getResources().getString(
+                                R.string.error_evaluator_expression)).trim(), Toast.LENGTH_SHORT)
+                        .show();
+                mFormula.requestFocus();
+
+                return false;
+            }
+        }
+
+        // Результат в объект
+        mCounter.setName(mName.getText().toString());
+        mCounter.setNote(mNote.getText().toString());
+        mCounter.setMeasure(mMeasure.getText().toString());
+        mCounter.setCurrency(mCurrency.getText().toString());
+        mCounter.setRateType(RateType.values()[mRateType.getSelectedItemPosition()]);
+        mCounter.setPeriodType(PeriodType.values()[mPeriodType.getSelectedItemPosition()]);
+        mCounter.setFormula(mFormula.getText().toString());
+        mCounter.setViewValueType(ViewValueType.values()[mViewValueType.getSelectedItemPosition()]);
+        mCounter.setIndicationsGroupType(IndicationsGroupType.values()[mGroupType
+                .getSelectedItemPosition()]);
+
+        return true;
+    }
+
     private void setCurrencyVisibility(RateType type) {
         LinearLayout l = (LinearLayout)CounterActivity.this.findViewById(R.id.lCurrency);
 
@@ -388,130 +396,6 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
                 lf.setVisibility(View.GONE);
             }
         }
-    }
-
-    private void showCopyDialog() {
-        // Если нечего копировать
-        if (mCounter.getId() == Indication.EMPTY_ID) {
-            Toast.makeText(CounterActivity.this,
-                    getResources().getString(R.string.save_before_copying), Toast.LENGTH_LONG)
-                    .show();
-            return;
-        }
-
-        // Готовим диалог
-        AlertDialog.Builder dialog = new AlertDialog.Builder(CounterActivity.this);
-
-        dialog.setTitle(R.string.copy_counter_title);
-
-        final LinearLayout layout = new LinearLayout(CounterActivity.this);
-
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(8, 0, 8, 0);
-
-        final TextView tvName = new TextView(CounterActivity.this);
-        final EditText etName = new EditText(CounterActivity.this);
-
-        tvName.setText(getResources().getString(R.string.copy_counter_name));
-        layout.addView(tvName);
-
-        etName.setHint(getResources().getString(R.string.copy_counter_name));
-        etName.setText(mName.getText());
-        layout.addView(etName);
-
-        final TextView tvNote = new TextView(CounterActivity.this);
-        final EditText etNote = new EditText(CounterActivity.this);
-
-        tvNote.setText(getResources().getString(R.string.copy_counter_note));
-        layout.addView(tvNote);
-
-        etNote.setHint(getResources().getString(R.string.copy_counter_note));
-        etNote.setText(mNote.getText());
-        layout.addView(etNote);
-
-        final CheckBox cb = new CheckBox(CounterActivity.this);
-
-        cb.setText(getResources().getString(R.string.copy_counter_indications));
-        cb.setChecked(true);
-        layout.addView(cb);
-
-        dialog.setView(layout).setInverseBackgroundForced(true);
-
-        dialog.setPositiveButton(R.string.continue_action, new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-                Counter newCounter = new Counter(mCounter);
-
-                newCounter.setName(etName.getText().toString());
-                newCounter.setNote(etNote.getText().toString());
-
-                // Если необходимо копировать показания
-                if (cb.isChecked()) {
-
-                    final IndicationDAO idao = new IndicationDAO();
-                    final IndicationsCollection source = idao.getAllByCounter(mDatabase, mCounter);
-                    final IndicationsCollection result = new IndicationsCollection();
-
-                    for (Indication ind : source) {
-                        result.add(new Indication(ind, newCounter));
-                    }
-
-                    mDatabase.beginTransaction();
-
-                    try {
-                        long counterId = mCounterDao.insert(mDatabase, newCounter);
-
-                        if (counterId == Counter.EMPTY_ID) {
-                            throw new RuntimeException("Counter copying error");
-                        } else {
-                            if (!idao.massInsert(mDatabase, result)) {
-                                throw new RuntimeException(
-                                        "Counter copying: Indications copying error.");
-                            }
-                        }
-
-                        mDatabase.setTransactionSuccessful();
-
-                    } catch (Exception e) {
-
-                        Toast.makeText(CounterActivity.this,
-                                getResources().getString(R.string.copy_to_trouble),
-                                Toast.LENGTH_LONG).show();
-
-                    } finally {
-                        mDatabase.endTransaction();
-                    }
-
-                } else {
-                    mCounterDao.insert(mDatabase, newCounter);
-                }
-                
-                Toast.makeText(CounterActivity.this,
-                        getResources().getString(R.string.copy_to_ok),
-                        Toast.LENGTH_LONG).show();
-
-                setResult(RESULT_OK);
-                finish();
-            }
-
-        });
-
-        dialog.setNegativeButton(R.string.cancel_action, new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-                Toast.makeText(CounterActivity.this,
-                        getResources().getString(R.string.copy_to_canceled),
-                        Toast.LENGTH_LONG).show();
-
-            }
-
-        });
-
-        dialog.show();
     }
 
     private void showDeleteDialog() {

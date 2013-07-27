@@ -20,7 +20,6 @@ import android.content.Context;
 import android.os.Environment;
 import android.widget.Toast;
 
-import com.blogspot.dibargatin.counterspro.IndicationsListActivity;
 import com.blogspot.dibargatin.counterspro.R;
 import com.blogspot.dibargatin.counterspro.database.Counter;
 import com.blogspot.dibargatin.counterspro.database.Counter.RateType;

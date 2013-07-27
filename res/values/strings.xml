@@ -102,6 +102,7 @@
     <string name="action_counter_del_confirm">Delete counter?</string>    
     <string-array name="counter_actions">
         <item>Add new indication</item>
+        <item>Copy counter</item>
         <item>Edit counter</item>
         <item>Delete counter</item>
     </string-array>

@@ -102,7 +102,8 @@
     <string name="action_counter_del_confirm">Удалить счетчик?</string>    
     <string-array name="counter_actions">
         <item>Добавить показание</item>
-        <item>Изменить</item>
+        <item>Копировать</item>
+        <item>Редактировать</item>
         <item>Удалить</item>
     </string-array>
     

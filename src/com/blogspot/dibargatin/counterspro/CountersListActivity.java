@@ -26,6 +26,8 @@ import com.blogspot.dibargatin.counterspro.database.CounterDAO;
 import com.blogspot.dibargatin.counterspro.database.CountersListAdapter;
 import com.blogspot.dibargatin.counterspro.database.DBHelper;
 import com.blogspot.dibargatin.counterspro.util.BackupUtils;
+import com.blogspot.dibargatin.counterspro.util.CopyCounterUtils;
+import com.blogspot.dibargatin.counterspro.util.CopyCounterUtils.ICopyCounterListener;
 
 public class CountersListActivity extends SherlockListActivity implements OnClickListener {
 
@@ -132,7 +134,19 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
                                 showDialog(ActionType.INDICATION_ADD, itemId);
                                 break;
 
-                            case 1: // Редактировать счетчик
+                            case 1: // Копировать счетчик
+                                CopyCounterUtils.showCopyDialog(CountersListActivity.this,
+                                        mDatabase, mCounterDao.getById(mDatabase, itemId, false),
+                                        new ICopyCounterListener() {
+
+                                            @Override
+                                            public void OnCopyComplatedListener() {
+                                                mAdapter.setItems(mCounterDao.getAll(mDatabase));
+                                            }
+                                        });
+                                break;
+
+                            case 2: // Редактировать счетчик
                                 intent = new Intent(CountersListActivity.this,
                                         CounterActivity.class);
 
@@ -143,7 +157,7 @@ public class CountersListActivity extends SherlockListActivity implements OnClic
 
                                 break;
 
-                            case 2: // Удалить счетчик
+                            case 3: // Удалить счетчик
                                 AlertDialog.Builder confirm = new AlertDialog.Builder(
                                         CountersListActivity.this);
 
