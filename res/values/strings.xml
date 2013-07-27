@@ -2,6 +2,11 @@
 <resources>
     <string name="app_name">Counters PRO</string>
     
+    <string name="copy_counter_title">Options</string>
+    <string name="copy_counter_name">New name</string>
+    <string name="copy_counter_note">New discription</string>
+    <string name="copy_counter_indications">Copy indications</string>
+    
     <string name="save_before_copying">Save before copying</string>
     
     <string name="user_guide_link">http://counterspro.blogspot.ru/2013/05/tutorial.html</string>

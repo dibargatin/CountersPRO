@@ -48,6 +48,21 @@ public class Counter {
         mIndicationsGroupType = IndicationsGroupType.WITHOUT;
     }
     
+    public Counter(Counter counter) {
+        mId = EMPTY_ID;
+        mName = counter.getName();
+        mNote = counter.getNote();
+        mMeasure = counter.getMeasure();
+        mColor = counter.getColor();
+        mCurrency = counter.getCurrency();
+        mRateType = counter.getRateType();
+        mPeriodType = counter.getPeriodType();
+        mFormula = counter.getFormula();
+        mViewValueType = counter.getViewValueType();
+        mInputValueType = counter.getInputValueType();
+        mIndicationsGroupType = counter.getIndicationsGroupType();        
+    }
+    
     // ===========================================================
     // Getter & Setter
     // ===========================================================

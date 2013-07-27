@@ -2,6 +2,11 @@
 <resources>
     <string name="app_name">Счетчики PRO</string>
     
+    <string name="copy_counter_title">Опции копирования</string>
+    <string name="copy_counter_name">Новое название</string>
+    <string name="copy_counter_note">Новое примечание</string>
+    <string name="copy_counter_indications">Копировать показания</string>
+    
     <string name="save_before_copying">Сохраните перед копированием</string>
     
     <string name="user_guide_link">http://counterspro.blogspot.ru/2013/05/tutorial.html</string>

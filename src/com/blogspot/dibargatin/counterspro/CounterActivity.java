@@ -1,7 +1,6 @@
 
 package com.blogspot.dibargatin.counterspro;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,9 +11,11 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockActivity;
@@ -31,6 +32,7 @@ import com.blogspot.dibargatin.counterspro.database.IndicationDAO;
 import com.blogspot.dibargatin.counterspro.database.Counter.IndicationsGroupType;
 import com.blogspot.dibargatin.counterspro.database.Counter.PeriodType;
 import com.blogspot.dibargatin.counterspro.database.Counter.RateType;
+import com.blogspot.dibargatin.counterspro.database.IndicationsCollection;
 import com.blogspot.dibargatin.counterspro.util.FormulaEvaluator;
 import com.larswerkman.colorpicker.ColorPicker;
 import com.larswerkman.colorpicker.SaturationBar;
@@ -42,7 +44,7 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
     public final static String EXTRA_COUNTER_ID = "com.blogspot.dibargatin.housing.CounterActivity.COUNTER_ID";
 
     private final static int DEFAULT_COLOR = -20480;
-    
+
     private final static int MENU_COPY = 10;
 
     private final static int MENU_DELETE = 15;
@@ -71,9 +73,9 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
     EditText mFormula;
 
     Spinner mPeriodType;
-    
+
     Spinner mGroupType;
-    
+
     Spinner mViewValueType;
 
     // ===========================================================
@@ -94,7 +96,7 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
 
         mDatabase = new DBHelper(this).getWritableDatabase();
         mCounterDao = new CounterDAO();
-        
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setIcon(R.drawable.ic_menu_home);
 
@@ -137,7 +139,7 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
 
         mPeriodType.setAdapter(adapter);
         mPeriodType.setSelection(1);
-        
+
         // Контрол для выбора вида группировки по периоду
         mGroupType = (Spinner)findViewById(R.id.sGroupType);
 
@@ -147,7 +149,7 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
 
         mGroupType.setAdapter(adapter);
         mGroupType.setSelection(0);
-        
+
         // Контрол для выбора вида отображаемого значения
         mViewValueType = (Spinner)findViewById(R.id.sViewValueType);
 
@@ -157,7 +159,7 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
 
         mViewValueType.setAdapter(adapter);
         mViewValueType.setSelection(0);
-        
+
         // Контрол для выбора цвета
         mColor = (View)findViewById(R.id.vColor);
         mColor.setOnClickListener(this);
@@ -272,8 +274,8 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getSupportMenuInflater().inflate(R.menu.counter_edit_menu, menu);
-        
-        SubMenu sm = menu.addSubMenu(0, Menu.FIRST, Menu.NONE, R.string.menu_more);        
+
+        SubMenu sm = menu.addSubMenu(0, Menu.FIRST, Menu.NONE, R.string.menu_more);
         sm.add(0, MENU_COPY, Menu.NONE, R.string.menu_copy).setIcon(R.drawable.ic_copy);
         sm.add(0, MENU_DELETE, Menu.NONE, R.string.menu_delete).setIcon(R.drawable.ic_delete);
 
@@ -329,8 +331,10 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
                 mCounter.setRateType(RateType.values()[mRateType.getSelectedItemPosition()]);
                 mCounter.setPeriodType(PeriodType.values()[mPeriodType.getSelectedItemPosition()]);
                 mCounter.setFormula(mFormula.getText().toString());
-                mCounter.setViewValueType(ViewValueType.values()[mViewValueType.getSelectedItemPosition()]);
-                mCounter.setIndicationsGroupType(IndicationsGroupType.values()[mGroupType.getSelectedItemPosition()]);
+                mCounter.setViewValueType(ViewValueType.values()[mViewValueType
+                        .getSelectedItemPosition()]);
+                mCounter.setIndicationsGroupType(IndicationsGroupType.values()[mGroupType
+                        .getSelectedItemPosition()]);
 
                 // Сохраним результат
                 if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
@@ -343,15 +347,15 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
                 setResult(RESULT_OK);
                 finish();
                 break;
-            
+
             case MENU_COPY:
                 showCopyDialog();
                 break;
-            
+
             case MENU_DELETE:
                 showDeleteDialog();
                 break;
-                
+
             default:
                 result = super.onOptionsItemSelected(item);
         }
@@ -385,56 +389,168 @@ public class CounterActivity extends SherlockActivity implements OnClickListener
             }
         }
     }
-    
+
     private void showCopyDialog() {
         // Если нечего копировать
         if (mCounter.getId() == Indication.EMPTY_ID) {
             Toast.makeText(CounterActivity.this,
-                    getResources().getString(R.string.save_before_copying),
-                    Toast.LENGTH_LONG).show();
+                    getResources().getString(R.string.save_before_copying), Toast.LENGTH_LONG)
+                    .show();
             return;
         }
-        
-        // TODO
+
+        // Готовим диалог
+        AlertDialog.Builder dialog = new AlertDialog.Builder(CounterActivity.this);
+
+        dialog.setTitle(R.string.copy_counter_title);
+
+        final LinearLayout layout = new LinearLayout(CounterActivity.this);
+
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(8, 0, 8, 0);
+
+        final TextView tvName = new TextView(CounterActivity.this);
+        final EditText etName = new EditText(CounterActivity.this);
+
+        tvName.setText(getResources().getString(R.string.copy_counter_name));
+        layout.addView(tvName);
+
+        etName.setHint(getResources().getString(R.string.copy_counter_name));
+        etName.setText(mName.getText());
+        layout.addView(etName);
+
+        final TextView tvNote = new TextView(CounterActivity.this);
+        final EditText etNote = new EditText(CounterActivity.this);
+
+        tvNote.setText(getResources().getString(R.string.copy_counter_note));
+        layout.addView(tvNote);
+
+        etNote.setHint(getResources().getString(R.string.copy_counter_note));
+        etNote.setText(mNote.getText());
+        layout.addView(etNote);
+
+        final CheckBox cb = new CheckBox(CounterActivity.this);
+
+        cb.setText(getResources().getString(R.string.copy_counter_indications));
+        cb.setChecked(true);
+        layout.addView(cb);
+
+        dialog.setView(layout).setInverseBackgroundForced(true);
+
+        dialog.setPositiveButton(R.string.continue_action, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                Counter newCounter = new Counter(mCounter);
+
+                newCounter.setName(etName.getText().toString());
+                newCounter.setNote(etNote.getText().toString());
+
+                // Если необходимо копировать показания
+                if (cb.isChecked()) {
+
+                    final IndicationDAO idao = new IndicationDAO();
+                    final IndicationsCollection source = idao.getAllByCounter(mDatabase, mCounter);
+                    final IndicationsCollection result = new IndicationsCollection();
+
+                    for (Indication ind : source) {
+                        result.add(new Indication(ind, newCounter));
+                    }
+
+                    mDatabase.beginTransaction();
+
+                    try {
+                        long counterId = mCounterDao.insert(mDatabase, newCounter);
+
+                        if (counterId == Counter.EMPTY_ID) {
+                            throw new RuntimeException("Counter copying error");
+                        } else {
+                            if (!idao.massInsert(mDatabase, result)) {
+                                throw new RuntimeException(
+                                        "Counter copying: Indications copying error.");
+                            }
+                        }
+
+                        mDatabase.setTransactionSuccessful();
+
+                    } catch (Exception e) {
+
+                        Toast.makeText(CounterActivity.this,
+                                getResources().getString(R.string.copy_to_trouble),
+                                Toast.LENGTH_LONG).show();
+
+                    } finally {
+                        mDatabase.endTransaction();
+                    }
+
+                } else {
+                    mCounterDao.insert(mDatabase, newCounter);
+                }
+                
+                Toast.makeText(CounterActivity.this,
+                        getResources().getString(R.string.copy_to_ok),
+                        Toast.LENGTH_LONG).show();
+
+                setResult(RESULT_OK);
+                finish();
+            }
+
+        });
+
+        dialog.setNegativeButton(R.string.cancel_action, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                Toast.makeText(CounterActivity.this,
+                        getResources().getString(R.string.copy_to_canceled),
+                        Toast.LENGTH_LONG).show();
+
+            }
+
+        });
+
+        dialog.show();
     }
-    
+
     private void showDeleteDialog() {
         // Если нечего удалять
         if (mCounter.getId() == Counter.EMPTY_ID) {
             finish();
             return;
         }
-        
+
         // Готовим диалог
         AlertDialog.Builder dialog = new AlertDialog.Builder(CounterActivity.this);
-        
+
         dialog.setTitle(R.string.action_counter_del_confirm);
-        
+
         dialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                
+
                 mCounterDao.deleteById(mDatabase, mCounter.getId());
-                
+
                 setResult(RESULT_OK);
                 finish();
             }
-            
+
         });
-        
+
         dialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                
+
                 // На нет и суда нет
-                
+
             }
-            
+
         });
-        
-        dialog.show();        
+
+        dialog.show();
     }
 
     // ===========================================================
