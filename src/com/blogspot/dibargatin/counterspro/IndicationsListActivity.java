@@ -326,6 +326,14 @@ public class IndicationsListActivity extends SherlockActivity implements OnClick
                 break;
 
             case MENU_EXPORT:
+                // Если нечего экспортировать
+                if (mCounter.getIndications().size() < 1) {
+                    Toast.makeText(IndicationsListActivity.this,
+                            getResources().getString(R.string.list_of_indications_is_empty),
+                            Toast.LENGTH_LONG).show();
+                    return true;
+                }
+                
                 if (checkSdCard()) {
                     AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
