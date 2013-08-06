@@ -1,8 +1,6 @@
 
 package com.blogspot.dibargatin.counterspro.database;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -19,7 +17,7 @@ public class IndicationsCollection extends ArrayList<Indication> {
 
     private double mTotalCost = 0;
 
-    private int mPrecision = 2;
+    private int mPrecision = Indication.COST_PRECISION;
 
     private String[] mTotalAliases;
 
@@ -228,9 +226,8 @@ public class IndicationsCollection extends ArrayList<Indication> {
 
     private void addToTotalCost(Indication object) {
         if (checkCostCalculatorState()) {
-            mTotalCost += new BigDecimal(object.calcCost(Indication.COST_PRECISION, mTotalAliases,
-                    mValueAliases, mRateAliases)).setScale(mPrecision, RoundingMode.HALF_UP)
-                    .doubleValue();
+            mTotalCost += object.calcCost(mPrecision, mTotalAliases,
+                    mValueAliases, mRateAliases);
         }
     }
 
@@ -240,7 +237,7 @@ public class IndicationsCollection extends ArrayList<Indication> {
 
     private void subFromTotalCost(Indication object) {
         if (checkCostCalculatorState()) {
-            mTotalCost -= object.calcCost(Indication.COST_PRECISION, mTotalAliases, mValueAliases,
+            mTotalCost -= object.calcCost(mPrecision, mTotalAliases, mValueAliases,
                     mRateAliases);
         }
     }

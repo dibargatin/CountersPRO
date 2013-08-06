@@ -132,8 +132,12 @@ public class Indication {
                 result = eval.evaluate(mCounter.getFormula());
             }
         }
+        
+        if (!Double.isInfinite(result) && !Double.isNaN(result)) {
+            result = new BigDecimal(result).setScale(precision, RoundingMode.HALF_UP).doubleValue();
+        }
 
-        return new BigDecimal(result).setScale(precision, RoundingMode.HALF_UP).doubleValue();
+        return result;
     }
 
     // ===========================================================
