@@ -44,6 +44,7 @@
         <item>Without</item>
         <item>Year</item>
         <item>Month</item>
+        <item>Week</item>
         <item>Day</item>
         <item>Hour</item>
     </string-array>

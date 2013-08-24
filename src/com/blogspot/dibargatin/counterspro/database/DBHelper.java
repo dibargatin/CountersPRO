@@ -17,7 +17,7 @@ public class DBHelper extends SQLiteOpenHelper {
     
     public static String DB_NAME_FULL = "data/com.blogspot.dibargatin.counterspro/databases/counterspro.sqlite3";
 
-    public static int DB_VERSION = 5;
+    public static int DB_VERSION = 6;
 
     // Таблица счетчиков
     public final static String TABLE_COUNTER = "Counters";
@@ -645,6 +645,56 @@ public class DBHelper extends SQLiteOpenHelper {
 
                         // Удалим старую структуру
                         db.execSQL("DROP TABLE IF EXISTS Counters_old;");
+
+                        db.setTransactionSuccessful();
+
+                    } catch (Exception e) {
+                        Log.d(CountersListActivity.LOG_TAG, e.getStackTrace().toString());
+                    } finally {
+                        db.endTransaction();
+                    }
+                }
+            }
+            
+            // №6 Смена кодов для периодов группирования. В число периодов добавил "Неделю"
+            , new Patch() {
+                public void apply(SQLiteDatabase db) {
+                    db.beginTransaction();
+
+                    try {
+                        final StringBuilder query = new StringBuilder();
+                        
+                        query.append("UPDATE Counters SET ");
+                        query.append(COUNTER_IND_GROUP_TYPE + " = " + COUNTER_IND_GROUP_TYPE + " + 1 ");
+                        query.append(" WHERE " + COUNTER_IND_GROUP_TYPE + " > 2 "); // 2 == месяц
+                        
+                        db.execSQL(query.toString());
+
+                        db.setTransactionSuccessful();
+
+                    } catch (Exception e) {
+                        Log.d(CountersListActivity.LOG_TAG, e.getStackTrace().toString());
+                    } finally {
+                        db.endTransaction();
+                    }
+                }
+
+                public void revert(SQLiteDatabase db) {
+                    db.beginTransaction();
+
+                    try {
+                        final StringBuilder query = new StringBuilder();
+                        
+                        query.append("UPDATE Counters SET ");
+                        query.append(COUNTER_IND_GROUP_TYPE + " = 0 "); // 0 == без группировки
+                        query.append(" WHERE " + COUNTER_IND_GROUP_TYPE + " = 3 "); // 3 == неделя
+                        
+                        query.append("; ");
+                        query.append("UPDATE Counters SET ");
+                        query.append(COUNTER_IND_GROUP_TYPE + " = " + COUNTER_IND_GROUP_TYPE + " - 1 ");
+                        query.append(" WHERE " + COUNTER_IND_GROUP_TYPE + " > 2 "); // 2 == месяц
+                        
+                        db.execSQL(query.toString());
 
                         db.setTransactionSuccessful();
 

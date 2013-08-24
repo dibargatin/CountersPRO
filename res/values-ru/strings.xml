@@ -44,6 +44,7 @@
         <item>Без группировки</item>
         <item>Год</item>
         <item>Месяц</item>
+        <item>Неделя</item>
         <item>День</item>
         <item>Час</item>
     </string-array>

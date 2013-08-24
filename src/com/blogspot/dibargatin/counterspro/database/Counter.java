@@ -198,6 +198,6 @@ public class Counter {
     }
     
     public enum IndicationsGroupType {
-        WITHOUT, YEAR, MONTH, DAY, HOUR
+        WITHOUT, YEAR, MONTH, WEEK, DAY, HOUR
     }
 }

@@ -585,6 +585,54 @@ public class IndicationsExpandableListAdapter extends BaseExpandableListAdapter 
 
             mGroups = new ArrayList<Span>(mGroupItems.keySet());
         }
+        // Группировка по неделям
+        else if (mGroupType == IndicationsGroupType.WEEK) {            
+            final java.text.DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, mContext
+                    .getResources().getConfiguration().locale);
+            StringBuilder sb = new StringBuilder();
+            
+            c.setTimeInMillis(maxTime);
+            c.set(Calendar.HOUR_OF_DAY, 0);
+            c.set(Calendar.MINUTE, 0);
+            c.set(Calendar.SECOND, 0);
+            c.set(Calendar.MILLISECOND, 0);
+            c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
+            c.add(Calendar.DATE, 6);      
+            
+            while(c.getTimeInMillis() > minTime) {            
+                long r = c.getTimeInMillis();
+                sb.setLength(0);
+                sb.append(df.format(c.getTime()));
+                sb.append(" - ");
+                
+                // В конец недели
+                c.add(Calendar.DATE, -6);           
+                c.set(Calendar.HOUR_OF_DAY, 0);
+                c.set(Calendar.MINUTE, 0);
+                c.set(Calendar.SECOND, 0);
+                c.set(Calendar.MILLISECOND, 0);
+                                
+                long l = c.getTimeInMillis();
+                sb.append(df.format(c.getTime()));
+                
+                // Создадим группу
+                IndicationsCollection ic = new IndicationsCollection();
+                ic.initCostCalculator(Indication.COST_PRECISION, mFormulaTotalAliases,
+                        mFormulaValueAliases, mFormulaRateAliases);
+
+                final Span s = new Span(l, r, sb.toString()); 
+                mGroupItems.put(s, ic);
+                
+                // Перейдем к следующей неделе                
+                c.add(Calendar.DATE, -1);                           
+                c.set(Calendar.HOUR_OF_DAY, 23);
+                c.set(Calendar.MINUTE, 59);
+                c.set(Calendar.SECOND, 59);
+                c.set(Calendar.MILLISECOND, 0);
+            }
+            
+            mGroups = new ArrayList<Span>(mGroupItems.keySet());
+        }
         // Группировка по дням
         else if (mGroupType == IndicationsGroupType.DAY) {
             c.setTimeInMillis(minTime);
