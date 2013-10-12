@@ -118,19 +118,19 @@
     <string name="counters">COUNTERS</string>
     <string name="counters_edit_form_title_add">NEW COUNTER</string>
     <string name="counters_edit_form_title_edit">COUNTER</string>
-    <string name="counters_edit_form_cnt_name">Name</string>
+    <string name="counters_edit_form_cnt_name">Title</string>
     <string name="counters_edit_form_cnt_note">Description</string>
     <string name="counters_edit_form_btn_ok">Save</string>
     <string name="counters_edit_form_btn_cancel">Cancel</string>
     
     <string name="error_evaluator_expression">wrong expression</string>
     
-    <string name="measure">Measure</string>
+    <string name="measure">Unit of measure</string>
     <string name="rate">tariff</string>
     <string name="currency">USD</string>
     <string name="rate_currency">Currency of the tariff</string>
     <string name="formula">formula</string>
-    <string name="formula_text">Formula text</string>
+    <string name="formula_text">Text of formula</string>
     <string name="formula_example">(total-value)*tariff</string>
     <string name="formula_simple">value*tariff</string>
     
@@ -175,7 +175,7 @@
     <string name="entry_edit_form_label_last_value">Sum of previous values</string>
     <string name="entry_edit_form_label_value">Current value</string>
     
-    <string name="entry_edit_form_label_value_type">Type for current value</string>
+    <string name="entry_edit_form_label_value_type">Type of current value</string>
     <string-array name="value_type_list">
         <item>Relative</item>
         <item>Absolute</item>        

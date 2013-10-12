@@ -17,7 +17,7 @@ public class DBHelper extends SQLiteOpenHelper {
     
     public static String DB_NAME_FULL = "data/com.blogspot.dibargatin.counterspro/databases/counterspro.sqlite3";
 
-    public static int DB_VERSION = 6;
+    public static int DB_VERSION = 7;
 
     // Таблица счетчиков
     public final static String TABLE_COUNTER = "Counters";
@@ -60,7 +60,22 @@ public class DBHelper extends SQLiteOpenHelper {
     public final static String INDICATION_RATE = "rate";
 
     public final static String INDICATION_NOTE = "note";
+    
+    // Таблица событий
+    public final static String TABLE_EVENT = "Events";
 
+    public final static String EVENT_ID = "_id";
+    
+    public final static String EVENT_COUNTER_ID = "counter_id";
+    
+    public final static String EVENT_DATE = "event_date";
+    
+    public final static String EVENT_REPEAT_TYPE = "repeat_type";
+    
+    public final static String EVENT_TITLE = "title";
+    
+    public final static String EVENT_NOTE = "note";
+    
     // Миграции БД
     private static final Patch[] PATCHES = new Patch[] {
             // №1 Таблицы для храненения счетчиков и показаний
@@ -695,6 +710,53 @@ public class DBHelper extends SQLiteOpenHelper {
                         query.append(" WHERE " + COUNTER_IND_GROUP_TYPE + " > 2 "); // 2 == месяц
                         
                         db.execSQL(query.toString());
+
+                        db.setTransactionSuccessful();
+
+                    } catch (Exception e) {
+                        Log.d(CountersListActivity.LOG_TAG, e.getStackTrace().toString());
+                    } finally {
+                        db.endTransaction();
+                    }
+                }
+            }
+            
+            // №7 Таблица для хранения событий
+            , new Patch() {
+                public void apply(SQLiteDatabase db) {
+                    db.beginTransaction();
+
+                    try {
+                        db.execSQL("PRAGMA foreign_keys = ON;");
+                        
+                        final StringBuilder query = new StringBuilder();
+
+                        query.append("CREATE TABLE " + TABLE_EVENT + " (");
+                        query.append(EVENT_ID + " INTEGER PRIMARY KEY,");
+                        query.append(EVENT_COUNTER_ID + " INTEGER REFERENCES "
+                                + TABLE_COUNTER + "(" + COUNTER_ID + ") ON DELETE CASCADE,");
+                        query.append(EVENT_DATE + " DATE,");
+                        query.append(EVENT_REPEAT_TYPE + " INTEGER,");
+                        query.append(EVENT_TITLE + " TEXT,");
+                        query.append(EVENT_NOTE + " TEXT");
+                        query.append(");");
+
+                        db.execSQL(query.toString());
+
+                        db.setTransactionSuccessful();
+
+                    } catch (Exception e) {
+                        Log.d(CountersListActivity.LOG_TAG, e.getStackTrace().toString());
+                    } finally {
+                        db.endTransaction();
+                    }
+                }
+
+                public void revert(SQLiteDatabase db) {
+                    db.beginTransaction();
+
+                    try {
+                        db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENT + ";");
 
                         db.setTransactionSuccessful();
 
